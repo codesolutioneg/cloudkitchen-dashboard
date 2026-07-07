@@ -10,6 +10,7 @@ interface AuthState {
   login: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
   refresh: () => Promise<void>;
+  previewLogin: () => void;
 }
 
 const AuthContext = createContext<AuthState | null>(null);
