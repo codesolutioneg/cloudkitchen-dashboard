@@ -10,7 +10,7 @@ export const Route = createFileRoute("/login")({
 });
 
 function LoginPage() {
-  const { isReady, isAuthenticated, login } = useAuth();
+  const { isReady, isAuthenticated, login, previewLogin } = useAuth();
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -101,6 +101,23 @@ function LoginPage() {
               Sign in
             </button>
           </form>
+
+          <div className="mt-6 border-t border-border pt-5">
+            <p className="text-center text-xs text-muted-foreground">
+              No backend is wired up — this dashboard is UI-only.
+            </p>
+            <button
+              type="button"
+              onClick={() => {
+                previewLogin();
+                toast.success("Preview mode enabled");
+                navigate({ to: "/dashboard", replace: true });
+              }}
+              className="mt-3 h-11 w-full rounded-[10px] border border-border bg-card text-sm font-semibold text-foreground transition-colors hover:bg-muted"
+            >
+              Preview UI without signing in
+            </button>
+          </div>
         </div>
 
         <p className="mt-6 text-center text-xs text-muted-foreground">
