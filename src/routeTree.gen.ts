@@ -9,38 +9,333 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as LoginRouteImport } from './routes/login'
+import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as DashboardIndexRouteImport } from './routes/dashboard.index'
+import { Route as DashboardWorkflowsRouteImport } from './routes/dashboard.workflows'
+import { Route as DashboardUsersRouteImport } from './routes/dashboard.users'
+import { Route as DashboardSettingsRouteImport } from './routes/dashboard.settings'
+import { Route as DashboardRulesRouteImport } from './routes/dashboard.rules'
+import { Route as DashboardRolesRouteImport } from './routes/dashboard.roles'
+import { Route as DashboardOrdersRouteImport } from './routes/dashboard.orders'
+import { Route as DashboardOperationsRouteImport } from './routes/dashboard.operations'
+import { Route as DashboardNotificationsRouteImport } from './routes/dashboard.notifications'
+import { Route as DashboardMenusRouteImport } from './routes/dashboard.menus'
+import { Route as DashboardLocalizationRouteImport } from './routes/dashboard.localization'
+import { Route as DashboardKitchenRouteImport } from './routes/dashboard.kitchen'
+import { Route as DashboardJobsRouteImport } from './routes/dashboard.jobs'
+import { Route as DashboardIntegrationsRouteImport } from './routes/dashboard.integrations'
+import { Route as DashboardFeaturesRouteImport } from './routes/dashboard.features'
+import { Route as DashboardDeliveryRouteImport } from './routes/dashboard.delivery'
+import { Route as DashboardCompaniesRouteImport } from './routes/dashboard.companies'
+import { Route as DashboardCatalogRouteImport } from './routes/dashboard.catalog'
+import { Route as DashboardAuditLogsRouteImport } from './routes/dashboard.audit-logs'
+import { Route as DashboardApprovalWorkflowsRouteImport } from './routes/dashboard.approval-workflows'
+import { Route as DashboardOrdersIdRouteImport } from './routes/dashboard.orders.$id'
 
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DashboardRoute = DashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DashboardIndexRoute = DashboardIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardWorkflowsRoute = DashboardWorkflowsRouteImport.update({
+  id: '/workflows',
+  path: '/workflows',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardUsersRoute = DashboardUsersRouteImport.update({
+  id: '/users',
+  path: '/users',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardSettingsRoute = DashboardSettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardRulesRoute = DashboardRulesRouteImport.update({
+  id: '/rules',
+  path: '/rules',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardRolesRoute = DashboardRolesRouteImport.update({
+  id: '/roles',
+  path: '/roles',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardOrdersRoute = DashboardOrdersRouteImport.update({
+  id: '/orders',
+  path: '/orders',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardOperationsRoute = DashboardOperationsRouteImport.update({
+  id: '/operations',
+  path: '/operations',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardNotificationsRoute = DashboardNotificationsRouteImport.update({
+  id: '/notifications',
+  path: '/notifications',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardMenusRoute = DashboardMenusRouteImport.update({
+  id: '/menus',
+  path: '/menus',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardLocalizationRoute = DashboardLocalizationRouteImport.update({
+  id: '/localization',
+  path: '/localization',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardKitchenRoute = DashboardKitchenRouteImport.update({
+  id: '/kitchen',
+  path: '/kitchen',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardJobsRoute = DashboardJobsRouteImport.update({
+  id: '/jobs',
+  path: '/jobs',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardIntegrationsRoute = DashboardIntegrationsRouteImport.update({
+  id: '/integrations',
+  path: '/integrations',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardFeaturesRoute = DashboardFeaturesRouteImport.update({
+  id: '/features',
+  path: '/features',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardDeliveryRoute = DashboardDeliveryRouteImport.update({
+  id: '/delivery',
+  path: '/delivery',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardCompaniesRoute = DashboardCompaniesRouteImport.update({
+  id: '/companies',
+  path: '/companies',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardCatalogRoute = DashboardCatalogRouteImport.update({
+  id: '/catalog',
+  path: '/catalog',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardAuditLogsRoute = DashboardAuditLogsRouteImport.update({
+  id: '/audit-logs',
+  path: '/audit-logs',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardApprovalWorkflowsRoute =
+  DashboardApprovalWorkflowsRouteImport.update({
+    id: '/approval-workflows',
+    path: '/approval-workflows',
+    getParentRoute: () => DashboardRoute,
+  } as any)
+const DashboardOrdersIdRoute = DashboardOrdersIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => DashboardOrdersRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/dashboard': typeof DashboardRouteWithChildren
+  '/login': typeof LoginRoute
+  '/dashboard/approval-workflows': typeof DashboardApprovalWorkflowsRoute
+  '/dashboard/audit-logs': typeof DashboardAuditLogsRoute
+  '/dashboard/catalog': typeof DashboardCatalogRoute
+  '/dashboard/companies': typeof DashboardCompaniesRoute
+  '/dashboard/delivery': typeof DashboardDeliveryRoute
+  '/dashboard/features': typeof DashboardFeaturesRoute
+  '/dashboard/integrations': typeof DashboardIntegrationsRoute
+  '/dashboard/jobs': typeof DashboardJobsRoute
+  '/dashboard/kitchen': typeof DashboardKitchenRoute
+  '/dashboard/localization': typeof DashboardLocalizationRoute
+  '/dashboard/menus': typeof DashboardMenusRoute
+  '/dashboard/notifications': typeof DashboardNotificationsRoute
+  '/dashboard/operations': typeof DashboardOperationsRoute
+  '/dashboard/orders': typeof DashboardOrdersRouteWithChildren
+  '/dashboard/roles': typeof DashboardRolesRoute
+  '/dashboard/rules': typeof DashboardRulesRoute
+  '/dashboard/settings': typeof DashboardSettingsRoute
+  '/dashboard/users': typeof DashboardUsersRoute
+  '/dashboard/workflows': typeof DashboardWorkflowsRoute
+  '/dashboard/': typeof DashboardIndexRoute
+  '/dashboard/orders/$id': typeof DashboardOrdersIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/login': typeof LoginRoute
+  '/dashboard/approval-workflows': typeof DashboardApprovalWorkflowsRoute
+  '/dashboard/audit-logs': typeof DashboardAuditLogsRoute
+  '/dashboard/catalog': typeof DashboardCatalogRoute
+  '/dashboard/companies': typeof DashboardCompaniesRoute
+  '/dashboard/delivery': typeof DashboardDeliveryRoute
+  '/dashboard/features': typeof DashboardFeaturesRoute
+  '/dashboard/integrations': typeof DashboardIntegrationsRoute
+  '/dashboard/jobs': typeof DashboardJobsRoute
+  '/dashboard/kitchen': typeof DashboardKitchenRoute
+  '/dashboard/localization': typeof DashboardLocalizationRoute
+  '/dashboard/menus': typeof DashboardMenusRoute
+  '/dashboard/notifications': typeof DashboardNotificationsRoute
+  '/dashboard/operations': typeof DashboardOperationsRoute
+  '/dashboard/orders': typeof DashboardOrdersRouteWithChildren
+  '/dashboard/roles': typeof DashboardRolesRoute
+  '/dashboard/rules': typeof DashboardRulesRoute
+  '/dashboard/settings': typeof DashboardSettingsRoute
+  '/dashboard/users': typeof DashboardUsersRoute
+  '/dashboard/workflows': typeof DashboardWorkflowsRoute
+  '/dashboard': typeof DashboardIndexRoute
+  '/dashboard/orders/$id': typeof DashboardOrdersIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/dashboard': typeof DashboardRouteWithChildren
+  '/login': typeof LoginRoute
+  '/dashboard/approval-workflows': typeof DashboardApprovalWorkflowsRoute
+  '/dashboard/audit-logs': typeof DashboardAuditLogsRoute
+  '/dashboard/catalog': typeof DashboardCatalogRoute
+  '/dashboard/companies': typeof DashboardCompaniesRoute
+  '/dashboard/delivery': typeof DashboardDeliveryRoute
+  '/dashboard/features': typeof DashboardFeaturesRoute
+  '/dashboard/integrations': typeof DashboardIntegrationsRoute
+  '/dashboard/jobs': typeof DashboardJobsRoute
+  '/dashboard/kitchen': typeof DashboardKitchenRoute
+  '/dashboard/localization': typeof DashboardLocalizationRoute
+  '/dashboard/menus': typeof DashboardMenusRoute
+  '/dashboard/notifications': typeof DashboardNotificationsRoute
+  '/dashboard/operations': typeof DashboardOperationsRoute
+  '/dashboard/orders': typeof DashboardOrdersRouteWithChildren
+  '/dashboard/roles': typeof DashboardRolesRoute
+  '/dashboard/rules': typeof DashboardRulesRoute
+  '/dashboard/settings': typeof DashboardSettingsRoute
+  '/dashboard/users': typeof DashboardUsersRoute
+  '/dashboard/workflows': typeof DashboardWorkflowsRoute
+  '/dashboard/': typeof DashboardIndexRoute
+  '/dashboard/orders/$id': typeof DashboardOrdersIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/dashboard'
+    | '/login'
+    | '/dashboard/approval-workflows'
+    | '/dashboard/audit-logs'
+    | '/dashboard/catalog'
+    | '/dashboard/companies'
+    | '/dashboard/delivery'
+    | '/dashboard/features'
+    | '/dashboard/integrations'
+    | '/dashboard/jobs'
+    | '/dashboard/kitchen'
+    | '/dashboard/localization'
+    | '/dashboard/menus'
+    | '/dashboard/notifications'
+    | '/dashboard/operations'
+    | '/dashboard/orders'
+    | '/dashboard/roles'
+    | '/dashboard/rules'
+    | '/dashboard/settings'
+    | '/dashboard/users'
+    | '/dashboard/workflows'
+    | '/dashboard/'
+    | '/dashboard/orders/$id'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/login'
+    | '/dashboard/approval-workflows'
+    | '/dashboard/audit-logs'
+    | '/dashboard/catalog'
+    | '/dashboard/companies'
+    | '/dashboard/delivery'
+    | '/dashboard/features'
+    | '/dashboard/integrations'
+    | '/dashboard/jobs'
+    | '/dashboard/kitchen'
+    | '/dashboard/localization'
+    | '/dashboard/menus'
+    | '/dashboard/notifications'
+    | '/dashboard/operations'
+    | '/dashboard/orders'
+    | '/dashboard/roles'
+    | '/dashboard/rules'
+    | '/dashboard/settings'
+    | '/dashboard/users'
+    | '/dashboard/workflows'
+    | '/dashboard'
+    | '/dashboard/orders/$id'
+  id:
+    | '__root__'
+    | '/'
+    | '/dashboard'
+    | '/login'
+    | '/dashboard/approval-workflows'
+    | '/dashboard/audit-logs'
+    | '/dashboard/catalog'
+    | '/dashboard/companies'
+    | '/dashboard/delivery'
+    | '/dashboard/features'
+    | '/dashboard/integrations'
+    | '/dashboard/jobs'
+    | '/dashboard/kitchen'
+    | '/dashboard/localization'
+    | '/dashboard/menus'
+    | '/dashboard/notifications'
+    | '/dashboard/operations'
+    | '/dashboard/orders'
+    | '/dashboard/roles'
+    | '/dashboard/rules'
+    | '/dashboard/settings'
+    | '/dashboard/users'
+    | '/dashboard/workflows'
+    | '/dashboard/'
+    | '/dashboard/orders/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  DashboardRoute: typeof DashboardRouteWithChildren
+  LoginRoute: typeof LoginRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dashboard': {
+      id: '/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof DashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -48,22 +343,223 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/dashboard/': {
+      id: '/dashboard/'
+      path: '/'
+      fullPath: '/dashboard/'
+      preLoaderRoute: typeof DashboardIndexRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/dashboard/workflows': {
+      id: '/dashboard/workflows'
+      path: '/workflows'
+      fullPath: '/dashboard/workflows'
+      preLoaderRoute: typeof DashboardWorkflowsRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/dashboard/users': {
+      id: '/dashboard/users'
+      path: '/users'
+      fullPath: '/dashboard/users'
+      preLoaderRoute: typeof DashboardUsersRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/dashboard/settings': {
+      id: '/dashboard/settings'
+      path: '/settings'
+      fullPath: '/dashboard/settings'
+      preLoaderRoute: typeof DashboardSettingsRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/dashboard/rules': {
+      id: '/dashboard/rules'
+      path: '/rules'
+      fullPath: '/dashboard/rules'
+      preLoaderRoute: typeof DashboardRulesRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/dashboard/roles': {
+      id: '/dashboard/roles'
+      path: '/roles'
+      fullPath: '/dashboard/roles'
+      preLoaderRoute: typeof DashboardRolesRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/dashboard/orders': {
+      id: '/dashboard/orders'
+      path: '/orders'
+      fullPath: '/dashboard/orders'
+      preLoaderRoute: typeof DashboardOrdersRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/dashboard/operations': {
+      id: '/dashboard/operations'
+      path: '/operations'
+      fullPath: '/dashboard/operations'
+      preLoaderRoute: typeof DashboardOperationsRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/dashboard/notifications': {
+      id: '/dashboard/notifications'
+      path: '/notifications'
+      fullPath: '/dashboard/notifications'
+      preLoaderRoute: typeof DashboardNotificationsRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/dashboard/menus': {
+      id: '/dashboard/menus'
+      path: '/menus'
+      fullPath: '/dashboard/menus'
+      preLoaderRoute: typeof DashboardMenusRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/dashboard/localization': {
+      id: '/dashboard/localization'
+      path: '/localization'
+      fullPath: '/dashboard/localization'
+      preLoaderRoute: typeof DashboardLocalizationRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/dashboard/kitchen': {
+      id: '/dashboard/kitchen'
+      path: '/kitchen'
+      fullPath: '/dashboard/kitchen'
+      preLoaderRoute: typeof DashboardKitchenRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/dashboard/jobs': {
+      id: '/dashboard/jobs'
+      path: '/jobs'
+      fullPath: '/dashboard/jobs'
+      preLoaderRoute: typeof DashboardJobsRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/dashboard/integrations': {
+      id: '/dashboard/integrations'
+      path: '/integrations'
+      fullPath: '/dashboard/integrations'
+      preLoaderRoute: typeof DashboardIntegrationsRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/dashboard/features': {
+      id: '/dashboard/features'
+      path: '/features'
+      fullPath: '/dashboard/features'
+      preLoaderRoute: typeof DashboardFeaturesRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/dashboard/delivery': {
+      id: '/dashboard/delivery'
+      path: '/delivery'
+      fullPath: '/dashboard/delivery'
+      preLoaderRoute: typeof DashboardDeliveryRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/dashboard/companies': {
+      id: '/dashboard/companies'
+      path: '/companies'
+      fullPath: '/dashboard/companies'
+      preLoaderRoute: typeof DashboardCompaniesRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/dashboard/catalog': {
+      id: '/dashboard/catalog'
+      path: '/catalog'
+      fullPath: '/dashboard/catalog'
+      preLoaderRoute: typeof DashboardCatalogRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/dashboard/audit-logs': {
+      id: '/dashboard/audit-logs'
+      path: '/audit-logs'
+      fullPath: '/dashboard/audit-logs'
+      preLoaderRoute: typeof DashboardAuditLogsRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/dashboard/approval-workflows': {
+      id: '/dashboard/approval-workflows'
+      path: '/approval-workflows'
+      fullPath: '/dashboard/approval-workflows'
+      preLoaderRoute: typeof DashboardApprovalWorkflowsRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/dashboard/orders/$id': {
+      id: '/dashboard/orders/$id'
+      path: '/$id'
+      fullPath: '/dashboard/orders/$id'
+      preLoaderRoute: typeof DashboardOrdersIdRouteImport
+      parentRoute: typeof DashboardOrdersRoute
+    }
   }
 }
 
+interface DashboardOrdersRouteChildren {
+  DashboardOrdersIdRoute: typeof DashboardOrdersIdRoute
+}
+
+const DashboardOrdersRouteChildren: DashboardOrdersRouteChildren = {
+  DashboardOrdersIdRoute: DashboardOrdersIdRoute,
+}
+
+const DashboardOrdersRouteWithChildren = DashboardOrdersRoute._addFileChildren(
+  DashboardOrdersRouteChildren,
+)
+
+interface DashboardRouteChildren {
+  DashboardApprovalWorkflowsRoute: typeof DashboardApprovalWorkflowsRoute
+  DashboardAuditLogsRoute: typeof DashboardAuditLogsRoute
+  DashboardCatalogRoute: typeof DashboardCatalogRoute
+  DashboardCompaniesRoute: typeof DashboardCompaniesRoute
+  DashboardDeliveryRoute: typeof DashboardDeliveryRoute
+  DashboardFeaturesRoute: typeof DashboardFeaturesRoute
+  DashboardIntegrationsRoute: typeof DashboardIntegrationsRoute
+  DashboardJobsRoute: typeof DashboardJobsRoute
+  DashboardKitchenRoute: typeof DashboardKitchenRoute
+  DashboardLocalizationRoute: typeof DashboardLocalizationRoute
+  DashboardMenusRoute: typeof DashboardMenusRoute
+  DashboardNotificationsRoute: typeof DashboardNotificationsRoute
+  DashboardOperationsRoute: typeof DashboardOperationsRoute
+  DashboardOrdersRoute: typeof DashboardOrdersRouteWithChildren
+  DashboardRolesRoute: typeof DashboardRolesRoute
+  DashboardRulesRoute: typeof DashboardRulesRoute
+  DashboardSettingsRoute: typeof DashboardSettingsRoute
+  DashboardUsersRoute: typeof DashboardUsersRoute
+  DashboardWorkflowsRoute: typeof DashboardWorkflowsRoute
+  DashboardIndexRoute: typeof DashboardIndexRoute
+}
+
+const DashboardRouteChildren: DashboardRouteChildren = {
+  DashboardApprovalWorkflowsRoute: DashboardApprovalWorkflowsRoute,
+  DashboardAuditLogsRoute: DashboardAuditLogsRoute,
+  DashboardCatalogRoute: DashboardCatalogRoute,
+  DashboardCompaniesRoute: DashboardCompaniesRoute,
+  DashboardDeliveryRoute: DashboardDeliveryRoute,
+  DashboardFeaturesRoute: DashboardFeaturesRoute,
+  DashboardIntegrationsRoute: DashboardIntegrationsRoute,
+  DashboardJobsRoute: DashboardJobsRoute,
+  DashboardKitchenRoute: DashboardKitchenRoute,
+  DashboardLocalizationRoute: DashboardLocalizationRoute,
+  DashboardMenusRoute: DashboardMenusRoute,
+  DashboardNotificationsRoute: DashboardNotificationsRoute,
+  DashboardOperationsRoute: DashboardOperationsRoute,
+  DashboardOrdersRoute: DashboardOrdersRouteWithChildren,
+  DashboardRolesRoute: DashboardRolesRoute,
+  DashboardRulesRoute: DashboardRulesRoute,
+  DashboardSettingsRoute: DashboardSettingsRoute,
+  DashboardUsersRoute: DashboardUsersRoute,
+  DashboardWorkflowsRoute: DashboardWorkflowsRoute,
+  DashboardIndexRoute: DashboardIndexRoute,
+}
+
+const DashboardRouteWithChildren = DashboardRoute._addFileChildren(
+  DashboardRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  DashboardRoute: DashboardRouteWithChildren,
+  LoginRoute: LoginRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
