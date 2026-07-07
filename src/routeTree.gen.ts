@@ -17,6 +17,7 @@ import { Route as DashboardUsersRouteImport } from './routes/dashboard.users'
 import { Route as DashboardRolesRouteImport } from './routes/dashboard.roles'
 import { Route as DashboardFeaturesRouteImport } from './routes/dashboard.features'
 import { Route as DashboardCompaniesRouteImport } from './routes/dashboard.companies'
+import { Route as DashboardCatalogRouteImport } from './routes/dashboard.catalog'
 
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
@@ -58,11 +59,17 @@ const DashboardCompaniesRoute = DashboardCompaniesRouteImport.update({
   path: '/companies',
   getParentRoute: () => DashboardRoute,
 } as any)
+const DashboardCatalogRoute = DashboardCatalogRouteImport.update({
+  id: '/catalog',
+  path: '/catalog',
+  getParentRoute: () => DashboardRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRouteWithChildren
   '/login': typeof LoginRoute
+  '/dashboard/catalog': typeof DashboardCatalogRoute
   '/dashboard/companies': typeof DashboardCompaniesRoute
   '/dashboard/features': typeof DashboardFeaturesRoute
   '/dashboard/roles': typeof DashboardRolesRoute
@@ -72,6 +79,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
+  '/dashboard/catalog': typeof DashboardCatalogRoute
   '/dashboard/companies': typeof DashboardCompaniesRoute
   '/dashboard/features': typeof DashboardFeaturesRoute
   '/dashboard/roles': typeof DashboardRolesRoute
@@ -83,6 +91,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRouteWithChildren
   '/login': typeof LoginRoute
+  '/dashboard/catalog': typeof DashboardCatalogRoute
   '/dashboard/companies': typeof DashboardCompaniesRoute
   '/dashboard/features': typeof DashboardFeaturesRoute
   '/dashboard/roles': typeof DashboardRolesRoute
@@ -95,6 +104,7 @@ export interface FileRouteTypes {
     | '/'
     | '/dashboard'
     | '/login'
+    | '/dashboard/catalog'
     | '/dashboard/companies'
     | '/dashboard/features'
     | '/dashboard/roles'
@@ -104,6 +114,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/login'
+    | '/dashboard/catalog'
     | '/dashboard/companies'
     | '/dashboard/features'
     | '/dashboard/roles'
@@ -114,6 +125,7 @@ export interface FileRouteTypes {
     | '/'
     | '/dashboard'
     | '/login'
+    | '/dashboard/catalog'
     | '/dashboard/companies'
     | '/dashboard/features'
     | '/dashboard/roles'
@@ -185,10 +197,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardCompaniesRouteImport
       parentRoute: typeof DashboardRoute
     }
+    '/dashboard/catalog': {
+      id: '/dashboard/catalog'
+      path: '/catalog'
+      fullPath: '/dashboard/catalog'
+      preLoaderRoute: typeof DashboardCatalogRouteImport
+      parentRoute: typeof DashboardRoute
+    }
   }
 }
 
 interface DashboardRouteChildren {
+  DashboardCatalogRoute: typeof DashboardCatalogRoute
   DashboardCompaniesRoute: typeof DashboardCompaniesRoute
   DashboardFeaturesRoute: typeof DashboardFeaturesRoute
   DashboardRolesRoute: typeof DashboardRolesRoute
@@ -197,6 +217,7 @@ interface DashboardRouteChildren {
 }
 
 const DashboardRouteChildren: DashboardRouteChildren = {
+  DashboardCatalogRoute: DashboardCatalogRoute,
   DashboardCompaniesRoute: DashboardCompaniesRoute,
   DashboardFeaturesRoute: DashboardFeaturesRoute,
   DashboardRolesRoute: DashboardRolesRoute,
