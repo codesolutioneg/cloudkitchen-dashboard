@@ -19,6 +19,7 @@ import { Route as DashboardRulesRouteImport } from './routes/dashboard.rules'
 import { Route as DashboardRolesRouteImport } from './routes/dashboard.roles'
 import { Route as DashboardOrdersRouteImport } from './routes/dashboard.orders'
 import { Route as DashboardMenusRouteImport } from './routes/dashboard.menus'
+import { Route as DashboardKitchenRouteImport } from './routes/dashboard.kitchen'
 import { Route as DashboardFeaturesRouteImport } from './routes/dashboard.features'
 import { Route as DashboardCompaniesRouteImport } from './routes/dashboard.companies'
 import { Route as DashboardCatalogRouteImport } from './routes/dashboard.catalog'
@@ -74,6 +75,11 @@ const DashboardMenusRoute = DashboardMenusRouteImport.update({
   path: '/menus',
   getParentRoute: () => DashboardRoute,
 } as any)
+const DashboardKitchenRoute = DashboardKitchenRouteImport.update({
+  id: '/kitchen',
+  path: '/kitchen',
+  getParentRoute: () => DashboardRoute,
+} as any)
 const DashboardFeaturesRoute = DashboardFeaturesRouteImport.update({
   id: '/features',
   path: '/features',
@@ -102,6 +108,7 @@ export interface FileRoutesByFullPath {
   '/dashboard/catalog': typeof DashboardCatalogRoute
   '/dashboard/companies': typeof DashboardCompaniesRoute
   '/dashboard/features': typeof DashboardFeaturesRoute
+  '/dashboard/kitchen': typeof DashboardKitchenRoute
   '/dashboard/menus': typeof DashboardMenusRoute
   '/dashboard/orders': typeof DashboardOrdersRouteWithChildren
   '/dashboard/roles': typeof DashboardRolesRoute
@@ -117,6 +124,7 @@ export interface FileRoutesByTo {
   '/dashboard/catalog': typeof DashboardCatalogRoute
   '/dashboard/companies': typeof DashboardCompaniesRoute
   '/dashboard/features': typeof DashboardFeaturesRoute
+  '/dashboard/kitchen': typeof DashboardKitchenRoute
   '/dashboard/menus': typeof DashboardMenusRoute
   '/dashboard/orders': typeof DashboardOrdersRouteWithChildren
   '/dashboard/roles': typeof DashboardRolesRoute
@@ -134,6 +142,7 @@ export interface FileRoutesById {
   '/dashboard/catalog': typeof DashboardCatalogRoute
   '/dashboard/companies': typeof DashboardCompaniesRoute
   '/dashboard/features': typeof DashboardFeaturesRoute
+  '/dashboard/kitchen': typeof DashboardKitchenRoute
   '/dashboard/menus': typeof DashboardMenusRoute
   '/dashboard/orders': typeof DashboardOrdersRouteWithChildren
   '/dashboard/roles': typeof DashboardRolesRoute
@@ -152,6 +161,7 @@ export interface FileRouteTypes {
     | '/dashboard/catalog'
     | '/dashboard/companies'
     | '/dashboard/features'
+    | '/dashboard/kitchen'
     | '/dashboard/menus'
     | '/dashboard/orders'
     | '/dashboard/roles'
@@ -167,6 +177,7 @@ export interface FileRouteTypes {
     | '/dashboard/catalog'
     | '/dashboard/companies'
     | '/dashboard/features'
+    | '/dashboard/kitchen'
     | '/dashboard/menus'
     | '/dashboard/orders'
     | '/dashboard/roles'
@@ -183,6 +194,7 @@ export interface FileRouteTypes {
     | '/dashboard/catalog'
     | '/dashboard/companies'
     | '/dashboard/features'
+    | '/dashboard/kitchen'
     | '/dashboard/menus'
     | '/dashboard/orders'
     | '/dashboard/roles'
@@ -271,6 +283,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardMenusRouteImport
       parentRoute: typeof DashboardRoute
     }
+    '/dashboard/kitchen': {
+      id: '/dashboard/kitchen'
+      path: '/kitchen'
+      fullPath: '/dashboard/kitchen'
+      preLoaderRoute: typeof DashboardKitchenRouteImport
+      parentRoute: typeof DashboardRoute
+    }
     '/dashboard/features': {
       id: '/dashboard/features'
       path: '/features'
@@ -318,6 +337,7 @@ interface DashboardRouteChildren {
   DashboardCatalogRoute: typeof DashboardCatalogRoute
   DashboardCompaniesRoute: typeof DashboardCompaniesRoute
   DashboardFeaturesRoute: typeof DashboardFeaturesRoute
+  DashboardKitchenRoute: typeof DashboardKitchenRoute
   DashboardMenusRoute: typeof DashboardMenusRoute
   DashboardOrdersRoute: typeof DashboardOrdersRouteWithChildren
   DashboardRolesRoute: typeof DashboardRolesRoute
@@ -331,6 +351,7 @@ const DashboardRouteChildren: DashboardRouteChildren = {
   DashboardCatalogRoute: DashboardCatalogRoute,
   DashboardCompaniesRoute: DashboardCompaniesRoute,
   DashboardFeaturesRoute: DashboardFeaturesRoute,
+  DashboardKitchenRoute: DashboardKitchenRoute,
   DashboardMenusRoute: DashboardMenusRoute,
   DashboardOrdersRoute: DashboardOrdersRouteWithChildren,
   DashboardRolesRoute: DashboardRolesRoute,
