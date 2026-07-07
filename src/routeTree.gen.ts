@@ -25,6 +25,7 @@ import { Route as DashboardFeaturesRouteImport } from './routes/dashboard.featur
 import { Route as DashboardDeliveryRouteImport } from './routes/dashboard.delivery'
 import { Route as DashboardCompaniesRouteImport } from './routes/dashboard.companies'
 import { Route as DashboardCatalogRouteImport } from './routes/dashboard.catalog'
+import { Route as DashboardApprovalWorkflowsRouteImport } from './routes/dashboard.approval-workflows'
 import { Route as DashboardOrdersIdRouteImport } from './routes/dashboard.orders.$id'
 
 const LoginRoute = LoginRouteImport.update({
@@ -107,6 +108,12 @@ const DashboardCatalogRoute = DashboardCatalogRouteImport.update({
   path: '/catalog',
   getParentRoute: () => DashboardRoute,
 } as any)
+const DashboardApprovalWorkflowsRoute =
+  DashboardApprovalWorkflowsRouteImport.update({
+    id: '/approval-workflows',
+    path: '/approval-workflows',
+    getParentRoute: () => DashboardRoute,
+  } as any)
 const DashboardOrdersIdRoute = DashboardOrdersIdRouteImport.update({
   id: '/$id',
   path: '/$id',
@@ -117,6 +124,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRouteWithChildren
   '/login': typeof LoginRoute
+  '/dashboard/approval-workflows': typeof DashboardApprovalWorkflowsRoute
   '/dashboard/catalog': typeof DashboardCatalogRoute
   '/dashboard/companies': typeof DashboardCompaniesRoute
   '/dashboard/delivery': typeof DashboardDeliveryRoute
@@ -135,6 +143,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
+  '/dashboard/approval-workflows': typeof DashboardApprovalWorkflowsRoute
   '/dashboard/catalog': typeof DashboardCatalogRoute
   '/dashboard/companies': typeof DashboardCompaniesRoute
   '/dashboard/delivery': typeof DashboardDeliveryRoute
@@ -155,6 +164,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRouteWithChildren
   '/login': typeof LoginRoute
+  '/dashboard/approval-workflows': typeof DashboardApprovalWorkflowsRoute
   '/dashboard/catalog': typeof DashboardCatalogRoute
   '/dashboard/companies': typeof DashboardCompaniesRoute
   '/dashboard/delivery': typeof DashboardDeliveryRoute
@@ -176,6 +186,7 @@ export interface FileRouteTypes {
     | '/'
     | '/dashboard'
     | '/login'
+    | '/dashboard/approval-workflows'
     | '/dashboard/catalog'
     | '/dashboard/companies'
     | '/dashboard/delivery'
@@ -194,6 +205,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/login'
+    | '/dashboard/approval-workflows'
     | '/dashboard/catalog'
     | '/dashboard/companies'
     | '/dashboard/delivery'
@@ -213,6 +225,7 @@ export interface FileRouteTypes {
     | '/'
     | '/dashboard'
     | '/login'
+    | '/dashboard/approval-workflows'
     | '/dashboard/catalog'
     | '/dashboard/companies'
     | '/dashboard/delivery'
@@ -349,6 +362,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardCatalogRouteImport
       parentRoute: typeof DashboardRoute
     }
+    '/dashboard/approval-workflows': {
+      id: '/dashboard/approval-workflows'
+      path: '/approval-workflows'
+      fullPath: '/dashboard/approval-workflows'
+      preLoaderRoute: typeof DashboardApprovalWorkflowsRouteImport
+      parentRoute: typeof DashboardRoute
+    }
     '/dashboard/orders/$id': {
       id: '/dashboard/orders/$id'
       path: '/$id'
@@ -372,6 +392,7 @@ const DashboardOrdersRouteWithChildren = DashboardOrdersRoute._addFileChildren(
 )
 
 interface DashboardRouteChildren {
+  DashboardApprovalWorkflowsRoute: typeof DashboardApprovalWorkflowsRoute
   DashboardCatalogRoute: typeof DashboardCatalogRoute
   DashboardCompaniesRoute: typeof DashboardCompaniesRoute
   DashboardDeliveryRoute: typeof DashboardDeliveryRoute
@@ -388,6 +409,7 @@ interface DashboardRouteChildren {
 }
 
 const DashboardRouteChildren: DashboardRouteChildren = {
+  DashboardApprovalWorkflowsRoute: DashboardApprovalWorkflowsRoute,
   DashboardCatalogRoute: DashboardCatalogRoute,
   DashboardCompaniesRoute: DashboardCompaniesRoute,
   DashboardDeliveryRoute: DashboardDeliveryRoute,
