@@ -21,6 +21,7 @@ import { Route as DashboardOrdersRouteImport } from './routes/dashboard.orders'
 import { Route as DashboardOperationsRouteImport } from './routes/dashboard.operations'
 import { Route as DashboardNotificationsRouteImport } from './routes/dashboard.notifications'
 import { Route as DashboardMenusRouteImport } from './routes/dashboard.menus'
+import { Route as DashboardLocalizationRouteImport } from './routes/dashboard.localization'
 import { Route as DashboardKitchenRouteImport } from './routes/dashboard.kitchen'
 import { Route as DashboardJobsRouteImport } from './routes/dashboard.jobs'
 import { Route as DashboardIntegrationsRouteImport } from './routes/dashboard.integrations'
@@ -92,6 +93,11 @@ const DashboardMenusRoute = DashboardMenusRouteImport.update({
   path: '/menus',
   getParentRoute: () => DashboardRoute,
 } as any)
+const DashboardLocalizationRoute = DashboardLocalizationRouteImport.update({
+  id: '/localization',
+  path: '/localization',
+  getParentRoute: () => DashboardRoute,
+} as any)
 const DashboardKitchenRoute = DashboardKitchenRouteImport.update({
   id: '/kitchen',
   path: '/kitchen',
@@ -157,6 +163,7 @@ export interface FileRoutesByFullPath {
   '/dashboard/integrations': typeof DashboardIntegrationsRoute
   '/dashboard/jobs': typeof DashboardJobsRoute
   '/dashboard/kitchen': typeof DashboardKitchenRoute
+  '/dashboard/localization': typeof DashboardLocalizationRoute
   '/dashboard/menus': typeof DashboardMenusRoute
   '/dashboard/notifications': typeof DashboardNotificationsRoute
   '/dashboard/operations': typeof DashboardOperationsRoute
@@ -180,6 +187,7 @@ export interface FileRoutesByTo {
   '/dashboard/integrations': typeof DashboardIntegrationsRoute
   '/dashboard/jobs': typeof DashboardJobsRoute
   '/dashboard/kitchen': typeof DashboardKitchenRoute
+  '/dashboard/localization': typeof DashboardLocalizationRoute
   '/dashboard/menus': typeof DashboardMenusRoute
   '/dashboard/notifications': typeof DashboardNotificationsRoute
   '/dashboard/operations': typeof DashboardOperationsRoute
@@ -205,6 +213,7 @@ export interface FileRoutesById {
   '/dashboard/integrations': typeof DashboardIntegrationsRoute
   '/dashboard/jobs': typeof DashboardJobsRoute
   '/dashboard/kitchen': typeof DashboardKitchenRoute
+  '/dashboard/localization': typeof DashboardLocalizationRoute
   '/dashboard/menus': typeof DashboardMenusRoute
   '/dashboard/notifications': typeof DashboardNotificationsRoute
   '/dashboard/operations': typeof DashboardOperationsRoute
@@ -231,6 +240,7 @@ export interface FileRouteTypes {
     | '/dashboard/integrations'
     | '/dashboard/jobs'
     | '/dashboard/kitchen'
+    | '/dashboard/localization'
     | '/dashboard/menus'
     | '/dashboard/notifications'
     | '/dashboard/operations'
@@ -254,6 +264,7 @@ export interface FileRouteTypes {
     | '/dashboard/integrations'
     | '/dashboard/jobs'
     | '/dashboard/kitchen'
+    | '/dashboard/localization'
     | '/dashboard/menus'
     | '/dashboard/notifications'
     | '/dashboard/operations'
@@ -278,6 +289,7 @@ export interface FileRouteTypes {
     | '/dashboard/integrations'
     | '/dashboard/jobs'
     | '/dashboard/kitchen'
+    | '/dashboard/localization'
     | '/dashboard/menus'
     | '/dashboard/notifications'
     | '/dashboard/operations'
@@ -382,6 +394,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardMenusRouteImport
       parentRoute: typeof DashboardRoute
     }
+    '/dashboard/localization': {
+      id: '/dashboard/localization'
+      path: '/localization'
+      fullPath: '/dashboard/localization'
+      preLoaderRoute: typeof DashboardLocalizationRouteImport
+      parentRoute: typeof DashboardRoute
+    }
     '/dashboard/kitchen': {
       id: '/dashboard/kitchen'
       path: '/kitchen'
@@ -477,6 +496,7 @@ interface DashboardRouteChildren {
   DashboardIntegrationsRoute: typeof DashboardIntegrationsRoute
   DashboardJobsRoute: typeof DashboardJobsRoute
   DashboardKitchenRoute: typeof DashboardKitchenRoute
+  DashboardLocalizationRoute: typeof DashboardLocalizationRoute
   DashboardMenusRoute: typeof DashboardMenusRoute
   DashboardNotificationsRoute: typeof DashboardNotificationsRoute
   DashboardOperationsRoute: typeof DashboardOperationsRoute
@@ -498,6 +518,7 @@ const DashboardRouteChildren: DashboardRouteChildren = {
   DashboardIntegrationsRoute: DashboardIntegrationsRoute,
   DashboardJobsRoute: DashboardJobsRoute,
   DashboardKitchenRoute: DashboardKitchenRoute,
+  DashboardLocalizationRoute: DashboardLocalizationRoute,
   DashboardMenusRoute: DashboardMenusRoute,
   DashboardNotificationsRoute: DashboardNotificationsRoute,
   DashboardOperationsRoute: DashboardOperationsRoute,
