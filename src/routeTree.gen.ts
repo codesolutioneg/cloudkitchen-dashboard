@@ -22,6 +22,7 @@ import { Route as DashboardMenusRouteImport } from './routes/dashboard.menus'
 import { Route as DashboardFeaturesRouteImport } from './routes/dashboard.features'
 import { Route as DashboardCompaniesRouteImport } from './routes/dashboard.companies'
 import { Route as DashboardCatalogRouteImport } from './routes/dashboard.catalog'
+import { Route as DashboardOrdersIdRouteImport } from './routes/dashboard.orders.$id'
 
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
@@ -88,6 +89,11 @@ const DashboardCatalogRoute = DashboardCatalogRouteImport.update({
   path: '/catalog',
   getParentRoute: () => DashboardRoute,
 } as any)
+const DashboardOrdersIdRoute = DashboardOrdersIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => DashboardOrdersRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -97,12 +103,13 @@ export interface FileRoutesByFullPath {
   '/dashboard/companies': typeof DashboardCompaniesRoute
   '/dashboard/features': typeof DashboardFeaturesRoute
   '/dashboard/menus': typeof DashboardMenusRoute
-  '/dashboard/orders': typeof DashboardOrdersRoute
+  '/dashboard/orders': typeof DashboardOrdersRouteWithChildren
   '/dashboard/roles': typeof DashboardRolesRoute
   '/dashboard/rules': typeof DashboardRulesRoute
   '/dashboard/users': typeof DashboardUsersRoute
   '/dashboard/workflows': typeof DashboardWorkflowsRoute
   '/dashboard/': typeof DashboardIndexRoute
+  '/dashboard/orders/$id': typeof DashboardOrdersIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -111,12 +118,13 @@ export interface FileRoutesByTo {
   '/dashboard/companies': typeof DashboardCompaniesRoute
   '/dashboard/features': typeof DashboardFeaturesRoute
   '/dashboard/menus': typeof DashboardMenusRoute
-  '/dashboard/orders': typeof DashboardOrdersRoute
+  '/dashboard/orders': typeof DashboardOrdersRouteWithChildren
   '/dashboard/roles': typeof DashboardRolesRoute
   '/dashboard/rules': typeof DashboardRulesRoute
   '/dashboard/users': typeof DashboardUsersRoute
   '/dashboard/workflows': typeof DashboardWorkflowsRoute
   '/dashboard': typeof DashboardIndexRoute
+  '/dashboard/orders/$id': typeof DashboardOrdersIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -127,12 +135,13 @@ export interface FileRoutesById {
   '/dashboard/companies': typeof DashboardCompaniesRoute
   '/dashboard/features': typeof DashboardFeaturesRoute
   '/dashboard/menus': typeof DashboardMenusRoute
-  '/dashboard/orders': typeof DashboardOrdersRoute
+  '/dashboard/orders': typeof DashboardOrdersRouteWithChildren
   '/dashboard/roles': typeof DashboardRolesRoute
   '/dashboard/rules': typeof DashboardRulesRoute
   '/dashboard/users': typeof DashboardUsersRoute
   '/dashboard/workflows': typeof DashboardWorkflowsRoute
   '/dashboard/': typeof DashboardIndexRoute
+  '/dashboard/orders/$id': typeof DashboardOrdersIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -150,6 +159,7 @@ export interface FileRouteTypes {
     | '/dashboard/users'
     | '/dashboard/workflows'
     | '/dashboard/'
+    | '/dashboard/orders/$id'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -164,6 +174,7 @@ export interface FileRouteTypes {
     | '/dashboard/users'
     | '/dashboard/workflows'
     | '/dashboard'
+    | '/dashboard/orders/$id'
   id:
     | '__root__'
     | '/'
@@ -179,6 +190,7 @@ export interface FileRouteTypes {
     | '/dashboard/users'
     | '/dashboard/workflows'
     | '/dashboard/'
+    | '/dashboard/orders/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -280,15 +292,34 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardCatalogRouteImport
       parentRoute: typeof DashboardRoute
     }
+    '/dashboard/orders/$id': {
+      id: '/dashboard/orders/$id'
+      path: '/$id'
+      fullPath: '/dashboard/orders/$id'
+      preLoaderRoute: typeof DashboardOrdersIdRouteImport
+      parentRoute: typeof DashboardOrdersRoute
+    }
   }
 }
+
+interface DashboardOrdersRouteChildren {
+  DashboardOrdersIdRoute: typeof DashboardOrdersIdRoute
+}
+
+const DashboardOrdersRouteChildren: DashboardOrdersRouteChildren = {
+  DashboardOrdersIdRoute: DashboardOrdersIdRoute,
+}
+
+const DashboardOrdersRouteWithChildren = DashboardOrdersRoute._addFileChildren(
+  DashboardOrdersRouteChildren,
+)
 
 interface DashboardRouteChildren {
   DashboardCatalogRoute: typeof DashboardCatalogRoute
   DashboardCompaniesRoute: typeof DashboardCompaniesRoute
   DashboardFeaturesRoute: typeof DashboardFeaturesRoute
   DashboardMenusRoute: typeof DashboardMenusRoute
-  DashboardOrdersRoute: typeof DashboardOrdersRoute
+  DashboardOrdersRoute: typeof DashboardOrdersRouteWithChildren
   DashboardRolesRoute: typeof DashboardRolesRoute
   DashboardRulesRoute: typeof DashboardRulesRoute
   DashboardUsersRoute: typeof DashboardUsersRoute
@@ -301,7 +332,7 @@ const DashboardRouteChildren: DashboardRouteChildren = {
   DashboardCompaniesRoute: DashboardCompaniesRoute,
   DashboardFeaturesRoute: DashboardFeaturesRoute,
   DashboardMenusRoute: DashboardMenusRoute,
-  DashboardOrdersRoute: DashboardOrdersRoute,
+  DashboardOrdersRoute: DashboardOrdersRouteWithChildren,
   DashboardRolesRoute: DashboardRolesRoute,
   DashboardRulesRoute: DashboardRulesRoute,
   DashboardUsersRoute: DashboardUsersRoute,
