@@ -15,6 +15,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as DashboardIndexRouteImport } from './routes/dashboard.index'
 import { Route as DashboardWorkflowsRouteImport } from './routes/dashboard.workflows'
 import { Route as DashboardUsersRouteImport } from './routes/dashboard.users'
+import { Route as DashboardSettingsRouteImport } from './routes/dashboard.settings'
 import { Route as DashboardRulesRouteImport } from './routes/dashboard.rules'
 import { Route as DashboardRolesRouteImport } from './routes/dashboard.roles'
 import { Route as DashboardOrdersRouteImport } from './routes/dashboard.orders'
@@ -61,6 +62,11 @@ const DashboardWorkflowsRoute = DashboardWorkflowsRouteImport.update({
 const DashboardUsersRoute = DashboardUsersRouteImport.update({
   id: '/users',
   path: '/users',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardSettingsRoute = DashboardSettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
   getParentRoute: () => DashboardRoute,
 } as any)
 const DashboardRulesRoute = DashboardRulesRouteImport.update({
@@ -170,6 +176,7 @@ export interface FileRoutesByFullPath {
   '/dashboard/orders': typeof DashboardOrdersRouteWithChildren
   '/dashboard/roles': typeof DashboardRolesRoute
   '/dashboard/rules': typeof DashboardRulesRoute
+  '/dashboard/settings': typeof DashboardSettingsRoute
   '/dashboard/users': typeof DashboardUsersRoute
   '/dashboard/workflows': typeof DashboardWorkflowsRoute
   '/dashboard/': typeof DashboardIndexRoute
@@ -194,6 +201,7 @@ export interface FileRoutesByTo {
   '/dashboard/orders': typeof DashboardOrdersRouteWithChildren
   '/dashboard/roles': typeof DashboardRolesRoute
   '/dashboard/rules': typeof DashboardRulesRoute
+  '/dashboard/settings': typeof DashboardSettingsRoute
   '/dashboard/users': typeof DashboardUsersRoute
   '/dashboard/workflows': typeof DashboardWorkflowsRoute
   '/dashboard': typeof DashboardIndexRoute
@@ -220,6 +228,7 @@ export interface FileRoutesById {
   '/dashboard/orders': typeof DashboardOrdersRouteWithChildren
   '/dashboard/roles': typeof DashboardRolesRoute
   '/dashboard/rules': typeof DashboardRulesRoute
+  '/dashboard/settings': typeof DashboardSettingsRoute
   '/dashboard/users': typeof DashboardUsersRoute
   '/dashboard/workflows': typeof DashboardWorkflowsRoute
   '/dashboard/': typeof DashboardIndexRoute
@@ -247,6 +256,7 @@ export interface FileRouteTypes {
     | '/dashboard/orders'
     | '/dashboard/roles'
     | '/dashboard/rules'
+    | '/dashboard/settings'
     | '/dashboard/users'
     | '/dashboard/workflows'
     | '/dashboard/'
@@ -271,6 +281,7 @@ export interface FileRouteTypes {
     | '/dashboard/orders'
     | '/dashboard/roles'
     | '/dashboard/rules'
+    | '/dashboard/settings'
     | '/dashboard/users'
     | '/dashboard/workflows'
     | '/dashboard'
@@ -296,6 +307,7 @@ export interface FileRouteTypes {
     | '/dashboard/orders'
     | '/dashboard/roles'
     | '/dashboard/rules'
+    | '/dashboard/settings'
     | '/dashboard/users'
     | '/dashboard/workflows'
     | '/dashboard/'
@@ -350,6 +362,13 @@ declare module '@tanstack/react-router' {
       path: '/users'
       fullPath: '/dashboard/users'
       preLoaderRoute: typeof DashboardUsersRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/dashboard/settings': {
+      id: '/dashboard/settings'
+      path: '/settings'
+      fullPath: '/dashboard/settings'
+      preLoaderRoute: typeof DashboardSettingsRouteImport
       parentRoute: typeof DashboardRoute
     }
     '/dashboard/rules': {
@@ -503,6 +522,7 @@ interface DashboardRouteChildren {
   DashboardOrdersRoute: typeof DashboardOrdersRouteWithChildren
   DashboardRolesRoute: typeof DashboardRolesRoute
   DashboardRulesRoute: typeof DashboardRulesRoute
+  DashboardSettingsRoute: typeof DashboardSettingsRoute
   DashboardUsersRoute: typeof DashboardUsersRoute
   DashboardWorkflowsRoute: typeof DashboardWorkflowsRoute
   DashboardIndexRoute: typeof DashboardIndexRoute
@@ -525,6 +545,7 @@ const DashboardRouteChildren: DashboardRouteChildren = {
   DashboardOrdersRoute: DashboardOrdersRouteWithChildren,
   DashboardRolesRoute: DashboardRolesRoute,
   DashboardRulesRoute: DashboardRulesRoute,
+  DashboardSettingsRoute: DashboardSettingsRoute,
   DashboardUsersRoute: DashboardUsersRoute,
   DashboardWorkflowsRoute: DashboardWorkflowsRoute,
   DashboardIndexRoute: DashboardIndexRoute,
@@ -542,3 +563,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
