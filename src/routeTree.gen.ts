@@ -18,6 +18,7 @@ import { Route as DashboardUsersRouteImport } from './routes/dashboard.users'
 import { Route as DashboardRulesRouteImport } from './routes/dashboard.rules'
 import { Route as DashboardRolesRouteImport } from './routes/dashboard.roles'
 import { Route as DashboardOrdersRouteImport } from './routes/dashboard.orders'
+import { Route as DashboardOperationsRouteImport } from './routes/dashboard.operations'
 import { Route as DashboardMenusRouteImport } from './routes/dashboard.menus'
 import { Route as DashboardKitchenRouteImport } from './routes/dashboard.kitchen'
 import { Route as DashboardFeaturesRouteImport } from './routes/dashboard.features'
@@ -70,6 +71,11 @@ const DashboardOrdersRoute = DashboardOrdersRouteImport.update({
   path: '/orders',
   getParentRoute: () => DashboardRoute,
 } as any)
+const DashboardOperationsRoute = DashboardOperationsRouteImport.update({
+  id: '/operations',
+  path: '/operations',
+  getParentRoute: () => DashboardRoute,
+} as any)
 const DashboardMenusRoute = DashboardMenusRouteImport.update({
   id: '/menus',
   path: '/menus',
@@ -110,6 +116,7 @@ export interface FileRoutesByFullPath {
   '/dashboard/features': typeof DashboardFeaturesRoute
   '/dashboard/kitchen': typeof DashboardKitchenRoute
   '/dashboard/menus': typeof DashboardMenusRoute
+  '/dashboard/operations': typeof DashboardOperationsRoute
   '/dashboard/orders': typeof DashboardOrdersRouteWithChildren
   '/dashboard/roles': typeof DashboardRolesRoute
   '/dashboard/rules': typeof DashboardRulesRoute
@@ -126,6 +133,7 @@ export interface FileRoutesByTo {
   '/dashboard/features': typeof DashboardFeaturesRoute
   '/dashboard/kitchen': typeof DashboardKitchenRoute
   '/dashboard/menus': typeof DashboardMenusRoute
+  '/dashboard/operations': typeof DashboardOperationsRoute
   '/dashboard/orders': typeof DashboardOrdersRouteWithChildren
   '/dashboard/roles': typeof DashboardRolesRoute
   '/dashboard/rules': typeof DashboardRulesRoute
@@ -144,6 +152,7 @@ export interface FileRoutesById {
   '/dashboard/features': typeof DashboardFeaturesRoute
   '/dashboard/kitchen': typeof DashboardKitchenRoute
   '/dashboard/menus': typeof DashboardMenusRoute
+  '/dashboard/operations': typeof DashboardOperationsRoute
   '/dashboard/orders': typeof DashboardOrdersRouteWithChildren
   '/dashboard/roles': typeof DashboardRolesRoute
   '/dashboard/rules': typeof DashboardRulesRoute
@@ -163,6 +172,7 @@ export interface FileRouteTypes {
     | '/dashboard/features'
     | '/dashboard/kitchen'
     | '/dashboard/menus'
+    | '/dashboard/operations'
     | '/dashboard/orders'
     | '/dashboard/roles'
     | '/dashboard/rules'
@@ -179,6 +189,7 @@ export interface FileRouteTypes {
     | '/dashboard/features'
     | '/dashboard/kitchen'
     | '/dashboard/menus'
+    | '/dashboard/operations'
     | '/dashboard/orders'
     | '/dashboard/roles'
     | '/dashboard/rules'
@@ -196,6 +207,7 @@ export interface FileRouteTypes {
     | '/dashboard/features'
     | '/dashboard/kitchen'
     | '/dashboard/menus'
+    | '/dashboard/operations'
     | '/dashboard/orders'
     | '/dashboard/roles'
     | '/dashboard/rules'
@@ -276,6 +288,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardOrdersRouteImport
       parentRoute: typeof DashboardRoute
     }
+    '/dashboard/operations': {
+      id: '/dashboard/operations'
+      path: '/operations'
+      fullPath: '/dashboard/operations'
+      preLoaderRoute: typeof DashboardOperationsRouteImport
+      parentRoute: typeof DashboardRoute
+    }
     '/dashboard/menus': {
       id: '/dashboard/menus'
       path: '/menus'
@@ -339,6 +358,7 @@ interface DashboardRouteChildren {
   DashboardFeaturesRoute: typeof DashboardFeaturesRoute
   DashboardKitchenRoute: typeof DashboardKitchenRoute
   DashboardMenusRoute: typeof DashboardMenusRoute
+  DashboardOperationsRoute: typeof DashboardOperationsRoute
   DashboardOrdersRoute: typeof DashboardOrdersRouteWithChildren
   DashboardRolesRoute: typeof DashboardRolesRoute
   DashboardRulesRoute: typeof DashboardRulesRoute
@@ -353,6 +373,7 @@ const DashboardRouteChildren: DashboardRouteChildren = {
   DashboardFeaturesRoute: DashboardFeaturesRoute,
   DashboardKitchenRoute: DashboardKitchenRoute,
   DashboardMenusRoute: DashboardMenusRoute,
+  DashboardOperationsRoute: DashboardOperationsRoute,
   DashboardOrdersRoute: DashboardOrdersRouteWithChildren,
   DashboardRolesRoute: DashboardRolesRoute,
   DashboardRulesRoute: DashboardRulesRoute,
