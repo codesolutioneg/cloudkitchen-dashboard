@@ -51,6 +51,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setNavigation([]);
   }, []);
 
+  const previewLogin = useCallback(() => {
+    setUser({
+      id: "preview",
+      email: "preview@cloud-kitchen.com",
+      first_name: "Preview",
+      last_name: "Admin",
+      is_super_admin: true,
+      roles: ["super_admin"],
+      permissions: ["*"],
+    } as unknown as DashboardMe);
+    setNavigation([]);
+  }, []);
+
   return (
     <AuthContext.Provider
       value={{
@@ -61,6 +74,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         login,
         logout,
         refresh: loadSession,
+        previewLogin,
       }}
     >
       {children}
