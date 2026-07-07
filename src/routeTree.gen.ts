@@ -15,6 +15,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as DashboardIndexRouteImport } from './routes/dashboard.index'
 import { Route as DashboardUsersRouteImport } from './routes/dashboard.users'
 import { Route as DashboardRolesRouteImport } from './routes/dashboard.roles'
+import { Route as DashboardMenusRouteImport } from './routes/dashboard.menus'
 import { Route as DashboardFeaturesRouteImport } from './routes/dashboard.features'
 import { Route as DashboardCompaniesRouteImport } from './routes/dashboard.companies'
 import { Route as DashboardCatalogRouteImport } from './routes/dashboard.catalog'
@@ -49,6 +50,11 @@ const DashboardRolesRoute = DashboardRolesRouteImport.update({
   path: '/roles',
   getParentRoute: () => DashboardRoute,
 } as any)
+const DashboardMenusRoute = DashboardMenusRouteImport.update({
+  id: '/menus',
+  path: '/menus',
+  getParentRoute: () => DashboardRoute,
+} as any)
 const DashboardFeaturesRoute = DashboardFeaturesRouteImport.update({
   id: '/features',
   path: '/features',
@@ -72,6 +78,7 @@ export interface FileRoutesByFullPath {
   '/dashboard/catalog': typeof DashboardCatalogRoute
   '/dashboard/companies': typeof DashboardCompaniesRoute
   '/dashboard/features': typeof DashboardFeaturesRoute
+  '/dashboard/menus': typeof DashboardMenusRoute
   '/dashboard/roles': typeof DashboardRolesRoute
   '/dashboard/users': typeof DashboardUsersRoute
   '/dashboard/': typeof DashboardIndexRoute
@@ -82,6 +89,7 @@ export interface FileRoutesByTo {
   '/dashboard/catalog': typeof DashboardCatalogRoute
   '/dashboard/companies': typeof DashboardCompaniesRoute
   '/dashboard/features': typeof DashboardFeaturesRoute
+  '/dashboard/menus': typeof DashboardMenusRoute
   '/dashboard/roles': typeof DashboardRolesRoute
   '/dashboard/users': typeof DashboardUsersRoute
   '/dashboard': typeof DashboardIndexRoute
@@ -94,6 +102,7 @@ export interface FileRoutesById {
   '/dashboard/catalog': typeof DashboardCatalogRoute
   '/dashboard/companies': typeof DashboardCompaniesRoute
   '/dashboard/features': typeof DashboardFeaturesRoute
+  '/dashboard/menus': typeof DashboardMenusRoute
   '/dashboard/roles': typeof DashboardRolesRoute
   '/dashboard/users': typeof DashboardUsersRoute
   '/dashboard/': typeof DashboardIndexRoute
@@ -107,6 +116,7 @@ export interface FileRouteTypes {
     | '/dashboard/catalog'
     | '/dashboard/companies'
     | '/dashboard/features'
+    | '/dashboard/menus'
     | '/dashboard/roles'
     | '/dashboard/users'
     | '/dashboard/'
@@ -117,6 +127,7 @@ export interface FileRouteTypes {
     | '/dashboard/catalog'
     | '/dashboard/companies'
     | '/dashboard/features'
+    | '/dashboard/menus'
     | '/dashboard/roles'
     | '/dashboard/users'
     | '/dashboard'
@@ -128,6 +139,7 @@ export interface FileRouteTypes {
     | '/dashboard/catalog'
     | '/dashboard/companies'
     | '/dashboard/features'
+    | '/dashboard/menus'
     | '/dashboard/roles'
     | '/dashboard/users'
     | '/dashboard/'
@@ -183,6 +195,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardRolesRouteImport
       parentRoute: typeof DashboardRoute
     }
+    '/dashboard/menus': {
+      id: '/dashboard/menus'
+      path: '/menus'
+      fullPath: '/dashboard/menus'
+      preLoaderRoute: typeof DashboardMenusRouteImport
+      parentRoute: typeof DashboardRoute
+    }
     '/dashboard/features': {
       id: '/dashboard/features'
       path: '/features'
@@ -211,6 +230,7 @@ interface DashboardRouteChildren {
   DashboardCatalogRoute: typeof DashboardCatalogRoute
   DashboardCompaniesRoute: typeof DashboardCompaniesRoute
   DashboardFeaturesRoute: typeof DashboardFeaturesRoute
+  DashboardMenusRoute: typeof DashboardMenusRoute
   DashboardRolesRoute: typeof DashboardRolesRoute
   DashboardUsersRoute: typeof DashboardUsersRoute
   DashboardIndexRoute: typeof DashboardIndexRoute
@@ -220,6 +240,7 @@ const DashboardRouteChildren: DashboardRouteChildren = {
   DashboardCatalogRoute: DashboardCatalogRoute,
   DashboardCompaniesRoute: DashboardCompaniesRoute,
   DashboardFeaturesRoute: DashboardFeaturesRoute,
+  DashboardMenusRoute: DashboardMenusRoute,
   DashboardRolesRoute: DashboardRolesRoute,
   DashboardUsersRoute: DashboardUsersRoute,
   DashboardIndexRoute: DashboardIndexRoute,
