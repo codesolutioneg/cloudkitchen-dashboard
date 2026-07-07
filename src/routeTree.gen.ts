@@ -25,6 +25,7 @@ import { Route as DashboardFeaturesRouteImport } from './routes/dashboard.featur
 import { Route as DashboardDeliveryRouteImport } from './routes/dashboard.delivery'
 import { Route as DashboardCompaniesRouteImport } from './routes/dashboard.companies'
 import { Route as DashboardCatalogRouteImport } from './routes/dashboard.catalog'
+import { Route as DashboardAuditLogsRouteImport } from './routes/dashboard.audit-logs'
 import { Route as DashboardApprovalWorkflowsRouteImport } from './routes/dashboard.approval-workflows'
 import { Route as DashboardOrdersIdRouteImport } from './routes/dashboard.orders.$id'
 
@@ -108,6 +109,11 @@ const DashboardCatalogRoute = DashboardCatalogRouteImport.update({
   path: '/catalog',
   getParentRoute: () => DashboardRoute,
 } as any)
+const DashboardAuditLogsRoute = DashboardAuditLogsRouteImport.update({
+  id: '/audit-logs',
+  path: '/audit-logs',
+  getParentRoute: () => DashboardRoute,
+} as any)
 const DashboardApprovalWorkflowsRoute =
   DashboardApprovalWorkflowsRouteImport.update({
     id: '/approval-workflows',
@@ -125,6 +131,7 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof DashboardRouteWithChildren
   '/login': typeof LoginRoute
   '/dashboard/approval-workflows': typeof DashboardApprovalWorkflowsRoute
+  '/dashboard/audit-logs': typeof DashboardAuditLogsRoute
   '/dashboard/catalog': typeof DashboardCatalogRoute
   '/dashboard/companies': typeof DashboardCompaniesRoute
   '/dashboard/delivery': typeof DashboardDeliveryRoute
@@ -144,6 +151,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
   '/dashboard/approval-workflows': typeof DashboardApprovalWorkflowsRoute
+  '/dashboard/audit-logs': typeof DashboardAuditLogsRoute
   '/dashboard/catalog': typeof DashboardCatalogRoute
   '/dashboard/companies': typeof DashboardCompaniesRoute
   '/dashboard/delivery': typeof DashboardDeliveryRoute
@@ -165,6 +173,7 @@ export interface FileRoutesById {
   '/dashboard': typeof DashboardRouteWithChildren
   '/login': typeof LoginRoute
   '/dashboard/approval-workflows': typeof DashboardApprovalWorkflowsRoute
+  '/dashboard/audit-logs': typeof DashboardAuditLogsRoute
   '/dashboard/catalog': typeof DashboardCatalogRoute
   '/dashboard/companies': typeof DashboardCompaniesRoute
   '/dashboard/delivery': typeof DashboardDeliveryRoute
@@ -187,6 +196,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/login'
     | '/dashboard/approval-workflows'
+    | '/dashboard/audit-logs'
     | '/dashboard/catalog'
     | '/dashboard/companies'
     | '/dashboard/delivery'
@@ -206,6 +216,7 @@ export interface FileRouteTypes {
     | '/'
     | '/login'
     | '/dashboard/approval-workflows'
+    | '/dashboard/audit-logs'
     | '/dashboard/catalog'
     | '/dashboard/companies'
     | '/dashboard/delivery'
@@ -226,6 +237,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/login'
     | '/dashboard/approval-workflows'
+    | '/dashboard/audit-logs'
     | '/dashboard/catalog'
     | '/dashboard/companies'
     | '/dashboard/delivery'
@@ -362,6 +374,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardCatalogRouteImport
       parentRoute: typeof DashboardRoute
     }
+    '/dashboard/audit-logs': {
+      id: '/dashboard/audit-logs'
+      path: '/audit-logs'
+      fullPath: '/dashboard/audit-logs'
+      preLoaderRoute: typeof DashboardAuditLogsRouteImport
+      parentRoute: typeof DashboardRoute
+    }
     '/dashboard/approval-workflows': {
       id: '/dashboard/approval-workflows'
       path: '/approval-workflows'
@@ -393,6 +412,7 @@ const DashboardOrdersRouteWithChildren = DashboardOrdersRoute._addFileChildren(
 
 interface DashboardRouteChildren {
   DashboardApprovalWorkflowsRoute: typeof DashboardApprovalWorkflowsRoute
+  DashboardAuditLogsRoute: typeof DashboardAuditLogsRoute
   DashboardCatalogRoute: typeof DashboardCatalogRoute
   DashboardCompaniesRoute: typeof DashboardCompaniesRoute
   DashboardDeliveryRoute: typeof DashboardDeliveryRoute
@@ -410,6 +430,7 @@ interface DashboardRouteChildren {
 
 const DashboardRouteChildren: DashboardRouteChildren = {
   DashboardApprovalWorkflowsRoute: DashboardApprovalWorkflowsRoute,
+  DashboardAuditLogsRoute: DashboardAuditLogsRoute,
   DashboardCatalogRoute: DashboardCatalogRoute,
   DashboardCompaniesRoute: DashboardCompaniesRoute,
   DashboardDeliveryRoute: DashboardDeliveryRoute,
