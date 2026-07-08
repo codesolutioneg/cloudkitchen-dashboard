@@ -6,6 +6,8 @@ import { DataTable, TablePagination, type Column } from "@/components/app/DataTa
 import { StatusBadge } from "@/components/app/StatusBadge";
 import { jobsApi } from "@/services/apiClient";
 import type { BackgroundJob } from "@/types/api";
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/dashboard/jobs")({ component: JobsPage });
@@ -14,7 +16,9 @@ function JobsPage() {
   const qc = useQueryClient();
   const [page, setPage] = useState(1);
   const [status, setStatus] = useState("");
+  const [selectedId, setSelectedId] = useState<string | null>(null);
   const query = useQuery({ queryKey: ["jobs", page, status], queryFn: () => jobsApi.list({ page, status: status || undefined }) });
+  const detail = useQuery({ queryKey: ["job", selectedId], enabled: !!selectedId, queryFn: () => jobsApi.get(selectedId!).catch(() => null) });
 
   async function retry(id: string) {
     try { await jobsApi.retry(id); toast.success("Retry queued"); qc.invalidateQueries({ queryKey: ["jobs"] }); }
@@ -33,7 +37,7 @@ function JobsPage() {
     { key: "attempts", header: "Attempts", cell: (r) => r.attempts },
     { key: "createdAt", header: "Created", cell: (r) => new Date(r.createdAt).toLocaleString() },
     { key: "actions", header: "", cell: (r) => (
-      <div className="flex justify-end gap-1">
+      <div className="flex justify-end gap-1" onClick={(e) => e.stopPropagation()}>
         <button onClick={() => retry(r.id)} className="rounded-md border border-border px-2 py-1 text-xs hover:bg-muted">Retry</button>
         <button onClick={() => cancel(r.id)} className="rounded-md border border-destructive/40 px-2 py-1 text-xs text-destructive hover:bg-destructive/10">Cancel</button>
       </div>
@@ -48,10 +52,27 @@ function JobsPage() {
           placeholder="Filter by status (e.g. failed)"
           className="h-10 w-72 rounded-[10px] border border-border bg-card px-3 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20" />
       </div>
-      <DataTable columns={cols} rows={query.data?.items} loading={query.isLoading} emptyTitle="No jobs" />
+      <DataTable columns={cols} rows={query.data?.items} loading={query.isLoading} onRowClick={(r) => setSelectedId(r.id)} emptyTitle="No jobs" />
       {query.data && query.data.totalItems > 0 && (
         <TablePagination page={query.data.page} pageSize={query.data.pageSize} totalItems={query.data.totalItems} onPageChange={setPage} />
       )}
+
+      <Sheet open={!!selectedId} onOpenChange={(o) => !o && setSelectedId(null)}>
+        <SheetContent className="w-full sm:max-w-lg">
+          <SheetHeader><SheetTitle>Job detail</SheetTitle></SheetHeader>
+          {detail.isLoading ? <Loader2 className="mt-6 h-6 w-6 animate-spin text-primary" /> :
+            !detail.data ? <p className="mt-6 text-sm text-muted-foreground">Not found.</p> : (
+              <div className="mt-6 space-y-3 px-4 text-sm">
+                <div><span className="text-muted-foreground">Type: </span><code>{detail.data.jobType}</code></div>
+                <div><span className="text-muted-foreground">Queue: </span>{detail.data.queueName}</div>
+                <div><span className="text-muted-foreground">Status: </span><StatusBadge status={detail.data.status} /></div>
+                <div><span className="text-muted-foreground">Attempts: </span>{detail.data.attempts}</div>
+                <div><span className="text-muted-foreground">Created: </span>{new Date(detail.data.createdAt).toLocaleString()}</div>
+                <pre className="rounded-lg border border-border bg-muted/40 p-3 text-xs overflow-auto max-h-[400px]">{JSON.stringify(detail.data, null, 2)}</pre>
+              </div>
+            )}
+        </SheetContent>
+      </Sheet>
     </>
   );
 }
