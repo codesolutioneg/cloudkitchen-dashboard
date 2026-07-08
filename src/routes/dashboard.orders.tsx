@@ -4,17 +4,21 @@ import { useState } from "react";
 import { PageHeader } from "@/components/app/PageHeader";
 import { DataTable, TablePagination, type Column } from "@/components/app/DataTable";
 import { StatusBadge } from "@/components/app/StatusBadge";
-import { ordersApi } from "@/services/apiClient";
+import { companiesApi, ordersApi } from "@/services/apiClient";
 import type { OrderSummary } from "@/types/api";
 
 export const Route = createFileRoute("/dashboard/orders")({ component: OrdersPage });
 
+const STATUSES = ["", "submitted", "pending_approval", "kitchen_accepted", "preparing", "ready", "out_for_delivery", "delivered", "awaiting_pickup", "picked_up", "cancelled"];
+
 function OrdersPage() {
   const [page, setPage] = useState(1);
   const [status, setStatus] = useState<string>("");
+  const [companyId, setCompanyId] = useState<string>("");
+  const companies = useQuery({ queryKey: ["companies-select"], queryFn: () => companiesApi.list({ pageSize: 100 }).catch(() => ({ items: [] as never[] })) });
   const query = useQuery({
-    queryKey: ["orders", page, status],
-    queryFn: () => ordersApi.list({ page, pageSize: 20, statusCode: status || undefined }),
+    queryKey: ["orders", page, status, companyId],
+    queryFn: () => ordersApi.list({ page, pageSize: 20, statusCode: status || undefined, companyId: companyId || undefined }),
   });
 
   const cols: Column<OrderSummary>[] = [
@@ -28,12 +32,14 @@ function OrdersPage() {
   return (
     <>
       <PageHeader title="Orders" description="All corporate orders across companies." />
-      <div className="mb-4 flex items-center gap-3">
-        <input
-          value={status} onChange={(e) => { setStatus(e.target.value); setPage(1); }}
-          placeholder="Filter by status code (e.g. preparing)"
-          className="h-10 w-72 rounded-[10px] border border-border bg-card px-3 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-        />
+      <div className="mb-4 flex flex-wrap items-center gap-3">
+        <select value={status} onChange={(e) => { setStatus(e.target.value); setPage(1); }} className="h-10 rounded-[10px] border border-border bg-card px-3 text-sm">
+          {STATUSES.map((s) => <option key={s} value={s}>{s || "All statuses"}</option>)}
+        </select>
+        <select value={companyId} onChange={(e) => { setCompanyId(e.target.value); setPage(1); }} className="h-10 rounded-[10px] border border-border bg-card px-3 text-sm">
+          <option value="">All companies</option>
+          {companies.data && "items" in companies.data && companies.data.items.map((c) => <option key={c.id} value={c.id}>{c.legalName}</option>)}
+        </select>
       </div>
       <DataTable columns={cols} rows={query.data?.items} loading={query.isLoading}
         emptyTitle="No orders yet" emptyDescription="Orders placed by companies will appear here." />

@@ -13,10 +13,12 @@ import type {
   Workflow, WorkflowStep, WorkflowTransition, WorkflowInstance,
   OrderSummary, OrderDetail,
   DeliveryUser, DeliveryOrderView,
-  ApprovalWorkflow, ApprovalStep, ApprovalRequest,
+  ApprovalWorkflow, ApprovalStep, ApprovalRequest, ApprovalRequestDetail,
   AuditLog, NotificationTemplate, BackgroundJob,
   ExternalSystem, IntegrationMapping, IntegrationEvent,
   Language, Translation, GlobalSettings,
+  ProductVariant, ProductOptionGroup, ProductAvailability, ProductTag,
+  SectionProduct, MenuAssignment,
 } from "@/types/api";
 
 const BASE_URL =
@@ -393,3 +395,102 @@ export const filesApi = {
     return request<{ id: string; url: string | null }>("/api/v1/files", { method: "POST", formData: fd });
   },
 };
+
+// ================= EXTENSIONS =================
+
+// Companies: documents list + approval submit
+export const companyDocumentsApi = {
+  list: (companyId: string) => request<VerifiedDocument[]>(`/api/v1/dashboard/companies/${companyId}/documents`),
+};
+
+// Catalog extensions
+export const catalogExtApi = {
+  listVariants: (productId: string) => request<ProductVariant[]>(`/api/v1/dashboard/catalog/products/${productId}/variants`),
+  createVariant: (productId: string, b: Partial<ProductVariant>) =>
+    request<ProductVariant>(`/api/v1/dashboard/catalog/products/${productId}/variants`, { method: "POST", body: b }),
+  updateVariant: (productId: string, variantId: string, b: Partial<ProductVariant>) =>
+    request<ProductVariant>(`/api/v1/dashboard/catalog/products/${productId}/variants/${variantId}`, { method: "PATCH", body: b }),
+
+  listOptionGroups: (productId: string) => request<ProductOptionGroup[]>(`/api/v1/dashboard/catalog/products/${productId}/option-groups`),
+  createOptionGroup: (productId: string, b: Partial<ProductOptionGroup>) =>
+    request<ProductOptionGroup>(`/api/v1/dashboard/catalog/products/${productId}/option-groups`, { method: "POST", body: b }),
+  updateOptionGroup: (productId: string, groupId: string, b: Partial<ProductOptionGroup>) =>
+    request<ProductOptionGroup>(`/api/v1/dashboard/catalog/products/${productId}/option-groups/${groupId}`, { method: "PATCH", body: b }),
+
+  listAvailability: (productId: string) => request<ProductAvailability[]>(`/api/v1/dashboard/catalog/products/${productId}/availability`),
+  createAvailability: (productId: string, b: Partial<ProductAvailability>) =>
+    request<ProductAvailability>(`/api/v1/dashboard/catalog/products/${productId}/availability`, { method: "POST", body: b }),
+  updateAvailability: (productId: string, availabilityId: string, b: Partial<ProductAvailability>) =>
+    request<ProductAvailability>(`/api/v1/dashboard/catalog/products/${productId}/availability/${availabilityId}`, { method: "PATCH", body: b }),
+  deleteAvailability: (productId: string, availabilityId: string) =>
+    request<void>(`/api/v1/dashboard/catalog/products/${productId}/availability/${availabilityId}`, { method: "DELETE" }),
+
+  listTags: (productId: string) => request<ProductTag[]>(`/api/v1/dashboard/catalog/products/${productId}/tags`),
+  addTag: (productId: string, tag: string) =>
+    request<ProductTag>(`/api/v1/dashboard/catalog/products/${productId}/tags`, { method: "POST", body: { tag } }),
+  removeTag: (productId: string, tagId: string) =>
+    request<void>(`/api/v1/dashboard/catalog/products/${productId}/tags/${tagId}`, { method: "DELETE" }),
+};
+
+// Menus extensions
+export const menusExtApi = {
+  update: (id: string, b: Partial<Menu>) => request<Menu>(`/api/v1/dashboard/menus/${id}`, { method: "PATCH", body: b }),
+  remove: (id: string) => request<void>(`/api/v1/dashboard/menus/${id}`, { method: "DELETE" }),
+  updateSection: (menuId: string, sectionId: string, b: Partial<MenuSection>) =>
+    request<MenuSection>(`/api/v1/dashboard/menus/${menuId}/sections/${sectionId}`, { method: "PATCH", body: b }),
+  deleteSection: (menuId: string, sectionId: string) =>
+    request<void>(`/api/v1/dashboard/menus/${menuId}/sections/${sectionId}`, { method: "DELETE" }),
+  listSectionProducts: (menuId: string, sectionId: string) =>
+    request<SectionProduct[]>(`/api/v1/dashboard/menus/${menuId}/sections/${sectionId}/products`),
+  removeSectionProduct: (menuId: string, sectionId: string, productId: string) =>
+    request<void>(`/api/v1/dashboard/menus/${menuId}/sections/${sectionId}/products/${productId}`, { method: "DELETE" }),
+  listAssignments: (menuId: string) => request<MenuAssignment[]>(`/api/v1/dashboard/menus/${menuId}/assignments`),
+  deleteAssignment: (menuId: string, assignmentId: string) =>
+    request<void>(`/api/v1/dashboard/menus/${menuId}/assignments/${assignmentId}`, { method: "DELETE" }),
+};
+
+// Workflow extensions
+export const workflowsExtApi = {
+  update: (id: string, b: Partial<Workflow>) => request<Workflow>(`/api/v1/dashboard/workflows/${id}`, { method: "PATCH", body: b }),
+  get: (id: string) => request<Workflow>(`/api/v1/dashboard/workflows/${id}`),
+  updateStep: (workflowId: string, stepId: string, b: Partial<WorkflowStep>) =>
+    request<WorkflowStep>(`/api/v1/dashboard/workflows/${workflowId}/steps/${stepId}`, { method: "PATCH", body: b }),
+  updateTransition: (workflowId: string, transitionId: string, b: Partial<WorkflowTransition>) =>
+    request<WorkflowTransition>(`/api/v1/dashboard/workflows/${workflowId}/transitions/${transitionId}`, { method: "PATCH", body: b }),
+  createInstance: (body: { workflowId: string; entityType: string; entityId: string }) =>
+    request<WorkflowInstance>("/api/v1/dashboard/workflow-instances", { method: "POST", body }),
+};
+
+// Rules extensions
+export const rulesExtApi = {
+  updateRuleType: (id: string, b: Partial<RuleType>) =>
+    request<RuleType>(`/api/v1/dashboard/rules/rule-types/${id}`, { method: "PATCH", body: b }),
+  getCalendar: (id: string) => request<Calendar>(`/api/v1/dashboard/rules/calendars/${id}`),
+  updateCalendar: (id: string, b: Partial<Calendar>) =>
+    request<Calendar>(`/api/v1/dashboard/rules/calendars/${id}`, { method: "PATCH", body: b }),
+  updateEvent: (calendarId: string, eventId: string, b: Partial<CalendarEvent>) =>
+    request<CalendarEvent>(`/api/v1/dashboard/rules/calendars/${calendarId}/events/${eventId}`, { method: "PATCH", body: b }),
+};
+
+// Approval extensions
+export const approvalWorkflowsExtApi = {
+  get: (id: string) => request<ApprovalWorkflow>(`/api/v1/dashboard/approval-workflows/${id}`),
+  updateStep: (workflowId: string, stepId: string, b: Partial<ApprovalStep>) =>
+    request<ApprovalStep>(`/api/v1/dashboard/approval-workflows/${workflowId}/steps/${stepId}`, { method: "PATCH", body: b }),
+  getRequest: (id: string) => request<ApprovalRequestDetail>(`/api/v1/dashboard/approval-requests/${id}`),
+};
+
+// Integrations extensions
+export const integrationsExtApi = {
+  getSystem: (id: string) => request<ExternalSystem>(`/api/v1/dashboard/integrations/systems/${id}`),
+  createMapping: (systemId: string, body: Partial<IntegrationMapping>) =>
+    request<IntegrationMapping>(`/api/v1/dashboard/integrations/systems/${systemId}/mappings`, { method: "POST", body }),
+};
+
+// Files extensions
+export const filesExtApi = {
+  download: (fileId: string) => `${BASE_URL}/api/v1/files/${fileId}/download`,
+  deleteAttachment: (attachmentId: string) =>
+    request<void>(`/api/v1/files/attachments/${attachmentId}`, { method: "DELETE" }),
+};
+

@@ -4,33 +4,31 @@ import { useState } from "react";
 import { PageHeader } from "@/components/app/PageHeader";
 import { DataTable, TablePagination, type Column } from "@/components/app/DataTable";
 import { StatusBadge } from "@/components/app/StatusBadge";
-import { dashboardUsersApi } from "@/services/apiClient";
+import { EmptyState } from "@/components/app/EmptyState";
+import { dashboardUsersApi, rolesApi } from "@/services/apiClient";
 import type { DashboardUser } from "@/types/api";
 import { Plus } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { toast } from "sonner";
 
-export const Route = createFileRoute("/dashboard/users")({
-  component: UsersPage,
-});
+export const Route = createFileRoute("/dashboard/users")({ component: UsersPage });
 
 function UsersPage() {
   const qc = useQueryClient();
   const [page, setPage] = useState(1);
   const [open, setOpen] = useState(false);
+  const [selected, setSelected] = useState<DashboardUser | null>(null);
   const [form, setForm] = useState({ fullName: "", email: "", department: "", temporaryPassword: "" });
 
   const query = useQuery({
     queryKey: ["dashboard-users", page],
-    queryFn: () => dashboardUsersApi.list({ page, pageSize: 20 }),
+    queryFn: () => dashboardUsersApi.list({ page, pageSize: 20 }).catch(() => ({ items: [], page: 1, pageSize: 20, totalItems: 0 })),
   });
 
   const columns: Column<DashboardUser>[] = [
     { key: "name", header: "User", cell: (r) => (
-      <div>
-        <div className="font-semibold">{r.fullName}</div>
-        <div className="text-xs text-muted-foreground">{r.email}</div>
-      </div>
+      <div><div className="font-semibold">{r.fullName}</div><div className="text-xs text-muted-foreground">{r.email}</div></div>
     ) },
     { key: "department", header: "Department", cell: (r) => r.department ?? "—" },
     { key: "roles", header: "Roles", cell: (r) => (
@@ -59,16 +57,16 @@ function UsersPage() {
   return (
     <>
       <PageHeader
-        title="Dashboard Users"
-        description="Staff who operate the platform."
-        actions={
-          <button onClick={() => setOpen(true)} className="flex items-center gap-2 rounded-[10px] bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:bg-[oklch(0.52_0.19_285)]">
-            <Plus className="h-4 w-4" /> Invite user
-          </button>
-        }
+        title="Dashboard Users" description="Staff who operate the platform."
+        actions={<button onClick={() => setOpen(true)} className="flex items-center gap-2 rounded-[10px] bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:bg-[oklch(0.52_0.19_285)]"><Plus className="h-4 w-4" /> Invite user</button>}
       />
-      <DataTable columns={columns} rows={query.data?.items} loading={query.isLoading}
-        emptyTitle="No dashboard users" emptyDescription="Invite your first admin to get started." />
+      {query.data && query.data.totalItems === 0 && !query.isLoading ? (
+        <EmptyState title="No dashboard users listed" description="The list endpoint may not be enabled yet. You can still invite new users." />
+      ) : (
+        <DataTable columns={columns} rows={query.data?.items} loading={query.isLoading}
+          onRowClick={setSelected}
+          emptyTitle="No dashboard users" />
+      )}
       {query.data && query.data.totalItems > 0 && (
         <TablePagination page={query.data.page} pageSize={query.data.pageSize} totalItems={query.data.totalItems} onPageChange={setPage} />
       )}
@@ -79,24 +77,81 @@ function UsersPage() {
           <div className="space-y-3">
             {(["fullName", "email", "department", "temporaryPassword"] as const).map((k) => (
               <div key={k}>
-                <label className="mb-1 block text-sm font-semibold capitalize">
-                  {k === "fullName" ? "Full name" : k === "temporaryPassword" ? "Temporary password (optional)" : k}
-                </label>
-                <input
-                  type={k === "temporaryPassword" ? "password" : k === "email" ? "email" : "text"}
-                  value={form[k]}
-                  onChange={(e) => setForm((f) => ({ ...f, [k]: e.target.value }))}
-                  className="h-10 w-full rounded-[10px] border border-border bg-card px-3 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-                />
+                <label className="mb-1 block text-sm font-semibold capitalize">{k === "fullName" ? "Full name" : k === "temporaryPassword" ? "Temporary password (optional)" : k}</label>
+                <input type={k === "temporaryPassword" ? "password" : k === "email" ? "email" : "text"}
+                  value={form[k]} onChange={(e) => setForm((f) => ({ ...f, [k]: e.target.value }))}
+                  className="h-10 w-full rounded-[10px] border border-border bg-card px-3 text-sm" />
               </div>
             ))}
           </div>
           <DialogFooter>
             <button onClick={() => setOpen(false)} className="rounded-[10px] border border-border px-4 py-2 text-sm font-semibold hover:bg-muted">Cancel</button>
-            <button onClick={invite} className="rounded-[10px] bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:bg-[oklch(0.52_0.19_285)]">Send invite</button>
+            <button onClick={invite} className="rounded-[10px] bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground">Send invite</button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <Sheet open={!!selected} onOpenChange={(o) => !o && setSelected(null)}>
+        <SheetContent className="w-full sm:max-w-lg">
+          {selected && <UserDetail user={selected} onClose={() => setSelected(null)} />}
+        </SheetContent>
+      </Sheet>
+    </>
+  );
+}
+
+function UserDetail({ user, onClose }: { user: DashboardUser; onClose: () => void }) {
+  const roles = useQuery({ queryKey: ["roles"], queryFn: rolesApi.list });
+  const [selectedRoleIds, setSelectedRoleIds] = useState<string[]>(user.roles.map((r) => r.id));
+  const [scopeType, setScopeType] = useState<"all" | "companies">("all");
+  const [companyIds, setCompanyIds] = useState("");
+
+  async function saveRoles() {
+    try { await dashboardUsersApi.assignRoles(user.id, selectedRoleIds); toast.success("Roles updated"); }
+    catch (e) { toast.error((e as Error).message); }
+  }
+  async function saveScope() {
+    const ids = scopeType === "companies" ? companyIds.split(",").map((s) => s.trim()).filter(Boolean) : undefined;
+    try { await dashboardUsersApi.setCompanyScope(user.id, { scopeType, companyIds: ids }); toast.success("Scope updated"); onClose(); }
+    catch (e) { toast.error((e as Error).message); }
+  }
+
+  return (
+    <>
+      <SheetHeader><SheetTitle>{user.fullName}</SheetTitle></SheetHeader>
+      <div className="mt-6 space-y-6 px-4 text-sm">
+        <div>
+          <div className="mb-2 text-xs uppercase text-muted-foreground">Contact</div>
+          <div>{user.email}</div>
+          <div className="text-xs text-muted-foreground">{user.department ?? "No department"}</div>
+        </div>
+        <div>
+          <div className="mb-2 text-xs uppercase text-muted-foreground">Roles</div>
+          {!roles.data ? <span className="text-muted-foreground">Loading…</span> : (
+            <div className="space-y-1">
+              {roles.data.map((r) => (
+                <label key={r.id} className="flex items-center gap-2">
+                  <input type="checkbox" checked={selectedRoleIds.includes(r.id)}
+                    onChange={(e) => setSelectedRoleIds((s) => e.target.checked ? [...s, r.id] : s.filter((x) => x !== r.id))} />
+                  {r.name}
+                </label>
+              ))}
+            </div>
+          )}
+          <button onClick={saveRoles} className="mt-2 rounded-md bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground">Save roles</button>
+        </div>
+        <div>
+          <div className="mb-2 text-xs uppercase text-muted-foreground">Company scope</div>
+          <select value={scopeType} onChange={(e) => setScopeType(e.target.value as never)} className="h-10 w-full rounded-md border border-border bg-card px-3 text-sm">
+            <option value="all">All companies</option><option value="companies">Specific companies</option>
+          </select>
+          {scopeType === "companies" && (
+            <input value={companyIds} onChange={(e) => setCompanyIds(e.target.value)} placeholder="Company IDs, comma-separated"
+              className="mt-2 h-10 w-full rounded-md border border-border bg-card px-3 text-sm" />
+          )}
+          <button onClick={saveScope} className="mt-2 rounded-md bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground">Save scope</button>
+        </div>
+      </div>
     </>
   );
 }
