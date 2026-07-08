@@ -1,11 +1,14 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useState } from "react";
 import { PageHeader } from "@/components/app/PageHeader";
 import { DataTable, type Column } from "@/components/app/DataTable";
 import { StatusBadge } from "@/components/app/StatusBadge";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { approvalWorkflowsApi } from "@/services/apiClient";
 import type { ApprovalWorkflow, ApprovalRequest } from "@/types/api";
+import { Plus } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/dashboard/approval-workflows")({ component: ApprovalPage });
@@ -27,14 +30,42 @@ function ApprovalPage() {
 }
 
 function TemplatesTab() {
+  const qc = useQueryClient();
+  const navigate = useNavigate();
   const { data, isLoading } = useQuery({ queryKey: ["approval-workflows"], queryFn: approvalWorkflowsApi.list });
+  const [open, setOpen] = useState(false);
+  const [form, setForm] = useState({ code: "", name: "", entityType: "order" });
+  async function create() {
+    if (!form.code || !form.name) return;
+    try { await approvalWorkflowsApi.create({ ...form, isActive: true }); toast.success("Created"); setOpen(false); qc.invalidateQueries({ queryKey: ["approval-workflows"] }); }
+    catch (e) { toast.error((e as Error).message); }
+  }
   const cols: Column<ApprovalWorkflow>[] = [
     { key: "code", header: "Code", cell: (r) => <code className="text-xs">{r.code}</code> },
     { key: "name", header: "Name", cell: (r) => <span className="font-semibold">{r.name}</span> },
     { key: "entity", header: "Entity", cell: (r) => <StatusBadge tone="info">{r.entityType}</StatusBadge> },
     { key: "active", header: "Status", cell: (r) => <StatusBadge tone={r.isActive ? "success" : "muted"}>{r.isActive ? "Active" : "Inactive"}</StatusBadge> },
   ];
-  return <DataTable columns={cols} rows={data} loading={isLoading} emptyTitle="No approval workflows" />;
+  return (
+    <>
+      <div className="mb-3 flex justify-end">
+        <button onClick={() => setOpen(true)} className="flex items-center gap-2 rounded-[10px] bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground"><Plus className="h-4 w-4" /> New template</button>
+      </div>
+      <DataTable columns={cols} rows={data} loading={isLoading}
+        onRowClick={(r) => navigate({ to: "/dashboard/approval-workflows/$id", params: { id: r.id } })}
+        emptyTitle="No approval workflows" />
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogContent><DialogHeader><DialogTitle>Create approval workflow</DialogTitle></DialogHeader>
+          <div className="space-y-2">
+            <input placeholder="Code" value={form.code} onChange={(e) => setForm({ ...form, code: e.target.value })} className="h-10 w-full rounded-md border border-border bg-card px-3 text-sm" />
+            <input placeholder="Name" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className="h-10 w-full rounded-md border border-border bg-card px-3 text-sm" />
+            <input placeholder="Entity type" value={form.entityType} onChange={(e) => setForm({ ...form, entityType: e.target.value })} className="h-10 w-full rounded-md border border-border bg-card px-3 text-sm" />
+          </div>
+          <DialogFooter><button onClick={create} className="rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground">Create</button></DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
+  );
 }
 function RequestsTab() {
   const qc = useQueryClient();

@@ -306,3 +306,25 @@ export interface GlobalSettings {
     isOverridable: boolean; description: string | null;
   }>;
 }
+
+// ---------- Extended ----------
+export interface ProductVariant {
+  id: string; productId: string; sku: string | null; name: string;
+  priceDelta: string | null; isActive: boolean;
+}
+export interface ProductOptionGroup {
+  id: string; productId: string; name: string; minSelect: number; maxSelect: number;
+}
+export interface ProductAvailability {
+  id: string; productId: string; startDate: string | null; endDate: string | null;
+  dayOfWeek: number | null; startTime: string | null; endTime: string | null;
+}
+export interface ProductTag { id: string; productId: string; tag: string }
+export interface SectionProduct { id: string; sectionId: string; productId: string; sortOrder: number }
+export interface MenuAssignment {
+  id: string; menuId: string; scopeType: "company" | "global"; scopeId: string | null; priority: number;
+}
+export interface ApprovalRequestDetail extends ApprovalRequest {
+  requestedBy: string | null; requestedAt: string;
+  history: Array<{ stepOrder: number; decision: string; comment: string | null; decidedAt: string }>;
+}

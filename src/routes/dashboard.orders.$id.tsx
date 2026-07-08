@@ -1,10 +1,10 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { PageHeader } from "@/components/app/PageHeader";
 import { StatusBadge } from "@/components/app/StatusBadge";
-import { ordersApi } from "@/services/apiClient";
-import { ArrowLeft, Loader2, Send, MessageSquare } from "lucide-react";
+import { ordersApi, workflowsApi } from "@/services/apiClient";
+import { ArrowLeft, Loader2, Send, MessageSquare, Check, X } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/dashboard/orders/$id")({ component: OrderDetailPage });
@@ -13,10 +13,23 @@ function OrderDetailPage() {
   const { id } = Route.useParams();
   const qc = useQueryClient();
   const { data, isLoading } = useQuery({ queryKey: ["order", id], queryFn: () => ordersApi.get(id) });
+
+  // Fetch workflow steps for target step dropdown
+  const workflows = useQuery({
+    queryKey: ["order-workflows"], queryFn: () => workflowsApi.list({ workflowType: "order" }).catch(() => [] as never[]),
+  });
+  const orderWorkflow = workflows.data?.[0];
+  const steps = useQuery({
+    queryKey: ["wf-steps", orderWorkflow?.id], enabled: !!orderWorkflow?.id,
+    queryFn: () => workflowsApi.listSteps(orderWorkflow!.id).catch(() => [] as never[]),
+  });
+
   const [note, setNote] = useState("");
   const [isInternal, setIsInternal] = useState(true);
   const [toStepId, setToStepId] = useState("");
   const [comment, setComment] = useState("");
+
+  const availableSteps = useMemo(() => steps.data?.filter((s) => s.id !== data?.workflow?.currentStepId) ?? [], [steps.data, data]);
 
   async function addNote() {
     if (!note.trim()) return;
@@ -24,8 +37,13 @@ function OrderDetailPage() {
     catch (e) { toast.error((e as Error).message); }
   }
   async function transition() {
-    if (!toStepId.trim()) return;
+    if (!toStepId) return;
     try { await ordersApi.transition(id, { toStepId, comment: comment || undefined }); toast.success("Transitioned"); setComment(""); setToStepId(""); qc.invalidateQueries({ queryKey: ["order", id] }); }
+    catch (e) { toast.error((e as Error).message); }
+  }
+  async function decide(level: number, decision: "approved" | "rejected") {
+    const c = decision === "rejected" ? (prompt("Reason?") ?? undefined) : undefined;
+    try { await ordersApi.decideApproval(id, level, { decision, comment: c }); toast.success(`Approval ${decision}`); qc.invalidateQueries({ queryKey: ["order", id] }); }
     catch (e) { toast.error((e as Error).message); }
   }
 
@@ -55,8 +73,10 @@ function OrderDetailPage() {
               </dl>
             )}
             <div className="mt-4 flex flex-wrap gap-2 rounded-lg bg-muted/50 p-3">
-              <input value={toStepId} onChange={(e) => setToStepId(e.target.value)} placeholder="Target step ID"
-                className="h-9 flex-1 min-w-[140px] rounded-md border border-border bg-card px-2 text-sm" />
+              <select value={toStepId} onChange={(e) => setToStepId(e.target.value)} className="h-9 flex-1 min-w-[160px] rounded-md border border-border bg-card px-2 text-sm">
+                <option value="">Choose target step…</option>
+                {availableSteps.map((s) => <option key={s.id} value={s.id}>{s.name} ({s.code})</option>)}
+              </select>
               <input value={comment} onChange={(e) => setComment(e.target.value)} placeholder="Comment (optional)"
                 className="h-9 flex-1 min-w-[180px] rounded-md border border-border bg-card px-2 text-sm" />
               <button onClick={transition} className="rounded-md bg-primary px-3 py-1.5 text-sm font-semibold text-primary-foreground hover:bg-[oklch(0.52_0.19_285)]">Transition</button>
@@ -139,9 +159,17 @@ function OrderDetailPage() {
             <h3 className="mb-3 font-semibold">Approvals</h3>
             {data.approvals.length === 0 ? <p className="text-sm text-muted-foreground">No approvals required.</p> :
               data.approvals.map((a) => (
-                <div key={a.approvalLevel} className="flex items-center justify-between border-b border-border py-2 last:border-0">
+                <div key={a.approvalLevel} className="flex items-center justify-between gap-2 border-b border-border py-2 last:border-0">
                   <span className="text-sm">Level {a.approvalLevel}</span>
-                  <StatusBadge status={a.status} />
+                  <div className="flex items-center gap-2">
+                    <StatusBadge status={a.status} />
+                    {a.status === "pending" && (
+                      <>
+                        <button onClick={() => decide(a.approvalLevel, "approved")} className="rounded-md bg-success p-1 text-white hover:opacity-90"><Check className="h-3.5 w-3.5" /></button>
+                        <button onClick={() => decide(a.approvalLevel, "rejected")} className="rounded-md bg-destructive p-1 text-white hover:opacity-90"><X className="h-3.5 w-3.5" /></button>
+                      </>
+                    )}
+                  </div>
                 </div>
               ))}
           </div>
