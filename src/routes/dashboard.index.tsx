@@ -1,6 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { useState } from "react";
 import { PageHeader } from "@/components/app/PageHeader";
 import { useAuth } from "@/lib/auth";
 import { companiesApi, ordersApi } from "@/services/apiClient";
@@ -65,8 +64,6 @@ function DashboardHome() {
           </Link>
         ))}
       </div>
-      {/* satisfy unused import */}
-      <span className="hidden">{String(useState(0)[0])}</span>
     </>
   );
 }
