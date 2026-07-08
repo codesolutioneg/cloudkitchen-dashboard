@@ -7,6 +7,7 @@ import { StatusBadge } from "@/components/app/StatusBadge";
 import { deliveryApi } from "@/services/apiClient";
 import { Loader2, MapPin, Copy, ScanLine } from "lucide-react";
 import { toast } from "sonner";
+import { t } from "@/lib/i18n";
 
 export const Route = createFileRoute("/dashboard/delivery")({ component: DeliveryPage });
 
@@ -28,9 +29,9 @@ function DeliveryPage() {
 
   return (
     <>
-      <PageHeader title="Delivery" description="Your assigned delivery orders." />
+      <PageHeader title={t("Delivery")} description={t("Your assigned delivery orders.")} />
       {isLoading ? <div className="flex justify-center py-12"><Loader2 className="h-6 w-6 animate-spin text-primary" /></div> :
-       !data || data.length === 0 ? <EmptyState title="No assigned orders" description="Orders will appear here when dispatch assigns you." /> : (
+       !data || data.length === 0 ? <EmptyState title={t("No assigned orders")} description={t("Orders will appear here when dispatch assigns you.")} /> : (
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
           {data.map((o) => (
             <div key={o.id} className="card-elevated p-5">
@@ -60,13 +61,13 @@ function DeliveryPage() {
                 </div>
               )}
               <div className="flex flex-wrap items-center gap-2">
-                <button onClick={() => depart(o.id)} className="rounded-md border border-border px-3 py-1.5 text-sm font-semibold hover:bg-muted">Depart</button>
+                <button onClick={() => depart(o.id)} className="rounded-md border border-border px-3 py-1.5 text-sm font-semibold hover:bg-muted">{t("Depart")}</button>
                 <div className="flex flex-1 items-center gap-2 rounded-md border border-border bg-card px-2">
                   <ScanLine className="h-4 w-4 text-muted-foreground" />
-                  <input placeholder="QR token" value={tokens[o.id] ?? ""} onChange={(e) => setTokens((t) => ({ ...t, [o.id]: e.target.value }))}
+                  <input placeholder={t("QR token")} value={tokens[o.id] ?? ""} onChange={(e) => setTokens((t) => ({ ...t, [o.id]: e.target.value }))}
                     className="h-9 flex-1 bg-transparent text-sm outline-none" />
                 </div>
-                <button onClick={() => confirmDelivery(o.id)} className="rounded-md bg-success px-3 py-1.5 text-sm font-semibold text-white hover:opacity-90">Confirm delivery</button>
+                <button onClick={() => confirmDelivery(o.id)} className="rounded-md bg-success px-3 py-1.5 text-sm font-semibold text-white hover:opacity-90">{t("Confirm delivery")}</button>
               </div>
             </div>
           ))}

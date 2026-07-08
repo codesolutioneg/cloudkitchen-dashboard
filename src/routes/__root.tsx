@@ -12,20 +12,21 @@ import { Toaster } from "@/components/ui/sonner";
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { AuthProvider } from "@/lib/auth";
+import { t } from "@/lib/i18n";
 
 function NotFoundComponent() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background px-4">
+    <div className="flex min-h-screen items-center justify-center bg-background px-4" dir="rtl">
       <div className="max-w-md text-center">
         <h1 className="text-7xl font-bold text-foreground">404</h1>
-        <h2 className="mt-4 text-xl font-semibold">Page not found</h2>
+        <h2 className="mt-4 text-xl font-semibold">{t("Page not found")}</h2>
         <p className="mt-2 text-sm text-muted-foreground">
-          The page you're looking for doesn't exist.
+          {t("The page you're looking for doesn't exist.")}
         </p>
         <a
           href="/dashboard"
           className="mt-6 inline-flex rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:bg-primary/90"
-        >Go to dashboard</a>
+        >{t("Go to dashboard")}</a>
       </div>
     </div>
   );
@@ -36,16 +37,16 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
   const router = useRouter();
   useEffect(() => { reportLovableError(error, { boundary: "tanstack_root_error_component" }); }, [error]);
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background px-4">
+    <div className="flex min-h-screen items-center justify-center bg-background px-4" dir="rtl">
       <div className="max-w-md text-center">
-        <h1 className="text-xl font-semibold">Something went wrong</h1>
-        <p className="mt-2 text-sm text-muted-foreground">Try again or head back home.</p>
+        <h1 className="text-xl font-semibold">{t("Something went wrong")}</h1>
+        <p className="mt-2 text-sm text-muted-foreground">{t("Try again or head back home.")}</p>
         <div className="mt-6 flex justify-center gap-2">
           <button
             onClick={() => { router.invalidate(); reset(); }}
             className="rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:bg-primary/90"
-          >Try again</button>
-          <a href="/dashboard" className="rounded-md border border-input px-4 py-2 text-sm font-semibold hover:bg-accent">Go home</a>
+          >{t("Try again")}</button>
+          <a href="/dashboard" className="rounded-md border border-input px-4 py-2 text-sm font-semibold hover:bg-accent">{t("Go home")}</a>
         </div>
       </div>
     </div>
@@ -57,10 +58,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Cloud Kitchen — Super Admin" },
-      { name: "description", content: "Cloud Kitchen B2B super admin dashboard: manage companies, catalog, orders, workflows and delivery operations." },
-      { property: "og:title", content: "Cloud Kitchen — Super Admin" },
-      { property: "og:description", content: "B2B cloud-kitchen platform administration console." },
+      { title: "المطبخ السحابي — المشرف العام" },
+      { name: "description", content: "لوحة المشرف العام للمطبخ السحابي B2B: إدارة الشركات والكتالوج والطلبات وسير العمل والتوصيل." },
+      { property: "og:title", content: "المطبخ السحابي — المشرف العام" },
+      { property: "og:description", content: "وحدة إدارة منصة المطبخ السحابي للشركات." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
@@ -80,9 +81,9 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 
 function RootShell({ children }: { children: ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="ar" dir="rtl">
       <head><HeadContent /></head>
-      <body>
+      <body className="font-sans" dir="rtl">
         {children}
         <Scripts />
       </body>
@@ -96,7 +97,7 @@ function RootComponent() {
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <Outlet />
-        <Toaster richColors position="top-right" />
+        <Toaster richColors position="top-left" dir="rtl" />
       </AuthProvider>
     </QueryClientProvider>
   );

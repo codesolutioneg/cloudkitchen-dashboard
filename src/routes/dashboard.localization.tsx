@@ -11,17 +11,18 @@ import { localizationApi } from "@/services/apiClient";
 import type { Language, Translation } from "@/types/api";
 import { Plus, Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import { t } from "@/lib/i18n";
 
 export const Route = createFileRoute("/dashboard/localization")({ component: LocalizationPage });
 
 function LocalizationPage() {
   return (
     <>
-      <PageHeader title="Localization" description="Languages and translations for content entities." />
+      <PageHeader title={t("Localization")} description={t("Languages and translations for content entities.")} />
       <Tabs defaultValue="languages">
         <TabsList className="mb-4">
-          <TabsTrigger value="languages">Languages</TabsTrigger>
-          <TabsTrigger value="translations">Translations</TabsTrigger>
+          <TabsTrigger value="languages">{t("Languages")}</TabsTrigger>
+          <TabsTrigger value="translations">{t("Translations")}</TabsTrigger>
         </TabsList>
         <TabsContent value="languages"><LanguagesTab /></TabsContent>
         <TabsContent value="translations"><TranslationsTab /></TabsContent>
@@ -47,16 +48,16 @@ function LanguagesTab() {
   ];
   return (
     <>
-      <div className="mb-3 flex justify-end"><button onClick={() => setOpen(true)} className="flex items-center gap-2 rounded-[10px] bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground"><Plus className="h-4 w-4" /> New language</button></div>
-      <DataTable columns={cols} rows={data} loading={isLoading} emptyTitle="No languages configured" emptyDescription="Add languages so you can translate products, menus and notifications." />
+      <div className="mb-3 flex justify-end"><button onClick={() => setOpen(true)} className="flex items-center gap-2 rounded-[10px] bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground"><Plus className="h-4 w-4" /> {t("New language")}</button></div>
+      <DataTable columns={cols} rows={data} loading={isLoading} emptyTitle={t("No languages configured")} emptyDescription={t("Add languages so you can translate products, menus and notifications.")} />
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent><DialogHeader><DialogTitle>New language</DialogTitle></DialogHeader>
+        <DialogContent><DialogHeader><DialogTitle>{t("New language")}</DialogTitle></DialogHeader>
           <div className="space-y-2">
-            <input placeholder="Code (e.g. ar)" value={form.code} onChange={(e) => setForm({ ...form, code: e.target.value })} className="h-10 w-full rounded-md border border-border bg-card px-3 text-sm" />
-            <input placeholder="Name" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className="h-10 w-full rounded-md border border-border bg-card px-3 text-sm" />
+            <input placeholder={t("Code (e.g. ar)")} value={form.code} onChange={(e) => setForm({ ...form, code: e.target.value })} className="h-10 w-full rounded-md border border-border bg-card px-3 text-sm" />
+            <input placeholder={t("Name")} value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className="h-10 w-full rounded-md border border-border bg-card px-3 text-sm" />
             <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={form.isDefault} onChange={(e) => setForm({ ...form, isDefault: e.target.checked })} /> Default</label>
           </div>
-          <DialogFooter><button onClick={create} className="rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground">Create</button></DialogFooter>
+          <DialogFooter><button onClick={create} className="rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground">{t("Create")}</button></DialogFooter>
         </DialogContent>
       </Dialog>
     </>
@@ -76,14 +77,14 @@ function TranslationsTab() {
   return (
     <div className="space-y-4">
       <div className="card-elevated grid grid-cols-1 gap-2 p-4 sm:grid-cols-4">
-        <input placeholder="entityType" value={search.entityType} onChange={(e) => setSearch({ ...search, entityType: e.target.value })} className="h-10 rounded-md border border-border bg-card px-3 text-sm" />
-        <input placeholder="entityId" value={search.entityId} onChange={(e) => setSearch({ ...search, entityId: e.target.value })} className="h-10 rounded-md border border-border bg-card px-3 text-sm" />
-        <input placeholder="languageCode" value={search.languageCode} onChange={(e) => setSearch({ ...search, languageCode: e.target.value })} className="h-10 rounded-md border border-border bg-card px-3 text-sm" />
+        <input placeholder={t("entityType")} value={search.entityType} onChange={(e) => setSearch({ ...search, entityType: e.target.value })} className="h-10 rounded-md border border-border bg-card px-3 text-sm" />
+        <input placeholder={t("entityId")} value={search.entityId} onChange={(e) => setSearch({ ...search, entityId: e.target.value })} className="h-10 rounded-md border border-border bg-card px-3 text-sm" />
+        <input placeholder={t("languageCode")} value={search.languageCode} onChange={(e) => setSearch({ ...search, languageCode: e.target.value })} className="h-10 rounded-md border border-border bg-card px-3 text-sm" />
         <button onClick={run} className="rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground">Search</button>
       </div>
       {loading ? <Loader2 className="h-5 w-5 animate-spin text-primary mx-auto" /> :
-        !result ? <EmptyState title="Search translations" description="Filter by entity type, ID or language above." /> :
-        result.length === 0 ? <EmptyState title="No translations found" /> : (
+        !result ? <EmptyState title={t("Search translations")} description={t("Filter by entity type, ID or language above.")} /> :
+        result.length === 0 ? <EmptyState title={t("No translations found")} /> : (
           <div className="card-elevated divide-y divide-border">
             {result.map((t, i) => (
               <div key={i} className="grid grid-cols-4 gap-2 p-3 text-sm">

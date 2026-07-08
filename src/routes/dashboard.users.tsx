@@ -11,6 +11,7 @@ import { Plus } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { toast } from "sonner";
+import { t } from "@/lib/i18n";
 
 export const Route = createFileRoute("/dashboard/users")({ component: UsersPage });
 
@@ -23,7 +24,7 @@ function UsersPage() {
 
   const query = useQuery({
     queryKey: ["dashboard-users", page],
-    queryFn: () => dashboardUsersApi.list({ page, pageSize: 20 }).catch(() => ({ items: [], page: 1, pageSize: 20, totalItems: 0 })),
+    queryFn: () => dashboardUsersApi.list({ page, pageSize: 20 }),
   });
 
   const columns: Column<DashboardUser>[] = [
@@ -57,15 +58,17 @@ function UsersPage() {
   return (
     <>
       <PageHeader
-        title="Dashboard Users" description="Staff who operate the platform."
-        actions={<button onClick={() => setOpen(true)} className="flex items-center gap-2 rounded-[10px] bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:bg-[oklch(0.52_0.19_285)]"><Plus className="h-4 w-4" /> Invite user</button>}
+        title={t("Dashboard Users")} description={t("Staff who operate the platform.")}
+        actions={<button onClick={() => setOpen(true)} className="flex items-center gap-2 rounded-[10px] bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:bg-[oklch(0.52_0.19_285)]"><Plus className="h-4 w-4" /> {t("Invite user")}</button>}
       />
-      {query.data && query.data.totalItems === 0 && !query.isLoading ? (
-        <EmptyState title="No dashboard users listed" description="The list endpoint may not be enabled yet. You can still invite new users." />
+      {query.isError ? (
+        <EmptyState title={t("Could not load users")} description={(query.error as Error).message} />
+      ) : query.data && query.data.totalItems === 0 && !query.isLoading ? (
+        <EmptyState title={t("No dashboard users listed")} description={t("Invite your first dashboard user to get started.")} />
       ) : (
         <DataTable columns={columns} rows={query.data?.items} loading={query.isLoading}
           onRowClick={setSelected}
-          emptyTitle="No dashboard users" />
+          emptyTitle={t("No dashboard users")} />
       )}
       {query.data && query.data.totalItems > 0 && (
         <TablePagination page={query.data.page} pageSize={query.data.pageSize} totalItems={query.data.totalItems} onPageChange={setPage} />
@@ -85,8 +88,8 @@ function UsersPage() {
             ))}
           </div>
           <DialogFooter>
-            <button onClick={() => setOpen(false)} className="rounded-[10px] border border-border px-4 py-2 text-sm font-semibold hover:bg-muted">Cancel</button>
-            <button onClick={invite} className="rounded-[10px] bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground">Send invite</button>
+            <button onClick={() => setOpen(false)} className="rounded-[10px] border border-border px-4 py-2 text-sm font-semibold hover:bg-muted">{t("Cancel")}</button>
+            <button onClick={invite} className="rounded-[10px] bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground">{t("Send invite")}</button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -103,7 +106,7 @@ function UsersPage() {
 function UserDetail({ user, onClose }: { user: DashboardUser; onClose: () => void }) {
   const roles = useQuery({ queryKey: ["roles"], queryFn: rolesApi.list });
   const [selectedRoleIds, setSelectedRoleIds] = useState<string[]>(user.roles.map((r) => r.id));
-  const [scopeType, setScopeType] = useState<"all" | "companies">("all");
+  const [scopeType, setScopeType] = useState<"all" | "specific">("all");
   const [companyIds, setCompanyIds] = useState("");
 
   async function saveRoles() {
@@ -111,7 +114,7 @@ function UserDetail({ user, onClose }: { user: DashboardUser; onClose: () => voi
     catch (e) { toast.error((e as Error).message); }
   }
   async function saveScope() {
-    const ids = scopeType === "companies" ? companyIds.split(",").map((s) => s.trim()).filter(Boolean) : undefined;
+    const ids = scopeType === "specific" ? companyIds.split(",").map((s) => s.trim()).filter(Boolean) : undefined;
     try { await dashboardUsersApi.setCompanyScope(user.id, { scopeType, companyIds: ids }); toast.success("Scope updated"); onClose(); }
     catch (e) { toast.error((e as Error).message); }
   }
@@ -143,10 +146,10 @@ function UserDetail({ user, onClose }: { user: DashboardUser; onClose: () => voi
         <div>
           <div className="mb-2 text-xs uppercase text-muted-foreground">Company scope</div>
           <select value={scopeType} onChange={(e) => setScopeType(e.target.value as never)} className="h-10 w-full rounded-md border border-border bg-card px-3 text-sm">
-            <option value="all">All companies</option><option value="companies">Specific companies</option>
+            <option value="all">All companies</option><option value="specific">Specific companies</option>
           </select>
-          {scopeType === "companies" && (
-            <input value={companyIds} onChange={(e) => setCompanyIds(e.target.value)} placeholder="Company IDs, comma-separated"
+          {scopeType === "specific" && (
+            <input value={companyIds} onChange={(e) => setCompanyIds(e.target.value)} placeholder={t("Company IDs, comma-separated")}
               className="mt-2 h-10 w-full rounded-md border border-border bg-card px-3 text-sm" />
           )}
           <button onClick={saveScope} className="mt-2 rounded-md bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground">Save scope</button>

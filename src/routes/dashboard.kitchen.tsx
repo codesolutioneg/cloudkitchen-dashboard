@@ -7,6 +7,7 @@ import { ordersApi, workflowsApi } from "@/services/apiClient";
 import type { OrderSummary } from "@/types/api";
 import { ChefHat, Loader2, ArrowRight } from "lucide-react";
 import { toast } from "sonner";
+import { t } from "@/lib/i18n";
 
 export const Route = createFileRoute("/dashboard/kitchen")({ component: KitchenPage });
 
@@ -19,7 +20,7 @@ const COLUMNS: Array<{ code: string; title: string; nextCode?: string }> = [
 function KitchenPage() {
   return (
     <>
-      <PageHeader title="Kitchen" description="Live operations queue for the kitchen team." />
+      <PageHeader title={t("Kitchen")} description={t("Live operations queue for the kitchen team.")} />
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
         {COLUMNS.map((c) => <KanbanColumn key={c.code} {...c} />)}
       </div>
@@ -49,7 +50,7 @@ function KanbanColumn({ code, title, nextCode }: { code: string; title: string; 
       {isLoading ? (
         <div className="flex justify-center py-8"><Loader2 className="h-5 w-5 animate-spin text-primary" /></div>
       ) : !data || data.items.length === 0 ? (
-        <EmptyState icon={<ChefHat className="h-5 w-5" />} title="Nothing here" description="Orders will queue up as they progress." />
+        <EmptyState icon={<ChefHat className="h-5 w-5" />} title={t("Nothing here")} description={t("Orders will queue up as they progress.")} />
       ) : (
         <div className="space-y-2">
           {data.items.map((o: OrderSummary) => (

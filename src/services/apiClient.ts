@@ -17,7 +17,7 @@ import type {
   AuditLog, NotificationTemplate, BackgroundJob,
   ExternalSystem, IntegrationMapping, IntegrationEvent,
   Language, Translation, GlobalSettings,
-  ProductVariant, ProductOptionGroup, ProductAvailability, ProductTag,
+  ProductVariant, ProductOptionGroup, ProductAvailability, ProductTag, ProductMedia,
   SectionProduct, MenuAssignment,
 } from "@/types/api";
 
@@ -58,6 +58,36 @@ interface RequestOptions {
   query?: Record<string, string | number | boolean | undefined | null>;
   body?: unknown;
   formData?: FormData;
+  _retry?: boolean;
+}
+
+let refreshInFlight: Promise<boolean> | null = null;
+
+async function refreshAccessToken(): Promise<boolean> {
+  const refresh = tokenStore.refresh;
+  if (!refresh) return false;
+
+  if (!refreshInFlight) {
+    refreshInFlight = (async () => {
+      try {
+        const res = await fetch(new URL("/api/v1/auth/dashboard/refresh", BASE_URL), {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ refreshToken: refresh }),
+        });
+        const payload = (await res.json()) as ApiResponse<AuthTokens>;
+        if (!res.ok || !payload.success) return false;
+        tokenStore.set(payload.data);
+        return true;
+      } catch {
+        return false;
+      } finally {
+        refreshInFlight = null;
+      }
+    })();
+  }
+
+  return refreshInFlight;
 }
 
 async function request<T>(path: string, opts: RequestOptions = {}): Promise<T> {
@@ -79,6 +109,12 @@ async function request<T>(path: string, opts: RequestOptions = {}): Promise<T> {
     body: opts.formData ?? (opts.body !== undefined ? JSON.stringify(opts.body) : undefined),
   });
 
+  if (res.status === 401 && !opts._retry) {
+    const refreshed = await refreshAccessToken();
+    if (refreshed) return request<T>(path, { ...opts, _retry: true });
+    tokenStore.clear();
+  }
+
   let payload: ApiResponse<T> | null = null;
   try { payload = (await res.json()) as ApiResponse<T>; } catch { /* ignore */ }
 
@@ -99,7 +135,7 @@ export interface Paginated<T> {
   totalItems: number;
 }
 
-async function paginated<T>(path: string, query?: RequestOptions["query"]): Promise<Paginated<T>> {
+async function paginated<T>(path: string, query?: RequestOptions["query"], retry = false): Promise<Paginated<T>> {
   const url = new URL(path, BASE_URL);
   if (query) {
     for (const [k, v] of Object.entries(query)) {
@@ -110,6 +146,13 @@ async function paginated<T>(path: string, query?: RequestOptions["query"]): Prom
   const res = await fetch(url.toString(), {
     headers: token ? { Authorization: `Bearer ${token}` } : {},
   });
+
+  if (res.status === 401 && !retry) {
+    const refreshed = await refreshAccessToken();
+    if (refreshed) return paginated<T>(path, query, true);
+    tokenStore.clear();
+  }
+
   let payload: ApiResponse<T[]> | null = null;
   try { payload = (await res.json()) as ApiResponse<T[]>; } catch { /* ignore */ }
   if (!res.ok || !payload || payload.success === false) {
@@ -145,13 +188,16 @@ export const companiesApi = {
       { method: "PATCH", body: { verificationStatus } },
     ),
   users: (id: string) => request<DashboardUser[]>(`/api/v1/dashboard/companies/${id}/users`),
-  getSettings: (companyId: string) => request<GlobalSettings>(`/api/v1/dashboard/settings/company/${companyId}`),
-  updateSettings: (companyId: string, body: unknown) =>
-    request<GlobalSettings>(`/api/v1/dashboard/settings/company/${companyId}`, { method: "PUT", body }),
-  getFeatures: (companyId: string) => request<Feature[]>(`/api/v1/dashboard/companies/${companyId}/features`),
+  getSettings: (companyId: string) =>
+    request<{ companyId: string; settings: Record<string, unknown> }>(`/api/v1/dashboard/settings/company/${companyId}`),
+  updateSettings: (companyId: string, settings: Record<string, unknown>) =>
+    request<{ companyId: string; settings: Record<string, unknown> }>(`/api/v1/dashboard/settings/company/${companyId}`, { method: "PUT", body: settings }),
+  getFeatures: (companyId: string) =>
+    request<Array<{ id: string; featureId: string; featureCode: string; isEnabled: boolean }>>(`/api/v1/dashboard/companies/${companyId}/features`),
   updateFeatures: (companyId: string, body: unknown) =>
     request<Feature[]>(`/api/v1/dashboard/companies/${companyId}/features`, { method: "PUT", body }),
-  getModules: (companyId: string) => request<Module[]>(`/api/v1/dashboard/companies/${companyId}/modules`),
+  getModules: (companyId: string) =>
+    request<Array<{ id: string; moduleId: string; moduleCode: string; isEnabled: boolean }>>(`/api/v1/dashboard/companies/${companyId}/modules`),
   updateModules: (companyId: string, body: unknown) =>
     request<Module[]>(`/api/v1/dashboard/companies/${companyId}/modules`, { method: "PUT", body }),
 };
@@ -177,7 +223,10 @@ export const rolesApi = {
 };
 
 export const permissionsApi = {
-  list: () => request<Permission[]>("/api/v1/dashboard/permissions"),
+  list: async () => {
+    const groups = await request<Array<{ permissions: Permission[] }>>("/api/v1/dashboard/permissions");
+    return groups.flatMap((g) => g.permissions);
+  },
 };
 
 // ================= DASHBOARD USERS =================
@@ -188,8 +237,13 @@ export const dashboardUsersApi = {
     request<DashboardUser>("/api/v1/dashboard/users", { method: "POST", body }),
   assignRoles: (id: string, roleIds: string[]) =>
     request<void>(`/api/v1/dashboard/users/${id}/roles`, { method: "POST", body: { roleIds } }),
-  setCompanyScope: (id: string, body: { scopeType: "all" | "companies"; companyIds?: string[] }) =>
-    request<void>(`/api/v1/dashboard/users/${id}/company-scope`, { method: "PUT", body }),
+  setCompanyScope: (id: string, body: { scopeType: "all" | "specific" | "companies"; companyIds?: string[] }) => {
+    const scopeType = body.scopeType === "companies" ? "specific" : body.scopeType;
+    return request<void>(`/api/v1/dashboard/users/${id}/company-scope`, {
+      method: "PUT",
+      body: { scopeType, companyIds: body.companyIds },
+    });
+  },
 };
 
 // ================= FEATURES / MODULES =================
@@ -258,9 +312,9 @@ export const menusApi = {
     request<MenuSection>(`/api/v1/dashboard/menus/${menuId}/sections`, { method: "POST", body: b }),
   addSectionProduct: (menuId: string, sectionId: string, body: { productId: string; sortOrder: number }) =>
     request<void>(`/api/v1/dashboard/menus/${menuId}/sections/${sectionId}/products`, { method: "POST", body }),
-  listAssignments: (menuId: string) => request<unknown[]>(`/api/v1/dashboard/menus/${menuId}/assignments`),
-  createAssignment: (menuId: string, body: { scopeType: "company" | "global"; scopeId?: string; priority: number }) =>
-    request<void>(`/api/v1/dashboard/menus/${menuId}/assignments`, { method: "POST", body }),
+  listAssignments: (menuId: string) => request<MenuAssignment[]>(`/api/v1/dashboard/menus/${menuId}/assignments`),
+  createAssignment: (menuId: string, body: { scopeType: "company" | "department" | "user" | "campaign"; scopeId: string; priority: number }) =>
+    request<MenuAssignment>(`/api/v1/dashboard/menus/${menuId}/assignments`, { method: "POST", body }),
 };
 
 // ================= BUSINESS RULES =================
@@ -381,7 +435,8 @@ export const localizationApi = {
 
 export const settingsApi = {
   getGlobal: () => request<GlobalSettings>("/api/v1/dashboard/settings/global"),
-  updateGlobal: (body: unknown) => request<GlobalSettings>("/api/v1/dashboard/settings/global", { method: "PUT", body }),
+  updateGlobal: (settings: Record<string, unknown>) =>
+    request<GlobalSettings>("/api/v1/dashboard/settings/global", { method: "PUT", body: settings }),
 };
 
 // ================= FILES =================
@@ -407,7 +462,15 @@ export const companyDocumentsApi = {
 export const catalogExtApi = {
   listVariants: (productId: string) => request<ProductVariant[]>(`/api/v1/dashboard/catalog/products/${productId}/variants`),
   createVariant: (productId: string, b: Partial<ProductVariant>) =>
-    request<ProductVariant>(`/api/v1/dashboard/catalog/products/${productId}/variants`, { method: "POST", body: b }),
+    request<ProductVariant>(`/api/v1/dashboard/catalog/products/${productId}/variants`, {
+      method: "POST",
+      body: {
+        variantName: b.name ?? "",
+        sku: b.sku ?? undefined,
+        priceAdjustment: b.priceDelta ?? "0",
+        isActive: b.isActive ?? true,
+      },
+    }),
   updateVariant: (productId: string, variantId: string, b: Partial<ProductVariant>) =>
     request<ProductVariant>(`/api/v1/dashboard/catalog/products/${productId}/variants/${variantId}`, { method: "PATCH", body: b }),
 
@@ -427,9 +490,27 @@ export const catalogExtApi = {
 
   listTags: (productId: string) => request<ProductTag[]>(`/api/v1/dashboard/catalog/products/${productId}/tags`),
   addTag: (productId: string, tag: string) =>
-    request<ProductTag>(`/api/v1/dashboard/catalog/products/${productId}/tags`, { method: "POST", body: { tag } }),
+    request<ProductTag>(`/api/v1/dashboard/catalog/products/${productId}/tags`, { method: "POST", body: { tagName: tag } }),
   removeTag: (productId: string, tagId: string) =>
     request<void>(`/api/v1/dashboard/catalog/products/${productId}/tags/${tagId}`, { method: "DELETE" }),
+
+  listMedia: (productId: string) =>
+    request<ProductMedia[]>(`/api/v1/dashboard/catalog/products/${productId}/media`),
+  uploadImage: (productId: string, file: File) => {
+    const fd = new FormData();
+    fd.append("file", file);
+    return request<{ productId: string; imageUrl: string }>(
+      `/api/v1/dashboard/catalog/products/${productId}/image`,
+      { method: "POST", formData: fd },
+    );
+  },
+  setImageUrl: (productId: string, imageUrl: string | null) =>
+    request<{ productId: string; imageUrl: string | null }>(
+      `/api/v1/dashboard/catalog/products/${productId}/image`,
+      { method: "PUT", body: { imageUrl } },
+    ),
+  deleteMedia: (productId: string, mediaId: string) =>
+    request<void>(`/api/v1/dashboard/catalog/products/${productId}/media/${mediaId}`, { method: "DELETE" }),
 };
 
 // Menus extensions

@@ -6,6 +6,7 @@ import { StatusBadge } from "@/components/app/StatusBadge";
 import { ordersApi, workflowsApi } from "@/services/apiClient";
 import { ArrowLeft, Loader2, Send, MessageSquare, Check, X } from "lucide-react";
 import { toast } from "sonner";
+import { t } from "@/lib/i18n";
 
 export const Route = createFileRoute("/dashboard/orders/$id")({ component: OrderDetailPage });
 
@@ -55,8 +56,8 @@ function OrderDetailPage() {
       <PageHeader
         title={`Order ${data.orderNumber}`}
         description={`${data.fulfillmentType} · ${data.totalAmount} ${data.currency}`}
-        breadcrumbs={[{ label: "Dashboard", to: "/dashboard" }, { label: "Orders", to: "/dashboard/orders" }, { label: data.orderNumber }]}
-        actions={<Link to="/dashboard/orders" className="flex items-center gap-2 rounded-[10px] border border-border px-3 py-2 text-sm font-semibold hover:bg-muted"><ArrowLeft className="h-4 w-4" /> Back</Link>}
+        breadcrumbs={[{ label: t("Dashboard"), to: "/dashboard" }, { label: t("Orders"), to: "/dashboard/orders" }, { label: data.orderNumber }]}
+        actions={<Link to="/dashboard/orders" className="flex items-center gap-2 rounded-[10px] border border-border px-3 py-2 text-sm font-semibold hover:bg-muted"><ArrowLeft className="h-4 w-4" /> {t("Back")}</Link>}
       />
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
@@ -77,9 +78,9 @@ function OrderDetailPage() {
                 <option value="">Choose target step…</option>
                 {availableSteps.map((s) => <option key={s.id} value={s.id}>{s.name} ({s.code})</option>)}
               </select>
-              <input value={comment} onChange={(e) => setComment(e.target.value)} placeholder="Comment (optional)"
+              <input value={comment} onChange={(e) => setComment(e.target.value)} placeholder={t("Comment (optional)")}
                 className="h-9 flex-1 min-w-[180px] rounded-md border border-border bg-card px-2 text-sm" />
-              <button onClick={transition} className="rounded-md bg-primary px-3 py-1.5 text-sm font-semibold text-primary-foreground hover:bg-[oklch(0.52_0.19_285)]">Transition</button>
+              <button onClick={transition} className="rounded-md bg-primary px-3 py-1.5 text-sm font-semibold text-primary-foreground hover:bg-[oklch(0.52_0.19_285)]">{t("Transition")}</button>
             </div>
           </div>
 
@@ -124,7 +125,7 @@ function OrderDetailPage() {
               ))}
             </div>
             <div className="mt-4 space-y-2">
-              <textarea value={note} onChange={(e) => setNote(e.target.value)} placeholder="Add a note…"
+              <textarea value={note} onChange={(e) => setNote(e.target.value)} placeholder={t("Add a note…")}
                 className="min-h-[70px] w-full rounded-[10px] border border-border bg-card p-2 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20" />
               <div className="flex items-center justify-between">
                 <label className="flex items-center gap-2 text-sm">
@@ -132,7 +133,7 @@ function OrderDetailPage() {
                   Internal only
                 </label>
                 <button onClick={addNote} className="flex items-center gap-2 rounded-md bg-primary px-3 py-1.5 text-sm font-semibold text-primary-foreground hover:bg-[oklch(0.52_0.19_285)]">
-                  <Send className="h-4 w-4" /> Post
+                  <Send className="h-4 w-4" /> {t("Post")}
                 </button>
               </div>
             </div>
@@ -156,7 +157,7 @@ function OrderDetailPage() {
           </div>
 
           <div className="card-elevated p-5">
-            <h3 className="mb-3 font-semibold">Approvals</h3>
+            <h3 className="mb-3 font-semibold">{t("Approvals")}</h3>
             {data.approvals.length === 0 ? <p className="text-sm text-muted-foreground">No approvals required.</p> :
               data.approvals.map((a) => (
                 <div key={a.approvalLevel} className="flex items-center justify-between gap-2 border-b border-border py-2 last:border-0">

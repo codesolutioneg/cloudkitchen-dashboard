@@ -1,13 +1,14 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { PageHeader } from "@/components/app/PageHeader";
 import { StatusBadge } from "@/components/app/StatusBadge";
 import { EmptyState } from "@/components/app/EmptyState";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { companiesApi, companyDocumentsApi, filesApi } from "@/services/apiClient";
+import { companiesApi, companyDocumentsApi, filesApi, featuresApi } from "@/services/apiClient";
 import { ArrowLeft, Check, X, Loader2, Upload } from "lucide-react";
 import { toast } from "sonner";
+import { t } from "@/lib/i18n";
 
 export const Route = createFileRoute("/dashboard/companies/$id")({ component: CompanyDetail });
 
@@ -35,17 +36,17 @@ function CompanyDetail() {
       <PageHeader
         title={c.legalName}
         description={c.tradeName ?? c.primaryEmail}
-        breadcrumbs={[{ label: "Dashboard", to: "/dashboard" }, { label: "Companies", to: "/dashboard/companies" }, { label: c.legalName }]}
-        actions={<Link to="/dashboard/companies" className="flex items-center gap-2 rounded-[10px] border border-border px-3 py-2 text-sm font-semibold hover:bg-muted"><ArrowLeft className="h-4 w-4" /> Back</Link>}
+        breadcrumbs={[{ label: t("Dashboard"), to: "/dashboard" }, { label: t("Companies"), to: "/dashboard/companies" }, { label: c.legalName }]}
+        actions={<Link to="/dashboard/companies" className="flex items-center gap-2 rounded-[10px] border border-border px-3 py-2 text-sm font-semibold hover:bg-muted"><ArrowLeft className="h-4 w-4" /> {t("Back")}</Link>}
       />
       <Tabs defaultValue="overview" className="w-full">
         <TabsList className="mb-4">
-          <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="documents">Documents</TabsTrigger>
-          <TabsTrigger value="users">Users</TabsTrigger>
-          <TabsTrigger value="features">Features</TabsTrigger>
-          <TabsTrigger value="modules">Modules</TabsTrigger>
-          <TabsTrigger value="settings">Settings</TabsTrigger>
+          <TabsTrigger value="overview">{t("Overview")}</TabsTrigger>
+          <TabsTrigger value="documents">{t("Documents")}</TabsTrigger>
+          <TabsTrigger value="users">{t("Users")}</TabsTrigger>
+          <TabsTrigger value="features">{t("Features")}</TabsTrigger>
+          <TabsTrigger value="modules">{t("Modules")}</TabsTrigger>
+          <TabsTrigger value="settings">{t("Settings")}</TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview">
@@ -57,8 +58,8 @@ function CompanyDetail() {
             <Row label="Approval" value={<StatusBadge status={c.approvalStatus} />} />
             <Row label="Status" value={<StatusBadge status={c.status} tone="muted" />} />
             <div className="flex gap-2 pt-2">
-              <button onClick={approve} className="flex items-center gap-2 rounded-[10px] bg-success px-4 py-2 text-sm font-semibold text-white hover:opacity-90"><Check className="h-4 w-4" /> Approve</button>
-              <button onClick={reject} className="flex items-center gap-2 rounded-[10px] bg-destructive px-4 py-2 text-sm font-semibold text-destructive-foreground hover:opacity-90"><X className="h-4 w-4" /> Reject</button>
+              <button onClick={approve} className="flex items-center gap-2 rounded-[10px] bg-success px-4 py-2 text-sm font-semibold text-white hover:opacity-90"><Check className="h-4 w-4" /> {t("Approve")}</button>
+              <button onClick={reject} className="flex items-center gap-2 rounded-[10px] bg-destructive px-4 py-2 text-sm font-semibold text-destructive-foreground hover:opacity-90"><X className="h-4 w-4" /> {t("Reject")}</button>
             </div>
           </div>
         </TabsContent>
@@ -107,7 +108,7 @@ function DocumentsTab({ companyId }: { companyId: string }) {
         </label>
       </div>
       {isLoading ? <div className="flex justify-center py-8"><Loader2 className="h-5 w-5 animate-spin text-primary" /></div> :
-        !data || data.length === 0 ? <EmptyState title="No documents" description="Upload onboarding attachments above." /> : (
+        !data || data.length === 0 ? <EmptyState title={t("No documents")} description={t("Upload onboarding attachments above.")} /> : (
           <div className="card-elevated divide-y divide-border">
             {data.map((d) => (
               <div key={d.id} className="flex items-center justify-between gap-3 p-4">
@@ -118,7 +119,7 @@ function DocumentsTab({ companyId }: { companyId: string }) {
                 <div className="flex items-center gap-2">
                   <StatusBadge status={d.verificationStatus ?? "pending"} />
                   <button onClick={() => verify(d.id, "verified")} className="rounded-md border border-success/40 px-2 py-1 text-xs text-success hover:bg-success/10">Verify</button>
-                  <button onClick={() => verify(d.id, "rejected")} className="rounded-md border border-destructive/40 px-2 py-1 text-xs text-destructive hover:bg-destructive/10">Reject</button>
+                  <button onClick={() => verify(d.id, "rejected")} className="rounded-md border border-destructive/40 px-2 py-1 text-xs text-destructive hover:bg-destructive/10">{t("Reject")}</button>
                 </div>
               </div>
             ))}
@@ -131,7 +132,7 @@ function DocumentsTab({ companyId }: { companyId: string }) {
 function UsersTab({ companyId }: { companyId: string }) {
   const { data, isLoading } = useQuery({ queryKey: ["company-users", companyId], queryFn: () => companiesApi.users(companyId).catch(() => [] as never[]) });
   if (isLoading) return <div className="flex justify-center py-8"><Loader2 className="h-5 w-5 animate-spin text-primary" /></div>;
-  if (!data || data.length === 0) return <EmptyState title="No company users" description="Corporate users will list here." />;
+  if (!data || data.length === 0) return <EmptyState title={t("No company users")} description={t("Corporate users will list here.")} />;
   return (
     <div className="card-elevated divide-y divide-border">
       {data.map((u) => (
@@ -146,23 +147,45 @@ function UsersTab({ companyId }: { companyId: string }) {
 
 function FeaturesTab({ companyId }: { companyId: string }) {
   const qc = useQueryClient();
-  const { data, isLoading } = useQuery({ queryKey: ["company-features", companyId], queryFn: () => companiesApi.getFeatures(companyId).catch(() => [] as never[]) });
+  const allFeatures = useQuery({ queryKey: ["features"], queryFn: featuresApi.list });
+  const overrides = useQuery({ queryKey: ["company-features", companyId], queryFn: () => companiesApi.getFeatures(companyId) });
   const [pending, setPending] = useState<Record<string, boolean>>({});
+
+  const enabledByFeatureId = useMemo(() => {
+    const map = new Map<string, boolean>();
+    for (const row of overrides.data ?? []) map.set(row.featureId, row.isEnabled);
+    return map;
+  }, [overrides.data]);
+
   async function save() {
-    try { await companiesApi.updateFeatures(companyId, { features: Object.entries(pending).map(([id, isEnabled]) => ({ featureId: id, isEnabled })) }); toast.success("Saved"); qc.invalidateQueries({ queryKey: ["company-features", companyId] }); setPending({}); }
-    catch (e) { toast.error((e as Error).message); }
+    try {
+      await companiesApi.updateFeatures(companyId, {
+        features: Object.entries(pending).map(([featureId, isEnabled]) => ({ featureId, isEnabled })),
+      });
+      toast.success("Saved");
+      qc.invalidateQueries({ queryKey: ["company-features", companyId] });
+      setPending({});
+    } catch (e) { toast.error((e as Error).message); }
   }
-  if (isLoading) return <div className="flex justify-center py-8"><Loader2 className="h-5 w-5 animate-spin text-primary" /></div>;
-  if (!data || data.length === 0) return <EmptyState title="No feature overrides" description="This company inherits global feature defaults." />;
+
+  if (allFeatures.isLoading || overrides.isLoading) {
+    return <div className="flex justify-center py-8"><Loader2 className="h-5 w-5 animate-spin text-primary" /></div>;
+  }
+  if (!allFeatures.data || allFeatures.data.length === 0) {
+    return <EmptyState title={t("No feature overrides")} description={t("This company inherits global feature defaults.")} />;
+  }
+
   return (
     <div className="space-y-3">
       <div className="card-elevated divide-y divide-border">
-        {data.map((f) => {
-          const cur = pending[f.id] ?? f.isGlobalDefaultEnabled;
+        {allFeatures.data.map((f) => {
+          const cur = pending[f.id] ?? enabledByFeatureId.get(f.id) ?? f.isGlobalDefaultEnabled;
           return (
             <div key={f.id} className="flex items-center justify-between p-4">
               <div><div className="font-semibold">{f.name}</div><code className="text-xs text-muted-foreground">{f.code}</code></div>
-              <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={cur} onChange={(e) => setPending((p) => ({ ...p, [f.id]: e.target.checked }))} /> Enabled</label>
+              <label className="flex items-center gap-2 text-sm">
+                <input type="checkbox" checked={cur} onChange={(e) => setPending((p) => ({ ...p, [f.id]: e.target.checked }))} /> Enabled
+              </label>
             </div>
           );
         })}
@@ -173,15 +196,18 @@ function FeaturesTab({ companyId }: { companyId: string }) {
 }
 
 function ModulesTab({ companyId }: { companyId: string }) {
-  const { data, isLoading } = useQuery({ queryKey: ["company-modules", companyId], queryFn: () => companiesApi.getModules(companyId).catch(() => [] as never[]) });
+  const { data, isLoading } = useQuery({ queryKey: ["company-modules", companyId], queryFn: () => companiesApi.getModules(companyId) });
   if (isLoading) return <div className="flex justify-center py-8"><Loader2 className="h-5 w-5 animate-spin text-primary" /></div>;
-  if (!data || data.length === 0) return <EmptyState title="No module overrides" />;
+  if (!data || data.length === 0) return <EmptyState title={t("No module overrides")} />;
   return (
     <div className="card-elevated divide-y divide-border">
       {data.map((m) => (
         <div key={m.id} className="flex items-center justify-between p-4">
-          <div><div className="font-semibold">{m.name}</div><code className="text-xs text-muted-foreground">{m.code}</code></div>
-          <StatusBadge tone={m.isCore ? "warning" : "info"}>{m.isCore ? "Core" : m.audience}</StatusBadge>
+          <div>
+            <div className="font-semibold">{m.moduleCode}</div>
+            <code className="text-xs text-muted-foreground">{m.moduleId}</code>
+          </div>
+          <StatusBadge tone={m.isEnabled ? "success" : "muted"}>{m.isEnabled ? "Enabled" : "Disabled"}</StatusBadge>
         </div>
       ))}
     </div>
@@ -189,17 +215,50 @@ function ModulesTab({ companyId }: { companyId: string }) {
 }
 
 function SettingsTab({ companyId }: { companyId: string }) {
-  const { data, isLoading } = useQuery({ queryKey: ["company-settings", companyId], queryFn: () => companiesApi.getSettings(companyId).catch(() => null) });
+  const qc = useQueryClient();
+  const { data, isLoading } = useQuery({ queryKey: ["company-settings", companyId], queryFn: () => companiesApi.getSettings(companyId) });
+  const [edits, setEdits] = useState<Record<string, string>>({});
+
+  useEffect(() => {
+    if (data?.settings) {
+      const seed: Record<string, string> = {};
+      for (const [k, v] of Object.entries(data.settings)) seed[k] = JSON.stringify(v);
+      setEdits(seed);
+    }
+  }, [data]);
+
+  async function save() {
+    const settings: Record<string, unknown> = {};
+    for (const [k, v] of Object.entries(edits)) {
+      try { settings[k] = JSON.parse(v); } catch { settings[k] = v; }
+    }
+    try {
+      await companiesApi.updateSettings(companyId, settings);
+      toast.success("Saved");
+      qc.invalidateQueries({ queryKey: ["company-settings", companyId] });
+    } catch (e) { toast.error((e as Error).message); }
+  }
+
   if (isLoading) return <div className="flex justify-center py-8"><Loader2 className="h-5 w-5 animate-spin text-primary" /></div>;
-  if (!data || Object.keys(data.settings).length === 0) return <EmptyState title="No overrides" description="Company inherits all global settings." />;
+  if (!data || Object.keys(data.settings).length === 0) {
+    return <EmptyState title={t("No overrides")} description={t("Company inherits all global settings.")} />;
+  }
+
   return (
-    <div className="card-elevated divide-y divide-border">
-      {Object.entries(data.settings).map(([k, v]) => (
-        <div key={k} className="grid grid-cols-2 gap-4 p-4">
-          <code className="text-sm font-semibold">{v.key}</code>
-          <code className="text-sm">{JSON.stringify(v.value)}</code>
-        </div>
-      ))}
+    <div className="space-y-3">
+      <div className="card-elevated divide-y divide-border">
+        {Object.entries(data.settings).map(([key, value]) => (
+          <div key={key} className="grid grid-cols-2 gap-4 p-4">
+            <code className="text-sm font-semibold">{key}</code>
+            <textarea
+              value={edits[key] ?? JSON.stringify(value)}
+              onChange={(e) => setEdits((s) => ({ ...s, [key]: e.target.value }))}
+              className="min-h-[38px] w-full rounded-md border border-border bg-card p-2 font-mono text-xs"
+            />
+          </div>
+        ))}
+      </div>
+      <button onClick={save} className="rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground">{t("Save")}</button>
     </div>
   );
 }

@@ -9,6 +9,7 @@ import type { NotificationTemplate } from "@/types/api";
 import { Plus } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { toast } from "sonner";
+import { t } from "@/lib/i18n";
 
 export const Route = createFileRoute("/dashboard/notifications")({ component: NotificationsPage });
 
@@ -38,24 +39,24 @@ function NotificationsPage() {
   ];
   return (
     <>
-      <PageHeader title="Notifications" description="Templates for transactional messaging."
+      <PageHeader title={t("Notifications")} description={t("Templates for transactional messaging.")}
         actions={<button onClick={openNew} className="flex items-center gap-2 rounded-[10px] bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground"><Plus className="h-4 w-4" /> New template</button>} />
       <div className="mb-3 rounded-xl border border-info/20 bg-info/5 p-3 text-xs text-info">
         Variables: <code>{"{{orderNumber}}"}</code>, <code>{"{{companyName}}"}</code>, <code>{"{{fullName}}"}</code>, <code>{"{{totalAmount}}"}</code>, <code>{"{{deliveryAt}}"}</code>
       </div>
-      <DataTable columns={cols} rows={data} loading={isLoading} onRowClick={openEdit} emptyTitle="No templates yet" />
+      <DataTable columns={cols} rows={data} loading={isLoading} onRowClick={openEdit} emptyTitle={t("No templates yet")} />
 
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent><DialogHeader><DialogTitle>{editing ? "Edit template" : "New template"}</DialogTitle></DialogHeader>
           <div className="space-y-2">
-            <input placeholder="Code" value={form.code} onChange={(e) => setForm({ ...form, code: e.target.value })} className="h-10 w-full rounded-md border border-border bg-card px-3 text-sm" />
+            <input placeholder={t("Code")} value={form.code} onChange={(e) => setForm({ ...form, code: e.target.value })} className="h-10 w-full rounded-md border border-border bg-card px-3 text-sm" />
             <div className="grid grid-cols-2 gap-2">
               <select value={form.channel} onChange={(e) => setForm({ ...form, channel: e.target.value })} className="h-10 rounded-md border border-border bg-card px-3 text-sm">
                 <option value="email">email</option><option value="sms">sms</option><option value="push">push</option><option value="in_app">in_app</option>
               </select>
-              <input placeholder="Language (en, ar)" value={form.languageCode} onChange={(e) => setForm({ ...form, languageCode: e.target.value })} className="h-10 rounded-md border border-border bg-card px-3 text-sm" />
+              <input placeholder={t("Language (en, ar)")} value={form.languageCode} onChange={(e) => setForm({ ...form, languageCode: e.target.value })} className="h-10 rounded-md border border-border bg-card px-3 text-sm" />
             </div>
-            <input placeholder="Subject" value={form.subjectTemplate} onChange={(e) => setForm({ ...form, subjectTemplate: e.target.value })} className="h-10 w-full rounded-md border border-border bg-card px-3 text-sm" />
+            <input placeholder={t("Subject")} value={form.subjectTemplate} onChange={(e) => setForm({ ...form, subjectTemplate: e.target.value })} className="h-10 w-full rounded-md border border-border bg-card px-3 text-sm" />
             <textarea placeholder="Body (supports {{variables}})" value={form.bodyTemplate} onChange={(e) => setForm({ ...form, bodyTemplate: e.target.value })} className="min-h-[140px] w-full rounded-md border border-border bg-card p-3 text-sm" />
           </div>
           <DialogFooter><button onClick={save} className="rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground">{editing ? "Update" : "Create"}</button></DialogFooter>

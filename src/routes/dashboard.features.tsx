@@ -10,20 +10,21 @@ import { featuresApi, featureGroupsApi, modulesApi, featureFlagsApi, dashboardPa
 import type { Feature, Module, FeatureFlag, FeatureGroup, DashboardPage } from "@/types/api";
 import { Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
+import { t } from "@/lib/i18n";
 
 export const Route = createFileRoute("/dashboard/features")({ component: FeaturesPage });
 
 function FeaturesPage() {
   return (
     <>
-      <PageHeader title="Features & Modules" description="Platform capability catalog." />
+      <PageHeader title={t("Features & Modules")} description={t("Platform capability catalog.")} />
       <Tabs defaultValue="features" className="w-full">
         <TabsList className="mb-4">
-          <TabsTrigger value="features">Features</TabsTrigger>
-          <TabsTrigger value="groups">Feature Groups</TabsTrigger>
-          <TabsTrigger value="modules">Modules</TabsTrigger>
-          <TabsTrigger value="flags">Feature Flags</TabsTrigger>
-          <TabsTrigger value="pages">Dashboard Pages</TabsTrigger>
+          <TabsTrigger value="features">{t("Features")}</TabsTrigger>
+          <TabsTrigger value="groups">{t("Feature Groups")}</TabsTrigger>
+          <TabsTrigger value="modules">{t("Modules")}</TabsTrigger>
+          <TabsTrigger value="flags">{t("Feature Flags")}</TabsTrigger>
+          <TabsTrigger value="pages">{t("Dashboard Pages")}</TabsTrigger>
         </TabsList>
         <TabsContent value="features"><FeaturesTab /></TabsContent>
         <TabsContent value="groups"><GroupsTab /></TabsContent>
@@ -65,15 +66,15 @@ function FeaturesTab() {
   return (
     <>
       <Toolbar onNew={() => setOpen(true)} />
-      <DataTable columns={cols} rows={data} loading={isLoading} emptyTitle="No features yet" />
+      <DataTable columns={cols} rows={data} loading={isLoading} emptyTitle={t("No features yet")} />
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent><DialogHeader><DialogTitle>New feature</DialogTitle></DialogHeader>
           <div className="space-y-2">
-            <input placeholder="Code" value={form.code} onChange={(e) => setForm({ ...form, code: e.target.value })} className="h-10 w-full rounded-md border border-border bg-card px-3 text-sm" />
-            <input placeholder="Name" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className="h-10 w-full rounded-md border border-border bg-card px-3 text-sm" />
+            <input placeholder={t("Code")} value={form.code} onChange={(e) => setForm({ ...form, code: e.target.value })} className="h-10 w-full rounded-md border border-border bg-card px-3 text-sm" />
+            <input placeholder={t("Name")} value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className="h-10 w-full rounded-md border border-border bg-card px-3 text-sm" />
             <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={form.isGlobalDefaultEnabled} onChange={(e) => setForm({ ...form, isGlobalDefaultEnabled: e.target.checked })} /> Enabled by default</label>
           </div>
-          <DialogFooter><button onClick={() => { create(form); setOpen(false); }} className="rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground">Create</button></DialogFooter>
+          <DialogFooter><button onClick={() => { create(form); setOpen(false); }} className="rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground">{t("Create")}</button></DialogFooter>
         </DialogContent>
       </Dialog>
     </>
@@ -92,14 +93,14 @@ function GroupsTab() {
   return (
     <>
       <Toolbar onNew={() => setOpen(true)} />
-      <DataTable columns={cols} rows={data} loading={isLoading} emptyTitle="No feature groups yet" />
+      <DataTable columns={cols} rows={data} loading={isLoading} emptyTitle={t("No feature groups yet")} />
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent><DialogHeader><DialogTitle>New feature group</DialogTitle></DialogHeader>
           <div className="space-y-2">
-            <input placeholder="Code" value={form.code} onChange={(e) => setForm({ ...form, code: e.target.value })} className="h-10 w-full rounded-md border border-border bg-card px-3 text-sm" />
-            <input placeholder="Name" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className="h-10 w-full rounded-md border border-border bg-card px-3 text-sm" />
+            <input placeholder={t("Code")} value={form.code} onChange={(e) => setForm({ ...form, code: e.target.value })} className="h-10 w-full rounded-md border border-border bg-card px-3 text-sm" />
+            <input placeholder={t("Name")} value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className="h-10 w-full rounded-md border border-border bg-card px-3 text-sm" />
           </div>
-          <DialogFooter><button onClick={() => { create(form); setOpen(false); }} className="rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground">Create</button></DialogFooter>
+          <DialogFooter><button onClick={() => { create(form); setOpen(false); }} className="rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground">{t("Create")}</button></DialogFooter>
         </DialogContent>
       </Dialog>
     </>
@@ -120,16 +121,16 @@ function ModulesTab() {
   return (
     <>
       <Toolbar onNew={() => setOpen(true)} />
-      <DataTable columns={cols} rows={data} loading={isLoading} emptyTitle="No modules yet" />
+      <DataTable columns={cols} rows={data} loading={isLoading} emptyTitle={t("No modules yet")} />
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent><DialogHeader><DialogTitle>New module</DialogTitle></DialogHeader>
           <div className="space-y-2">
-            <input placeholder="Code" value={form.code} onChange={(e) => setForm({ ...form, code: e.target.value })} className="h-10 w-full rounded-md border border-border bg-card px-3 text-sm" />
-            <input placeholder="Name" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className="h-10 w-full rounded-md border border-border bg-card px-3 text-sm" />
-            <input placeholder="Audience" value={form.audience} onChange={(e) => setForm({ ...form, audience: e.target.value })} className="h-10 w-full rounded-md border border-border bg-card px-3 text-sm" />
+            <input placeholder={t("Code")} value={form.code} onChange={(e) => setForm({ ...form, code: e.target.value })} className="h-10 w-full rounded-md border border-border bg-card px-3 text-sm" />
+            <input placeholder={t("Name")} value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className="h-10 w-full rounded-md border border-border bg-card px-3 text-sm" />
+            <input placeholder={t("Audience")} value={form.audience} onChange={(e) => setForm({ ...form, audience: e.target.value })} className="h-10 w-full rounded-md border border-border bg-card px-3 text-sm" />
             <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={form.isCore} onChange={(e) => setForm({ ...form, isCore: e.target.checked })} /> Core</label>
           </div>
-          <DialogFooter><button onClick={() => { create(form); setOpen(false); }} className="rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground">Create</button></DialogFooter>
+          <DialogFooter><button onClick={() => { create(form); setOpen(false); }} className="rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground">{t("Create")}</button></DialogFooter>
         </DialogContent>
       </Dialog>
     </>
@@ -149,15 +150,15 @@ function FlagsTab() {
   return (
     <>
       <Toolbar onNew={() => setOpen(true)} />
-      <DataTable columns={cols} rows={data} loading={isLoading} emptyTitle="No feature flags yet" />
+      <DataTable columns={cols} rows={data} loading={isLoading} emptyTitle={t("No feature flags yet")} />
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent><DialogHeader><DialogTitle>New flag</DialogTitle></DialogHeader>
           <div className="space-y-2">
-            <input placeholder="Code" value={form.code} onChange={(e) => setForm({ ...form, code: e.target.value })} className="h-10 w-full rounded-md border border-border bg-card px-3 text-sm" />
-            <input placeholder="Name" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className="h-10 w-full rounded-md border border-border bg-card px-3 text-sm" />
+            <input placeholder={t("Code")} value={form.code} onChange={(e) => setForm({ ...form, code: e.target.value })} className="h-10 w-full rounded-md border border-border bg-card px-3 text-sm" />
+            <input placeholder={t("Name")} value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className="h-10 w-full rounded-md border border-border bg-card px-3 text-sm" />
             <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={form.isEnabled} onChange={(e) => setForm({ ...form, isEnabled: e.target.checked })} /> Enabled</label>
           </div>
-          <DialogFooter><button onClick={() => { create(form); setOpen(false); }} className="rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground">Create</button></DialogFooter>
+          <DialogFooter><button onClick={() => { create(form); setOpen(false); }} className="rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground">{t("Create")}</button></DialogFooter>
         </DialogContent>
       </Dialog>
     </>
@@ -178,16 +179,16 @@ function PagesTab() {
   return (
     <>
       <Toolbar onNew={() => setOpen(true)} />
-      <DataTable columns={cols} rows={data} loading={isLoading} emptyTitle="No dashboard pages registered" />
+      <DataTable columns={cols} rows={data} loading={isLoading} emptyTitle={t("No dashboard pages registered")} />
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent><DialogHeader><DialogTitle>New page</DialogTitle></DialogHeader>
           <div className="space-y-2">
-            <input placeholder="Code" value={form.code} onChange={(e) => setForm({ ...form, code: e.target.value })} className="h-10 w-full rounded-md border border-border bg-card px-3 text-sm" />
-            <input placeholder="Name" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className="h-10 w-full rounded-md border border-border bg-card px-3 text-sm" />
-            <input placeholder="Route" value={form.route} onChange={(e) => setForm({ ...form, route: e.target.value })} className="h-10 w-full rounded-md border border-border bg-card px-3 text-sm" />
-            <input type="number" placeholder="Sort order" value={form.sortOrder} onChange={(e) => setForm({ ...form, sortOrder: +e.target.value })} className="h-10 w-full rounded-md border border-border bg-card px-3 text-sm" />
+            <input placeholder={t("Code")} value={form.code} onChange={(e) => setForm({ ...form, code: e.target.value })} className="h-10 w-full rounded-md border border-border bg-card px-3 text-sm" />
+            <input placeholder={t("Name")} value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className="h-10 w-full rounded-md border border-border bg-card px-3 text-sm" />
+            <input placeholder={t("Route")} value={form.route} onChange={(e) => setForm({ ...form, route: e.target.value })} className="h-10 w-full rounded-md border border-border bg-card px-3 text-sm" />
+            <input type="number" placeholder={t("Sort order")} value={form.sortOrder} onChange={(e) => setForm({ ...form, sortOrder: +e.target.value })} className="h-10 w-full rounded-md border border-border bg-card px-3 text-sm" />
           </div>
-          <DialogFooter><button onClick={() => { create(form); setOpen(false); }} className="rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground">Create</button></DialogFooter>
+          <DialogFooter><button onClick={() => { create(form); setOpen(false); }} className="rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground">{t("Create")}</button></DialogFooter>
         </DialogContent>
       </Dialog>
     </>

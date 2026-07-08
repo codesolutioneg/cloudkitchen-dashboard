@@ -8,6 +8,7 @@ import { rolesApi, permissionsApi, dashboardPagesApi } from "@/services/apiClien
 import type { PagePermissionInput } from "@/types/api";
 import { ArrowLeft, Loader2, Save } from "lucide-react";
 import { toast } from "sonner";
+import { t } from "@/lib/i18n";
 
 export const Route = createFileRoute("/dashboard/roles/$id")({ component: RoleDetail });
 
@@ -31,21 +32,21 @@ function RoleDetail() {
   return (
     <>
       <PageHeader
-        title={role.data.name} description="Edit role permissions and access."
-        breadcrumbs={[{ label: "Dashboard", to: "/dashboard" }, { label: "Roles", to: "/dashboard/roles" }, { label: role.data.name }]}
-        actions={<Link to="/dashboard/roles" className="flex items-center gap-2 rounded-[10px] border border-border px-3 py-2 text-sm font-semibold hover:bg-muted"><ArrowLeft className="h-4 w-4" /> Back</Link>}
+        title={role.data.name} description={t("Edit role permissions and access.")}
+        breadcrumbs={[{ label: t("Dashboard"), to: "/dashboard" }, { label: t("Roles"), to: "/dashboard/roles" }, { label: role.data.name }]}
+        actions={<Link to="/dashboard/roles" className="flex items-center gap-2 rounded-[10px] border border-border px-3 py-2 text-sm font-semibold hover:bg-muted"><ArrowLeft className="h-4 w-4" /> {t("Back")}</Link>}
       />
       <Tabs defaultValue="general">
         <TabsList className="mb-4">
-          <TabsTrigger value="general">General</TabsTrigger>
-          <TabsTrigger value="pages">Page permissions</TabsTrigger>
-          <TabsTrigger value="api">API permissions</TabsTrigger>
+          <TabsTrigger value="general">{t("General")}</TabsTrigger>
+          <TabsTrigger value="pages">{t("Page permissions")}</TabsTrigger>
+          <TabsTrigger value="api">{t("API permissions")}</TabsTrigger>
         </TabsList>
         <TabsContent value="general">
           <div className="card-elevated max-w-xl space-y-3 p-6">
             <div><label className="mb-1 block text-sm font-semibold">Name</label><input value={name} onChange={(e) => setName(e.target.value)} className="h-10 w-full rounded-[10px] border border-border bg-card px-3 text-sm" /></div>
             <div><label className="mb-1 block text-sm font-semibold">Description</label><textarea value={desc} onChange={(e) => setDesc(e.target.value)} className="min-h-[80px] w-full rounded-[10px] border border-border bg-card p-3 text-sm" /></div>
-            <button onClick={saveGeneral} className="flex items-center gap-2 rounded-[10px] bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground"><Save className="h-4 w-4" /> Save</button>
+            <button onClick={saveGeneral} className="flex items-center gap-2 rounded-[10px] bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground"><Save className="h-4 w-4" /> {t("Save")}</button>
           </div>
         </TabsContent>
         <TabsContent value="pages"><PagesMatrix roleId={id} /></TabsContent>
@@ -67,7 +68,7 @@ function PagesMatrix({ roleId }: { roleId: string }) {
     catch (e) { toast.error((e as Error).message); }
   }
   if (pages.isLoading) return <div className="flex justify-center py-8"><Loader2 className="h-5 w-5 animate-spin text-primary" /></div>;
-  if (!pages.data || pages.data.length === 0) return <EmptyState title="No dashboard pages registered" />;
+  if (!pages.data || pages.data.length === 0) return <EmptyState title={t("No dashboard pages registered")} />;
   return (
     <div className="space-y-3">
       <div className="card-elevated overflow-x-auto">
@@ -101,7 +102,7 @@ function ApiMatrix({ roleId }: { roleId: string }) {
     catch (e) { toast.error((e as Error).message); }
   }
   if (perms.isLoading) return <div className="flex justify-center py-8"><Loader2 className="h-5 w-5 animate-spin text-primary" /></div>;
-  if (!perms.data || perms.data.length === 0) return <EmptyState title="No permissions registered" />;
+  if (!perms.data || perms.data.length === 0) return <EmptyState title={t("No permissions registered")} />;
   return (
     <div className="space-y-3">
       <div className="card-elevated divide-y divide-border">
@@ -119,7 +120,7 @@ function ApiMatrix({ roleId }: { roleId: string }) {
           </div>
         ))}
       </div>
-      <button onClick={save} className="flex items-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground"><Save className="h-4 w-4" /> Save</button>
+      <button onClick={save} className="flex items-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground"><Save className="h-4 w-4" /> {t("Save")}</button>
     </div>
   );
 }

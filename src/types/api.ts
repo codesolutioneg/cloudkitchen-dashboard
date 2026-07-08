@@ -137,13 +137,21 @@ export interface DashboardPage {
 // ---------- Catalog ----------
 export interface Category {
   id: string; parentCategoryId: string | null;
-  name: string; slug: string; sortOrder: number; isActive: boolean;
+  name: string; nameAr?: string | null; slug: string;
+  imageUrl?: string | null; sortOrder: number; isActive: boolean;
 }
 export interface Product {
   id: string; categoryId: string; sku: string | null; barcode: string | null;
-  name: string; description: string | null; basePrice: string; currency: string;
+  name: string; description: string | null;
+  imageUrl?: string | null; prepTimeMins?: number | null;
+  basePrice: string; currency: string;
   taxClass: string | null; isActive: boolean; visibility: string;
-  sortOrder: number; attributes: unknown | null;
+  sortOrder: number; erpReferenceId?: string | null; posReferenceId?: string | null;
+  attributes: unknown | null;
+}
+export interface ProductMedia {
+  id: string; productId: string; mediaType: string;
+  url: string; sortOrder: number; isPrimary: boolean;
 }
 export interface PricingList {
   id: string; code: string; name: string; currency: string; isActive: boolean;
@@ -320,9 +328,18 @@ export interface ProductAvailability {
   dayOfWeek: number | null; startTime: string | null; endTime: string | null;
 }
 export interface ProductTag { id: string; productId: string; tag: string }
-export interface SectionProduct { id: string; sectionId: string; productId: string; sortOrder: number }
+export interface SectionProduct {
+  productId: string;
+  sortOrder: number;
+  isFeatured?: boolean;
+  product?: { id: string; name: string; sku: string | null; visibility?: string };
+}
 export interface MenuAssignment {
-  id: string; menuId: string; scopeType: "company" | "global"; scopeId: string | null; priority: number;
+  id: string;
+  menuId?: string;
+  scopeType: string;
+  scopeId: string | null;
+  priority: number;
 }
 export interface ApprovalRequestDetail extends ApprovalRequest {
   requestedBy: string | null; requestedAt: string;

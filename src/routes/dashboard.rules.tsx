@@ -11,19 +11,20 @@ import { rulesApi } from "@/services/apiClient";
 import type { RuleType, BusinessRule, Calendar, CalendarEvent } from "@/types/api";
 import { Plus, Loader2, Trash2 } from "lucide-react";
 import { toast } from "sonner";
+import { t } from "@/lib/i18n";
 
 export const Route = createFileRoute("/dashboard/rules")({ component: RulesPage });
 
 function RulesPage() {
   return (
     <>
-      <PageHeader title="Business Rules" description="Configurable operational rules and calendars." />
+      <PageHeader title={t("Business Rules")} description={t("Configurable operational rules and calendars.")} />
       <Tabs defaultValue="rule-types" className="w-full">
         <TabsList className="mb-4">
-          <TabsTrigger value="rule-types">Rule Types</TabsTrigger>
-          <TabsTrigger value="business-rules">Business Rules</TabsTrigger>
-          <TabsTrigger value="resolve">Resolve tester</TabsTrigger>
-          <TabsTrigger value="calendars">Calendars</TabsTrigger>
+          <TabsTrigger value="rule-types">{t("Rule Types")}</TabsTrigger>
+          <TabsTrigger value="business-rules">{t("Business Rules")}</TabsTrigger>
+          <TabsTrigger value="resolve">{t("Resolve tester")}</TabsTrigger>
+          <TabsTrigger value="calendars">{t("Calendars")}</TabsTrigger>
         </TabsList>
         <TabsContent value="rule-types"><RuleTypesTab /></TabsContent>
         <TabsContent value="business-rules"><BusinessRulesTab /></TabsContent>
@@ -51,14 +52,14 @@ function RuleTypesTab() {
   return (
     <>
       <div className="mb-3 flex justify-end"><button onClick={() => setOpen(true)} className="flex items-center gap-2 rounded-[10px] bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground"><Plus className="h-4 w-4" /> New rule type</button></div>
-      <DataTable columns={cols} rows={data} loading={isLoading} emptyTitle="No rule types" />
+      <DataTable columns={cols} rows={data} loading={isLoading} emptyTitle={t("No rule types")} />
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent><DialogHeader><DialogTitle>New rule type</DialogTitle></DialogHeader>
           <div className="space-y-2">
-            <input placeholder="Code" value={form.code} onChange={(e) => setForm({ ...form, code: e.target.value })} className="h-10 w-full rounded-md border border-border bg-card px-3 text-sm" />
-            <input placeholder="Name" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className="h-10 w-full rounded-md border border-border bg-card px-3 text-sm" />
+            <input placeholder={t("Code")} value={form.code} onChange={(e) => setForm({ ...form, code: e.target.value })} className="h-10 w-full rounded-md border border-border bg-card px-3 text-sm" />
+            <input placeholder={t("Name")} value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className="h-10 w-full rounded-md border border-border bg-card px-3 text-sm" />
           </div>
-          <DialogFooter><button onClick={create} className="rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground">Create</button></DialogFooter>
+          <DialogFooter><button onClick={create} className="rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground">{t("Create")}</button></DialogFooter>
         </DialogContent>
       </Dialog>
     </>
@@ -92,19 +93,19 @@ function BusinessRulesTab() {
   return (
     <>
       <div className="mb-3 flex justify-end"><button onClick={() => setOpen(true)} className="flex items-center gap-2 rounded-[10px] bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground"><Plus className="h-4 w-4" /> New rule</button></div>
-      <DataTable columns={cols} rows={data} loading={isLoading} emptyTitle="No business rules configured" />
+      <DataTable columns={cols} rows={data} loading={isLoading} emptyTitle={t("No business rules configured")} />
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent><DialogHeader><DialogTitle>New business rule</DialogTitle></DialogHeader>
           <div className="space-y-2">
-            <input placeholder="Rule type ID" value={form.ruleTypeId} onChange={(e) => setForm({ ...form, ruleTypeId: e.target.value })} className="h-10 w-full rounded-md border border-border bg-card px-3 text-sm" />
+            <input placeholder={t("Rule type ID")} value={form.ruleTypeId} onChange={(e) => setForm({ ...form, ruleTypeId: e.target.value })} className="h-10 w-full rounded-md border border-border bg-card px-3 text-sm" />
             <select value={form.scopeType} onChange={(e) => setForm({ ...form, scopeType: e.target.value })} className="h-10 w-full rounded-md border border-border bg-card px-3 text-sm">
               <option value="global">global</option><option value="company">company</option><option value="department">department</option>
             </select>
-            {form.scopeType !== "global" && <input placeholder="Scope ID" value={form.scopeId} onChange={(e) => setForm({ ...form, scopeId: e.target.value })} className="h-10 w-full rounded-md border border-border bg-card px-3 text-sm" />}
-            <input type="number" placeholder="Priority" value={form.priority} onChange={(e) => setForm({ ...form, priority: +e.target.value })} className="h-10 w-full rounded-md border border-border bg-card px-3 text-sm" />
-            <textarea placeholder='Value (JSON)' value={form.value} onChange={(e) => setForm({ ...form, value: e.target.value })} className="min-h-[100px] w-full rounded-md border border-border bg-card p-3 font-mono text-xs" />
+            {form.scopeType !== "global" && <input placeholder={t("Scope ID")} value={form.scopeId} onChange={(e) => setForm({ ...form, scopeId: e.target.value })} className="h-10 w-full rounded-md border border-border bg-card px-3 text-sm" />}
+            <input type="number" placeholder={t("Priority")} value={form.priority} onChange={(e) => setForm({ ...form, priority: +e.target.value })} className="h-10 w-full rounded-md border border-border bg-card px-3 text-sm" />
+            <textarea placeholder={t("Value (JSON)")} value={form.value} onChange={(e) => setForm({ ...form, value: e.target.value })} className="min-h-[100px] w-full rounded-md border border-border bg-card p-3 font-mono text-xs" />
           </div>
-          <DialogFooter><button onClick={create} className="rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground">Create</button></DialogFooter>
+          <DialogFooter><button onClick={create} className="rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground">{t("Create")}</button></DialogFooter>
         </DialogContent>
       </Dialog>
     </>
@@ -125,8 +126,8 @@ function ResolveTab() {
   return (
     <div className="card-elevated max-w-2xl space-y-3 p-6">
       <div className="grid grid-cols-2 gap-2">
-        <input placeholder="Rule type code" value={code} onChange={(e) => setCode(e.target.value)} className="h-10 rounded-md border border-border bg-card px-3 text-sm" />
-        <input placeholder="Company ID (optional)" value={companyId} onChange={(e) => setCompanyId(e.target.value)} className="h-10 rounded-md border border-border bg-card px-3 text-sm" />
+        <input placeholder={t("Rule type code")} value={code} onChange={(e) => setCode(e.target.value)} className="h-10 rounded-md border border-border bg-card px-3 text-sm" />
+        <input placeholder={t("Company ID (optional)")} value={companyId} onChange={(e) => setCompanyId(e.target.value)} className="h-10 rounded-md border border-border bg-card px-3 text-sm" />
       </div>
       <button onClick={run} className="rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground">Resolve</button>
       {loading && <Loader2 className="h-5 w-5 animate-spin text-primary" />}
@@ -153,15 +154,15 @@ function CalendarsTab() {
   return (
     <>
       <div className="mb-3 flex justify-end"><button onClick={() => setOpen(true)} className="flex items-center gap-2 rounded-[10px] bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground"><Plus className="h-4 w-4" /> New calendar</button></div>
-      <DataTable columns={cols} rows={data} loading={isLoading} onRowClick={setSelected} emptyTitle="No calendars" />
+      <DataTable columns={cols} rows={data} loading={isLoading} onRowClick={setSelected} emptyTitle={t("No calendars")} />
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent><DialogHeader><DialogTitle>New calendar</DialogTitle></DialogHeader>
           <div className="space-y-2">
-            <input placeholder="Code" value={form.code} onChange={(e) => setForm({ ...form, code: e.target.value })} className="h-10 w-full rounded-md border border-border bg-card px-3 text-sm" />
-            <input placeholder="Name" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className="h-10 w-full rounded-md border border-border bg-card px-3 text-sm" />
-            <input placeholder="Timezone" value={form.timezone} onChange={(e) => setForm({ ...form, timezone: e.target.value })} className="h-10 w-full rounded-md border border-border bg-card px-3 text-sm" />
+            <input placeholder={t("Code")} value={form.code} onChange={(e) => setForm({ ...form, code: e.target.value })} className="h-10 w-full rounded-md border border-border bg-card px-3 text-sm" />
+            <input placeholder={t("Name")} value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className="h-10 w-full rounded-md border border-border bg-card px-3 text-sm" />
+            <input placeholder={t("Timezone")} value={form.timezone} onChange={(e) => setForm({ ...form, timezone: e.target.value })} className="h-10 w-full rounded-md border border-border bg-card px-3 text-sm" />
           </div>
-          <DialogFooter><button onClick={create} className="rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground">Create</button></DialogFooter>
+          <DialogFooter><button onClick={create} className="rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground">{t("Create")}</button></DialogFooter>
         </DialogContent>
       </Dialog>
       {selected && <CalendarEvents calendar={selected} onClose={() => setSelected(null)} />}
@@ -182,18 +183,18 @@ function CalendarEvents({ calendar, onClose }: { calendar: Calendar; onClose: ()
     <div className="mt-6 card-elevated p-4">
       <div className="mb-3 flex items-center justify-between">
         <h3 className="font-semibold">{calendar.name} — events</h3>
-        <button onClick={onClose} className="text-sm text-muted-foreground hover:underline">Close</button>
+        <button onClick={onClose} className="text-sm text-muted-foreground hover:underline">{t("Close")}</button>
       </div>
       <div className="mb-3 flex flex-wrap gap-2">
-        <input placeholder="Event name" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className="h-9 flex-1 min-w-[140px] rounded-md border border-border bg-card px-2 text-sm" />
+        <input placeholder={t("Event name")} value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className="h-9 flex-1 min-w-[140px] rounded-md border border-border bg-card px-2 text-sm" />
         <input type="date" value={form.eventDate} onChange={(e) => setForm({ ...form, eventDate: e.target.value })} className="h-9 rounded-md border border-border bg-card px-2 text-sm" />
         <select value={form.eventType} onChange={(e) => setForm({ ...form, eventType: e.target.value as never })} className="h-9 rounded-md border border-border bg-card px-2 text-sm">
           <option value="holiday">holiday</option><option value="blackout">blackout</option><option value="special_hours">special_hours</option>
         </select>
-        <button onClick={add} className="rounded-md bg-primary px-3 py-1.5 text-sm font-semibold text-primary-foreground">Add</button>
+        <button onClick={add} className="rounded-md bg-primary px-3 py-1.5 text-sm font-semibold text-primary-foreground">{t("Add")}</button>
       </div>
       {isLoading ? <Loader2 className="h-5 w-5 animate-spin text-primary" /> :
-        !data || data.length === 0 ? <EmptyState title="No events" /> : (
+        !data || data.length === 0 ? <EmptyState title={t("No events")} /> : (
           <ul className="divide-y divide-border">
             {data.map((e) => (
               <li key={e.id} className="flex items-center justify-between py-2 text-sm">

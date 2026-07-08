@@ -32,6 +32,13 @@ import { Route as DashboardCompaniesRouteImport } from './routes/dashboard.compa
 import { Route as DashboardCatalogRouteImport } from './routes/dashboard.catalog'
 import { Route as DashboardAuditLogsRouteImport } from './routes/dashboard.audit-logs'
 import { Route as DashboardApprovalWorkflowsRouteImport } from './routes/dashboard.approval-workflows'
+import { Route as DashboardWorkflowsIndexRouteImport } from './routes/dashboard.workflows.index'
+import { Route as DashboardRolesIndexRouteImport } from './routes/dashboard.roles.index'
+import { Route as DashboardOrdersIndexRouteImport } from './routes/dashboard.orders.index'
+import { Route as DashboardMenusIndexRouteImport } from './routes/dashboard.menus.index'
+import { Route as DashboardCompaniesIndexRouteImport } from './routes/dashboard.companies.index'
+import { Route as DashboardCatalogIndexRouteImport } from './routes/dashboard.catalog.index'
+import { Route as DashboardApprovalWorkflowsIndexRouteImport } from './routes/dashboard.approval-workflows.index'
 import { Route as DashboardWorkflowsIdRouteImport } from './routes/dashboard.workflows.$id'
 import { Route as DashboardRolesIdRouteImport } from './routes/dashboard.roles.$id'
 import { Route as DashboardOrdersIdRouteImport } from './routes/dashboard.orders.$id'
@@ -156,6 +163,42 @@ const DashboardApprovalWorkflowsRoute =
     path: '/approval-workflows',
     getParentRoute: () => DashboardRoute,
   } as any)
+const DashboardWorkflowsIndexRoute = DashboardWorkflowsIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => DashboardWorkflowsRoute,
+} as any)
+const DashboardRolesIndexRoute = DashboardRolesIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => DashboardRolesRoute,
+} as any)
+const DashboardOrdersIndexRoute = DashboardOrdersIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => DashboardOrdersRoute,
+} as any)
+const DashboardMenusIndexRoute = DashboardMenusIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => DashboardMenusRoute,
+} as any)
+const DashboardCompaniesIndexRoute = DashboardCompaniesIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => DashboardCompaniesRoute,
+} as any)
+const DashboardCatalogIndexRoute = DashboardCatalogIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => DashboardCatalogRoute,
+} as any)
+const DashboardApprovalWorkflowsIndexRoute =
+  DashboardApprovalWorkflowsIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => DashboardApprovalWorkflowsRoute,
+  } as any)
 const DashboardWorkflowsIdRoute = DashboardWorkflowsIdRouteImport.update({
   id: '/$id',
   path: '/$id',
@@ -224,30 +267,30 @@ export interface FileRoutesByFullPath {
   '/dashboard/orders/$id': typeof DashboardOrdersIdRoute
   '/dashboard/roles/$id': typeof DashboardRolesIdRoute
   '/dashboard/workflows/$id': typeof DashboardWorkflowsIdRoute
+  '/dashboard/approval-workflows/': typeof DashboardApprovalWorkflowsIndexRoute
+  '/dashboard/catalog/': typeof DashboardCatalogIndexRoute
+  '/dashboard/companies/': typeof DashboardCompaniesIndexRoute
+  '/dashboard/menus/': typeof DashboardMenusIndexRoute
+  '/dashboard/orders/': typeof DashboardOrdersIndexRoute
+  '/dashboard/roles/': typeof DashboardRolesIndexRoute
+  '/dashboard/workflows/': typeof DashboardWorkflowsIndexRoute
   '/dashboard/catalog/products/$id': typeof DashboardCatalogProductsIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
-  '/dashboard/approval-workflows': typeof DashboardApprovalWorkflowsRouteWithChildren
   '/dashboard/audit-logs': typeof DashboardAuditLogsRoute
-  '/dashboard/catalog': typeof DashboardCatalogRouteWithChildren
-  '/dashboard/companies': typeof DashboardCompaniesRouteWithChildren
   '/dashboard/delivery': typeof DashboardDeliveryRoute
   '/dashboard/features': typeof DashboardFeaturesRoute
   '/dashboard/integrations': typeof DashboardIntegrationsRoute
   '/dashboard/jobs': typeof DashboardJobsRoute
   '/dashboard/kitchen': typeof DashboardKitchenRoute
   '/dashboard/localization': typeof DashboardLocalizationRoute
-  '/dashboard/menus': typeof DashboardMenusRouteWithChildren
   '/dashboard/notifications': typeof DashboardNotificationsRoute
   '/dashboard/operations': typeof DashboardOperationsRoute
-  '/dashboard/orders': typeof DashboardOrdersRouteWithChildren
-  '/dashboard/roles': typeof DashboardRolesRouteWithChildren
   '/dashboard/rules': typeof DashboardRulesRoute
   '/dashboard/settings': typeof DashboardSettingsRoute
   '/dashboard/users': typeof DashboardUsersRoute
-  '/dashboard/workflows': typeof DashboardWorkflowsRouteWithChildren
   '/dashboard': typeof DashboardIndexRoute
   '/dashboard/approval-workflows/$id': typeof DashboardApprovalWorkflowsIdRoute
   '/dashboard/companies/$id': typeof DashboardCompaniesIdRoute
@@ -255,6 +298,13 @@ export interface FileRoutesByTo {
   '/dashboard/orders/$id': typeof DashboardOrdersIdRoute
   '/dashboard/roles/$id': typeof DashboardRolesIdRoute
   '/dashboard/workflows/$id': typeof DashboardWorkflowsIdRoute
+  '/dashboard/approval-workflows': typeof DashboardApprovalWorkflowsIndexRoute
+  '/dashboard/catalog': typeof DashboardCatalogIndexRoute
+  '/dashboard/companies': typeof DashboardCompaniesIndexRoute
+  '/dashboard/menus': typeof DashboardMenusIndexRoute
+  '/dashboard/orders': typeof DashboardOrdersIndexRoute
+  '/dashboard/roles': typeof DashboardRolesIndexRoute
+  '/dashboard/workflows': typeof DashboardWorkflowsIndexRoute
   '/dashboard/catalog/products/$id': typeof DashboardCatalogProductsIdRoute
 }
 export interface FileRoutesById {
@@ -288,6 +338,13 @@ export interface FileRoutesById {
   '/dashboard/orders/$id': typeof DashboardOrdersIdRoute
   '/dashboard/roles/$id': typeof DashboardRolesIdRoute
   '/dashboard/workflows/$id': typeof DashboardWorkflowsIdRoute
+  '/dashboard/approval-workflows/': typeof DashboardApprovalWorkflowsIndexRoute
+  '/dashboard/catalog/': typeof DashboardCatalogIndexRoute
+  '/dashboard/companies/': typeof DashboardCompaniesIndexRoute
+  '/dashboard/menus/': typeof DashboardMenusIndexRoute
+  '/dashboard/orders/': typeof DashboardOrdersIndexRoute
+  '/dashboard/roles/': typeof DashboardRolesIndexRoute
+  '/dashboard/workflows/': typeof DashboardWorkflowsIndexRoute
   '/dashboard/catalog/products/$id': typeof DashboardCatalogProductsIdRoute
 }
 export interface FileRouteTypes {
@@ -322,30 +379,30 @@ export interface FileRouteTypes {
     | '/dashboard/orders/$id'
     | '/dashboard/roles/$id'
     | '/dashboard/workflows/$id'
+    | '/dashboard/approval-workflows/'
+    | '/dashboard/catalog/'
+    | '/dashboard/companies/'
+    | '/dashboard/menus/'
+    | '/dashboard/orders/'
+    | '/dashboard/roles/'
+    | '/dashboard/workflows/'
     | '/dashboard/catalog/products/$id'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/login'
-    | '/dashboard/approval-workflows'
     | '/dashboard/audit-logs'
-    | '/dashboard/catalog'
-    | '/dashboard/companies'
     | '/dashboard/delivery'
     | '/dashboard/features'
     | '/dashboard/integrations'
     | '/dashboard/jobs'
     | '/dashboard/kitchen'
     | '/dashboard/localization'
-    | '/dashboard/menus'
     | '/dashboard/notifications'
     | '/dashboard/operations'
-    | '/dashboard/orders'
-    | '/dashboard/roles'
     | '/dashboard/rules'
     | '/dashboard/settings'
     | '/dashboard/users'
-    | '/dashboard/workflows'
     | '/dashboard'
     | '/dashboard/approval-workflows/$id'
     | '/dashboard/companies/$id'
@@ -353,6 +410,13 @@ export interface FileRouteTypes {
     | '/dashboard/orders/$id'
     | '/dashboard/roles/$id'
     | '/dashboard/workflows/$id'
+    | '/dashboard/approval-workflows'
+    | '/dashboard/catalog'
+    | '/dashboard/companies'
+    | '/dashboard/menus'
+    | '/dashboard/orders'
+    | '/dashboard/roles'
+    | '/dashboard/workflows'
     | '/dashboard/catalog/products/$id'
   id:
     | '__root__'
@@ -385,6 +449,13 @@ export interface FileRouteTypes {
     | '/dashboard/orders/$id'
     | '/dashboard/roles/$id'
     | '/dashboard/workflows/$id'
+    | '/dashboard/approval-workflows/'
+    | '/dashboard/catalog/'
+    | '/dashboard/companies/'
+    | '/dashboard/menus/'
+    | '/dashboard/orders/'
+    | '/dashboard/roles/'
+    | '/dashboard/workflows/'
     | '/dashboard/catalog/products/$id'
   fileRoutesById: FileRoutesById
 }
@@ -557,6 +628,55 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardApprovalWorkflowsRouteImport
       parentRoute: typeof DashboardRoute
     }
+    '/dashboard/workflows/': {
+      id: '/dashboard/workflows/'
+      path: '/'
+      fullPath: '/dashboard/workflows/'
+      preLoaderRoute: typeof DashboardWorkflowsIndexRouteImport
+      parentRoute: typeof DashboardWorkflowsRoute
+    }
+    '/dashboard/roles/': {
+      id: '/dashboard/roles/'
+      path: '/'
+      fullPath: '/dashboard/roles/'
+      preLoaderRoute: typeof DashboardRolesIndexRouteImport
+      parentRoute: typeof DashboardRolesRoute
+    }
+    '/dashboard/orders/': {
+      id: '/dashboard/orders/'
+      path: '/'
+      fullPath: '/dashboard/orders/'
+      preLoaderRoute: typeof DashboardOrdersIndexRouteImport
+      parentRoute: typeof DashboardOrdersRoute
+    }
+    '/dashboard/menus/': {
+      id: '/dashboard/menus/'
+      path: '/'
+      fullPath: '/dashboard/menus/'
+      preLoaderRoute: typeof DashboardMenusIndexRouteImport
+      parentRoute: typeof DashboardMenusRoute
+    }
+    '/dashboard/companies/': {
+      id: '/dashboard/companies/'
+      path: '/'
+      fullPath: '/dashboard/companies/'
+      preLoaderRoute: typeof DashboardCompaniesIndexRouteImport
+      parentRoute: typeof DashboardCompaniesRoute
+    }
+    '/dashboard/catalog/': {
+      id: '/dashboard/catalog/'
+      path: '/'
+      fullPath: '/dashboard/catalog/'
+      preLoaderRoute: typeof DashboardCatalogIndexRouteImport
+      parentRoute: typeof DashboardCatalogRoute
+    }
+    '/dashboard/approval-workflows/': {
+      id: '/dashboard/approval-workflows/'
+      path: '/'
+      fullPath: '/dashboard/approval-workflows/'
+      preLoaderRoute: typeof DashboardApprovalWorkflowsIndexRouteImport
+      parentRoute: typeof DashboardApprovalWorkflowsRoute
+    }
     '/dashboard/workflows/$id': {
       id: '/dashboard/workflows/$id'
       path: '/$id'
@@ -611,11 +731,13 @@ declare module '@tanstack/react-router' {
 
 interface DashboardApprovalWorkflowsRouteChildren {
   DashboardApprovalWorkflowsIdRoute: typeof DashboardApprovalWorkflowsIdRoute
+  DashboardApprovalWorkflowsIndexRoute: typeof DashboardApprovalWorkflowsIndexRoute
 }
 
 const DashboardApprovalWorkflowsRouteChildren: DashboardApprovalWorkflowsRouteChildren =
   {
     DashboardApprovalWorkflowsIdRoute: DashboardApprovalWorkflowsIdRoute,
+    DashboardApprovalWorkflowsIndexRoute: DashboardApprovalWorkflowsIndexRoute,
   }
 
 const DashboardApprovalWorkflowsRouteWithChildren =
@@ -624,10 +746,12 @@ const DashboardApprovalWorkflowsRouteWithChildren =
   )
 
 interface DashboardCatalogRouteChildren {
+  DashboardCatalogIndexRoute: typeof DashboardCatalogIndexRoute
   DashboardCatalogProductsIdRoute: typeof DashboardCatalogProductsIdRoute
 }
 
 const DashboardCatalogRouteChildren: DashboardCatalogRouteChildren = {
+  DashboardCatalogIndexRoute: DashboardCatalogIndexRoute,
   DashboardCatalogProductsIdRoute: DashboardCatalogProductsIdRoute,
 }
 
@@ -636,10 +760,12 @@ const DashboardCatalogRouteWithChildren =
 
 interface DashboardCompaniesRouteChildren {
   DashboardCompaniesIdRoute: typeof DashboardCompaniesIdRoute
+  DashboardCompaniesIndexRoute: typeof DashboardCompaniesIndexRoute
 }
 
 const DashboardCompaniesRouteChildren: DashboardCompaniesRouteChildren = {
   DashboardCompaniesIdRoute: DashboardCompaniesIdRoute,
+  DashboardCompaniesIndexRoute: DashboardCompaniesIndexRoute,
 }
 
 const DashboardCompaniesRouteWithChildren =
@@ -647,10 +773,12 @@ const DashboardCompaniesRouteWithChildren =
 
 interface DashboardMenusRouteChildren {
   DashboardMenusIdRoute: typeof DashboardMenusIdRoute
+  DashboardMenusIndexRoute: typeof DashboardMenusIndexRoute
 }
 
 const DashboardMenusRouteChildren: DashboardMenusRouteChildren = {
   DashboardMenusIdRoute: DashboardMenusIdRoute,
+  DashboardMenusIndexRoute: DashboardMenusIndexRoute,
 }
 
 const DashboardMenusRouteWithChildren = DashboardMenusRoute._addFileChildren(
@@ -659,10 +787,12 @@ const DashboardMenusRouteWithChildren = DashboardMenusRoute._addFileChildren(
 
 interface DashboardOrdersRouteChildren {
   DashboardOrdersIdRoute: typeof DashboardOrdersIdRoute
+  DashboardOrdersIndexRoute: typeof DashboardOrdersIndexRoute
 }
 
 const DashboardOrdersRouteChildren: DashboardOrdersRouteChildren = {
   DashboardOrdersIdRoute: DashboardOrdersIdRoute,
+  DashboardOrdersIndexRoute: DashboardOrdersIndexRoute,
 }
 
 const DashboardOrdersRouteWithChildren = DashboardOrdersRoute._addFileChildren(
@@ -671,10 +801,12 @@ const DashboardOrdersRouteWithChildren = DashboardOrdersRoute._addFileChildren(
 
 interface DashboardRolesRouteChildren {
   DashboardRolesIdRoute: typeof DashboardRolesIdRoute
+  DashboardRolesIndexRoute: typeof DashboardRolesIndexRoute
 }
 
 const DashboardRolesRouteChildren: DashboardRolesRouteChildren = {
   DashboardRolesIdRoute: DashboardRolesIdRoute,
+  DashboardRolesIndexRoute: DashboardRolesIndexRoute,
 }
 
 const DashboardRolesRouteWithChildren = DashboardRolesRoute._addFileChildren(
@@ -683,10 +815,12 @@ const DashboardRolesRouteWithChildren = DashboardRolesRoute._addFileChildren(
 
 interface DashboardWorkflowsRouteChildren {
   DashboardWorkflowsIdRoute: typeof DashboardWorkflowsIdRoute
+  DashboardWorkflowsIndexRoute: typeof DashboardWorkflowsIndexRoute
 }
 
 const DashboardWorkflowsRouteChildren: DashboardWorkflowsRouteChildren = {
   DashboardWorkflowsIdRoute: DashboardWorkflowsIdRoute,
+  DashboardWorkflowsIndexRoute: DashboardWorkflowsIndexRoute,
 }
 
 const DashboardWorkflowsRouteWithChildren =
@@ -750,3 +884,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}

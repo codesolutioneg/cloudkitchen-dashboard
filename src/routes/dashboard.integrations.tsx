@@ -11,17 +11,18 @@ import { integrationsApi, integrationsExtApi } from "@/services/apiClient";
 import type { ExternalSystem, IntegrationEvent, IntegrationMapping } from "@/types/api";
 import { Plus, Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import { t } from "@/lib/i18n";
 
 export const Route = createFileRoute("/dashboard/integrations")({ component: IntegrationsPage });
 
 function IntegrationsPage() {
   return (
     <>
-      <PageHeader title="Integrations" description="External systems, mappings and events." />
+      <PageHeader title={t("Integrations")} description={t("External systems, mappings and events.")} />
       <Tabs defaultValue="systems">
         <TabsList className="mb-4">
-          <TabsTrigger value="systems">Systems</TabsTrigger>
-          <TabsTrigger value="events">Events</TabsTrigger>
+          <TabsTrigger value="systems">{t("Systems")}</TabsTrigger>
+          <TabsTrigger value="events">{t("Events")}</TabsTrigger>
         </TabsList>
         <TabsContent value="systems"><SystemsTab /></TabsContent>
         <TabsContent value="events"><EventsTab /></TabsContent>
@@ -50,18 +51,18 @@ function SystemsTab() {
   return (
     <>
       <div className="mb-3 flex justify-end"><button onClick={() => setOpen(true)} className="flex items-center gap-2 rounded-[10px] bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground"><Plus className="h-4 w-4" /> New system</button></div>
-      <DataTable columns={cols} rows={data} loading={isLoading} onRowClick={setSelected} emptyTitle="No integrations connected" />
+      <DataTable columns={cols} rows={data} loading={isLoading} onRowClick={setSelected} emptyTitle={t("No integrations connected")} />
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent><DialogHeader><DialogTitle>New external system</DialogTitle></DialogHeader>
           <div className="space-y-2">
-            <input placeholder="Code" value={form.code} onChange={(e) => setForm({ ...form, code: e.target.value })} className="h-10 w-full rounded-md border border-border bg-card px-3 text-sm" />
-            <input placeholder="Name" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className="h-10 w-full rounded-md border border-border bg-card px-3 text-sm" />
+            <input placeholder={t("Code")} value={form.code} onChange={(e) => setForm({ ...form, code: e.target.value })} className="h-10 w-full rounded-md border border-border bg-card px-3 text-sm" />
+            <input placeholder={t("Name")} value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className="h-10 w-full rounded-md border border-border bg-card px-3 text-sm" />
             <select value={form.systemType} onChange={(e) => setForm({ ...form, systemType: e.target.value })} className="h-10 w-full rounded-md border border-border bg-card px-3 text-sm">
               <option value="erp">erp</option><option value="crm">crm</option><option value="pos">pos</option><option value="payment">payment</option><option value="webhook">webhook</option>
             </select>
-            <input placeholder="Base URL" value={form.baseUrl} onChange={(e) => setForm({ ...form, baseUrl: e.target.value })} className="h-10 w-full rounded-md border border-border bg-card px-3 text-sm" />
+            <input placeholder={t("Base URL")} value={form.baseUrl} onChange={(e) => setForm({ ...form, baseUrl: e.target.value })} className="h-10 w-full rounded-md border border-border bg-card px-3 text-sm" />
           </div>
-          <DialogFooter><button onClick={create} className="rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground">Create</button></DialogFooter>
+          <DialogFooter><button onClick={create} className="rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground">{t("Create")}</button></DialogFooter>
         </DialogContent>
       </Dialog>
       {selected && <MappingsPanel system={selected} onClose={() => setSelected(null)} />}
@@ -81,16 +82,16 @@ function MappingsPanel({ system, onClose }: { system: ExternalSystem; onClose: (
     <div className="mt-6 card-elevated p-4">
       <div className="mb-3 flex items-center justify-between">
         <h3 className="font-semibold">{system.name} — mappings</h3>
-        <button onClick={onClose} className="text-sm text-muted-foreground hover:underline">Close</button>
+        <button onClick={onClose} className="text-sm text-muted-foreground hover:underline">{t("Close")}</button>
       </div>
       <div className="mb-3 grid grid-cols-1 gap-2 sm:grid-cols-4">
-        <input placeholder="Entity type" value={form.entityType} onChange={(e) => setForm({ ...form, entityType: e.target.value })} className="h-9 rounded-md border border-border bg-card px-2 text-sm" />
-        <input placeholder="Local value" value={form.localValue} onChange={(e) => setForm({ ...form, localValue: e.target.value })} className="h-9 rounded-md border border-border bg-card px-2 text-sm" />
-        <input placeholder="External value" value={form.externalValue} onChange={(e) => setForm({ ...form, externalValue: e.target.value })} className="h-9 rounded-md border border-border bg-card px-2 text-sm" />
+        <input placeholder={t("Entity type")} value={form.entityType} onChange={(e) => setForm({ ...form, entityType: e.target.value })} className="h-9 rounded-md border border-border bg-card px-2 text-sm" />
+        <input placeholder={t("Local value")} value={form.localValue} onChange={(e) => setForm({ ...form, localValue: e.target.value })} className="h-9 rounded-md border border-border bg-card px-2 text-sm" />
+        <input placeholder={t("External value")} value={form.externalValue} onChange={(e) => setForm({ ...form, externalValue: e.target.value })} className="h-9 rounded-md border border-border bg-card px-2 text-sm" />
         <button onClick={add} className="rounded-md bg-primary px-3 py-1.5 text-sm font-semibold text-primary-foreground">Add mapping</button>
       </div>
       {isLoading ? <Loader2 className="h-5 w-5 animate-spin text-primary" /> :
-        !data || data.length === 0 ? <EmptyState title="No mappings" /> : (
+        !data || data.length === 0 ? <EmptyState title={t("No mappings")} /> : (
           <ul className="divide-y divide-border">
             {data.map((m) => (
               <li key={m.id} className="flex items-center justify-between py-2 text-sm">
@@ -116,10 +117,10 @@ function EventsTab() {
     <>
       <div className="mb-3">
         <select value={status} onChange={(e) => setStatus(e.target.value)} className="h-10 rounded-md border border-border bg-card px-3 text-sm">
-          <option value="">All statuses</option><option value="pending">pending</option><option value="delivered">delivered</option><option value="failed">failed</option>
+          <option value="">{t("All statuses")}</option><option value="pending">pending</option><option value="delivered">delivered</option><option value="failed">failed</option>
         </select>
       </div>
-      <DataTable columns={cols} rows={filtered} loading={isLoading} emptyTitle="No integration events" />
+      <DataTable columns={cols} rows={filtered} loading={isLoading} emptyTitle={t("No integration events")} />
     </>
   );
 }

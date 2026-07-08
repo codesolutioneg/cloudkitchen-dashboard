@@ -8,18 +8,19 @@ import { EmptyState } from "@/components/app/EmptyState";
 import { ordersApi, deliveryApi } from "@/services/apiClient";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import { t } from "@/lib/i18n";
 
 export const Route = createFileRoute("/dashboard/operations")({ component: OperationsPage });
 
 function OperationsPage() {
   return (
     <>
-      <PageHeader title="Operations Desk" description="Dispatch delivery orders and manage pickup handoffs." />
+      <PageHeader title={t("Operations Desk")} description={t("Dispatch delivery orders and manage pickup handoffs.")} />
       <Tabs defaultValue="dispatch" className="w-full">
         <TabsList className="mb-4">
-          <TabsTrigger value="dispatch">Ready for dispatch</TabsTrigger>
-          <TabsTrigger value="pickup">Ready pickup</TabsTrigger>
-          <TabsTrigger value="awaiting">Awaiting pickup</TabsTrigger>
+          <TabsTrigger value="dispatch">{t("Ready for dispatch")}</TabsTrigger>
+          <TabsTrigger value="pickup">{t("Ready pickup")}</TabsTrigger>
+          <TabsTrigger value="awaiting">{t("Awaiting pickup")}</TabsTrigger>
         </TabsList>
         <TabsContent value="dispatch"><DispatchTab /></TabsContent>
         <TabsContent value="pickup"><PickupTab /></TabsContent>
@@ -44,7 +45,7 @@ function DispatchTab() {
 
   if (isLoading) return <div className="flex justify-center py-12"><Loader2 className="h-5 w-5 animate-spin text-primary" /></div>;
   const deliveryOrders = data?.items.filter((o) => o.fulfillmentType === "delivery") ?? [];
-  if (deliveryOrders.length === 0) return <EmptyState title="Nothing to dispatch" description="Ready delivery orders will show here." />;
+  if (deliveryOrders.length === 0) return <EmptyState title={t("Nothing to dispatch")} description={t("Ready delivery orders will show here.")} />;
 
   return (
     <div className="space-y-3">
@@ -65,7 +66,7 @@ function DispatchTab() {
                 <option key={d.id} value={d.id}>{d.fullName}</option>
               ))}
             </select>
-            <button onClick={() => assign(o.id)} className="rounded-md bg-primary px-3 py-1.5 text-sm font-semibold text-primary-foreground hover:bg-[oklch(0.52_0.19_285)]">Assign</button>
+            <button onClick={() => assign(o.id)} className="rounded-md bg-primary px-3 py-1.5 text-sm font-semibold text-primary-foreground hover:bg-[oklch(0.52_0.19_285)]">{t("Assign")}</button>
           </div>
         </div>
       ))}
@@ -82,13 +83,13 @@ function PickupTab() {
   }
   if (isLoading) return <div className="flex justify-center py-12"><Loader2 className="h-5 w-5 animate-spin text-primary" /></div>;
   const pickup = data?.items.filter((o) => o.fulfillmentType === "pickup") ?? [];
-  if (pickup.length === 0) return <EmptyState title="No pickup orders ready" />;
+  if (pickup.length === 0) return <EmptyState title={t("No pickup orders ready")} />;
   return (
     <div className="space-y-3">
       {pickup.map((o) => (
         <div key={o.id} className="card-elevated flex items-center justify-between gap-3 p-4">
           <Link to="/dashboard/orders/$id" params={{ id: o.id }} className="font-semibold text-primary hover:underline">{o.orderNumber}</Link>
-          <button onClick={() => mark(o.id)} className="rounded-md bg-primary px-3 py-1.5 text-sm font-semibold text-primary-foreground hover:bg-[oklch(0.52_0.19_285)]">Mark awaiting pickup</button>
+          <button onClick={() => mark(o.id)} className="rounded-md bg-primary px-3 py-1.5 text-sm font-semibold text-primary-foreground hover:bg-[oklch(0.52_0.19_285)]">{t("Mark awaiting pickup")}</button>
         </div>
       ))}
     </div>
@@ -103,7 +104,7 @@ function AwaitingTab() {
     catch (e) { toast.error((e as Error).message); }
   }
   if (isLoading) return <div className="flex justify-center py-12"><Loader2 className="h-5 w-5 animate-spin text-primary" /></div>;
-  if (!data || data.items.length === 0) return <EmptyState title="No pickups awaiting" />;
+  if (!data || data.items.length === 0) return <EmptyState title={t("No pickups awaiting")} />;
   return (
     <div className="space-y-3">
       {data.items.map((o) => (
@@ -112,7 +113,7 @@ function AwaitingTab() {
             <Link to="/dashboard/orders/$id" params={{ id: o.id }} className="font-semibold text-primary hover:underline">{o.orderNumber}</Link>
             <div className="text-xs text-muted-foreground"><StatusBadge status="awaiting_pickup" /></div>
           </div>
-          <button onClick={() => confirm(o.id)} className="rounded-md bg-success px-3 py-1.5 text-sm font-semibold text-white hover:opacity-90">Confirm pickup</button>
+          <button onClick={() => confirm(o.id)} className="rounded-md bg-success px-3 py-1.5 text-sm font-semibold text-white hover:opacity-90">{t("Confirm pickup")}</button>
         </div>
       ))}
     </div>

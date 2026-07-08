@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { EmptyState } from "./EmptyState";
 import { cn } from "@/lib/utils";
+import { t } from "@/lib/i18n";
 
 export interface Column<T> {
   key: string;
@@ -59,12 +60,12 @@ export function DataTable<T extends { id?: string | number }>({
                 <th
                   key={c.key}
                   className={cn(
-                    "px-4 py-3 text-left text-[11px] font-semibold uppercase tracking-wider text-muted-foreground",
+                    "px-4 py-3 text-start text-[11px] font-semibold uppercase tracking-wider text-muted-foreground",
                     c.className,
                   )}
                   style={c.width ? { width: c.width } : undefined}
                 >
-                  {c.header}
+                  {t(c.header)}
                 </th>
               ))}
             </tr>
@@ -103,19 +104,19 @@ export function TablePagination({
   return (
     <div className="mt-4 flex items-center justify-between text-sm text-muted-foreground">
       <span>
-        Page {page} of {totalPages} · {totalItems} items
+        {t("Page")} {page} {t("of")} {totalPages} · {totalItems} {t("items")}
       </span>
       <div className="flex gap-2">
         <button
           className="rounded-md border border-border px-3 py-1.5 hover:bg-muted disabled:opacity-40"
           onClick={() => onPageChange(page - 1)}
           disabled={page <= 1}
-        >Previous</button>
+        >{t("Previous")}</button>
         <button
           className="rounded-md border border-border px-3 py-1.5 hover:bg-muted disabled:opacity-40"
           onClick={() => onPageChange(page + 1)}
           disabled={page >= totalPages}
-        >Next</button>
+        >{t("Next")}</button>
       </div>
     </div>
   );

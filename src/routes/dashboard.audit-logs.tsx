@@ -6,6 +6,7 @@ import { DataTable, TablePagination, type Column } from "@/components/app/DataTa
 import { StatusBadge } from "@/components/app/StatusBadge";
 import { auditApi } from "@/services/apiClient";
 import type { AuditLog } from "@/types/api";
+import { t } from "@/lib/i18n";
 
 export const Route = createFileRoute("/dashboard/audit-logs")({ component: AuditLogsPage });
 
@@ -32,13 +33,13 @@ function AuditLogsPage() {
 
   return (
     <>
-      <PageHeader title="Audit Logs" description="All administrative actions across the platform." />
+      <PageHeader title={t("Audit Logs")} description={t("All administrative actions across the platform.")} />
       <div className="mb-4">
         <input value={entityType} onChange={(e) => { setEntityType(e.target.value); setPage(1); }}
-          placeholder="Filter by entity type (e.g. company)"
+          placeholder={t("Filter by entity type (e.g. company)")}
           className="h-10 w-72 rounded-[10px] border border-border bg-card px-3 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20" />
       </div>
-      <DataTable columns={cols} rows={query.data?.items} loading={query.isLoading} emptyTitle="No audit logs" />
+      <DataTable columns={cols} rows={query.data?.items} loading={query.isLoading} emptyTitle={t("No audit logs")} />
       {expanded && query.data?.items.find((l) => l.id === expanded) && (
         <pre className="mt-4 max-h-80 overflow-auto rounded-xl border border-border bg-card p-4 text-xs">
 {JSON.stringify(query.data.items.find((l) => l.id === expanded)?.changes, null, 2)}

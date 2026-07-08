@@ -7,16 +7,17 @@ import {
   Building2, ShoppingBag, ChefHat, Truck, Users, ClipboardCheck,
 } from "lucide-react";
 import { Link } from "@tanstack/react-router";
+import { t } from "@/lib/i18n";
 
 export const Route = createFileRoute("/dashboard/")({ component: DashboardHome });
 
 const QUICK = [
-  { to: "/dashboard/companies", label: "Companies", desc: "Approve corporate clients", icon: Building2 },
-  { to: "/dashboard/orders", label: "Orders", desc: "Track all corporate orders", icon: ShoppingBag },
-  { to: "/dashboard/kitchen", label: "Kitchen", desc: "Live prep queue", icon: ChefHat },
-  { to: "/dashboard/delivery", label: "Delivery", desc: "Driver assignments", icon: Truck },
-  { to: "/dashboard/users", label: "Users", desc: "Dashboard staff & roles", icon: Users },
-  { to: "/dashboard/approval-workflows", label: "Approvals", desc: "Pending decisions", icon: ClipboardCheck },
+  { to: "/dashboard/companies", label: t("Companies"), desc: t("Approve corporate clients"), icon: Building2 },
+  { to: "/dashboard/orders", label: t("Orders"), desc: t("Track all corporate orders"), icon: ShoppingBag },
+  { to: "/dashboard/kitchen", label: t("Kitchen"), desc: t("Live prep queue"), icon: ChefHat },
+  { to: "/dashboard/delivery", label: t("Delivery"), desc: t("Driver assignments"), icon: Truck },
+  { to: "/dashboard/users", label: t("Users"), desc: t("Dashboard staff & roles"), icon: Users },
+  { to: "/dashboard/approval-workflows", label: t("Approvals"), desc: t("Pending decisions"), icon: ClipboardCheck },
 ] as const;
 
 function DashboardHome() {
@@ -27,30 +28,30 @@ function DashboardHome() {
   const delivering = useQuery({ queryKey: ["kpi-delivery"], queryFn: () => ordersApi.list({ statusCode: "out_for_delivery", pageSize: 1 }).catch(() => ({ totalItems: 0 })) });
 
   const kpis = [
-    { label: "Active companies", value: activeCos.data?.totalItems ?? "—", loading: activeCos.isLoading },
-    { label: "Total orders", value: orders.data?.totalItems ?? "—", loading: orders.isLoading },
-    { label: "In kitchen", value: inKitchen.data?.totalItems ?? "—", loading: inKitchen.isLoading },
-    { label: "Out for delivery", value: delivering.data?.totalItems ?? "—", loading: delivering.isLoading },
+    { label: t("Active companies"), value: activeCos.data?.totalItems ?? "—", loading: activeCos.isLoading },
+    { label: t("Total orders"), value: orders.data?.totalItems ?? "—", loading: orders.isLoading },
+    { label: t("In kitchen"), value: inKitchen.data?.totalItems ?? "—", loading: inKitchen.isLoading },
+    { label: t("Out for delivery"), value: delivering.data?.totalItems ?? "—", loading: delivering.isLoading },
   ];
 
   return (
     <>
       <PageHeader
-        title={`Welcome${user ? `, ${user.fullName?.split(" ")[0] ?? ""}` : ""}`}
-        description="Cloud Kitchen operations overview."
-        breadcrumbs={[{ label: "Dashboard" }]}
+        title={user?.fullName ? `${t("Welcome")}، ${user.fullName.split(" ")[0]}` : t("Welcome")}
+        description={t("Cloud Kitchen operations overview.")}
+        breadcrumbs={[{ label: t("Dashboard") }]}
       />
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {kpis.map((k) => (
           <div key={k.label} className="card-elevated p-5">
             <div className="text-sm text-muted-foreground">{k.label}</div>
             <div className="mt-2 text-3xl font-bold text-foreground">{k.loading ? "…" : k.value}</div>
-            <div className="mt-1 text-xs text-muted-foreground">Live</div>
+            <div className="mt-1 text-xs text-muted-foreground">{t("Live")}</div>
           </div>
         ))}
       </div>
 
-      <h2 className="mt-8 mb-4 text-lg font-semibold text-foreground">Quick access</h2>
+      <h2 className="mt-8 mb-4 text-lg font-semibold text-foreground">{t("Quick access")}</h2>
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {QUICK.map((q) => (
           <Link key={q.to} to={q.to} className="card-elevated group p-5 transition hover:border-primary/40 hover:shadow-md">

@@ -8,6 +8,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { workflowsApi, workflowsExtApi } from "@/services/apiClient";
 import { ArrowLeft, Loader2, Plus } from "lucide-react";
 import { toast } from "sonner";
+import { t } from "@/lib/i18n";
 
 export const Route = createFileRoute("/dashboard/workflows/$id")({ component: WorkflowBuilder });
 
@@ -21,13 +22,13 @@ function WorkflowBuilder() {
     <>
       <PageHeader
         title={wf.data?.name ?? "Workflow"} description={wf.data?.code ?? id}
-        breadcrumbs={[{ label: "Dashboard", to: "/dashboard" }, { label: "Workflows", to: "/dashboard/workflows" }, { label: wf.data?.name ?? id }]}
-        actions={<Link to="/dashboard/workflows" className="flex items-center gap-2 rounded-[10px] border border-border px-3 py-2 text-sm font-semibold hover:bg-muted"><ArrowLeft className="h-4 w-4" /> Back</Link>}
+        breadcrumbs={[{ label: t("Dashboard"), to: "/dashboard" }, { label: t("Workflows"), to: "/dashboard/workflows" }, { label: wf.data?.name ?? id }]}
+        actions={<Link to="/dashboard/workflows" className="flex items-center gap-2 rounded-[10px] border border-border px-3 py-2 text-sm font-semibold hover:bg-muted"><ArrowLeft className="h-4 w-4" /> {t("Back")}</Link>}
       />
       <Tabs defaultValue="steps">
         <TabsList className="mb-4">
-          <TabsTrigger value="steps">Steps</TabsTrigger>
-          <TabsTrigger value="transitions">Transitions</TabsTrigger>
+          <TabsTrigger value="steps">{t("Steps")}</TabsTrigger>
+          <TabsTrigger value="transitions">{t("Transitions")}</TabsTrigger>
         </TabsList>
         <TabsContent value="steps"><StepsTab workflowId={id} /></TabsContent>
         <TabsContent value="transitions"><TransitionsTab workflowId={id} /></TabsContent>
@@ -51,16 +52,16 @@ function StepsTab({ workflowId }: { workflowId: string }) {
   return (
     <div className="space-y-3">
       <div className="card-elevated grid grid-cols-1 gap-2 p-4 sm:grid-cols-5">
-        <input placeholder="code" value={form.code} onChange={(e) => setForm({ ...form, code: e.target.value })} className="h-9 rounded-md border border-border bg-card px-2 text-sm" />
-        <input placeholder="name" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className="h-9 rounded-md border border-border bg-card px-2 text-sm" />
+        <input placeholder={t("code")} value={form.code} onChange={(e) => setForm({ ...form, code: e.target.value })} className="h-9 rounded-md border border-border bg-card px-2 text-sm" />
+        <input placeholder={t("name")} value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className="h-9 rounded-md border border-border bg-card px-2 text-sm" />
         <select value={form.stepType} onChange={(e) => setForm({ ...form, stepType: e.target.value as never })} className="h-9 rounded-md border border-border bg-card px-2 text-sm">
           <option value="initial">initial</option><option value="intermediate">intermediate</option><option value="final">final</option>
         </select>
-        <input placeholder="SLA min" value={form.slaMinutes} onChange={(e) => setForm({ ...form, slaMinutes: e.target.value })} className="h-9 rounded-md border border-border bg-card px-2 text-sm" />
+        <input placeholder={t("SLA min")} value={form.slaMinutes} onChange={(e) => setForm({ ...form, slaMinutes: e.target.value })} className="h-9 rounded-md border border-border bg-card px-2 text-sm" />
         <button onClick={add} className="flex items-center justify-center gap-1 rounded-md bg-primary px-3 py-1.5 text-sm font-semibold text-primary-foreground"><Plus className="h-4 w-4" /> Add step</button>
       </div>
       {isLoading ? <Loader2 className="mx-auto h-5 w-5 animate-spin text-primary" /> :
-        !data || data.length === 0 ? <EmptyState title="No steps" description="Define the states of this workflow." /> : (
+        !data || data.length === 0 ? <EmptyState title={t("No steps")} description={t("Define the states of this workflow.")} /> : (
           <div className="card-elevated overflow-x-auto p-4">
             <div className="flex flex-wrap items-center gap-2">
               {data.sort((a, b) => a.sortOrder - b.sortOrder).map((s, i) => (
@@ -109,7 +110,7 @@ function TransitionsTab({ workflowId }: { workflowId: string }) {
         <button onClick={add} className="rounded-md bg-primary px-3 py-1.5 text-sm font-semibold text-primary-foreground">Add transition</button>
       </div>
       {isLoading ? <Loader2 className="mx-auto h-5 w-5 animate-spin text-primary" /> :
-        !data || data.length === 0 ? <EmptyState title="No transitions" /> : (
+        !data || data.length === 0 ? <EmptyState title={t("No transitions")} /> : (
           <div className="card-elevated divide-y divide-border">
             {data.map((t) => (
               <div key={t.id} className="flex items-center justify-between p-3 text-sm">

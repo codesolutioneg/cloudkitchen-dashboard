@@ -9,6 +9,7 @@ import type { BackgroundJob } from "@/types/api";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import { t } from "@/lib/i18n";
 
 export const Route = createFileRoute("/dashboard/jobs")({ component: JobsPage });
 
@@ -38,21 +39,21 @@ function JobsPage() {
     { key: "createdAt", header: "Created", cell: (r) => new Date(r.createdAt).toLocaleString() },
     { key: "actions", header: "", cell: (r) => (
       <div className="flex justify-end gap-1" onClick={(e) => e.stopPropagation()}>
-        <button onClick={() => retry(r.id)} className="rounded-md border border-border px-2 py-1 text-xs hover:bg-muted">Retry</button>
-        <button onClick={() => cancel(r.id)} className="rounded-md border border-destructive/40 px-2 py-1 text-xs text-destructive hover:bg-destructive/10">Cancel</button>
+        <button onClick={() => retry(r.id)} className="rounded-md border border-border px-2 py-1 text-xs hover:bg-muted">{t("Retry")}</button>
+        <button onClick={() => cancel(r.id)} className="rounded-md border border-destructive/40 px-2 py-1 text-xs text-destructive hover:bg-destructive/10">{t("Cancel")}</button>
       </div>
     ), className: "text-right" },
   ];
 
   return (
     <>
-      <PageHeader title="Background Jobs" description="Async processing queue status." />
+      <PageHeader title={t("Background Jobs")} description={t("Async processing queue status.")} />
       <div className="mb-4">
         <input value={status} onChange={(e) => { setStatus(e.target.value); setPage(1); }}
-          placeholder="Filter by status (e.g. failed)"
+          placeholder={t("Filter by status (e.g. failed)")}
           className="h-10 w-72 rounded-[10px] border border-border bg-card px-3 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20" />
       </div>
-      <DataTable columns={cols} rows={query.data?.items} loading={query.isLoading} onRowClick={(r) => setSelectedId(r.id)} emptyTitle="No jobs" />
+      <DataTable columns={cols} rows={query.data?.items} loading={query.isLoading} onRowClick={(r) => setSelectedId(r.id)} emptyTitle={t("No jobs")} />
       {query.data && query.data.totalItems > 0 && (
         <TablePagination page={query.data.page} pageSize={query.data.pageSize} totalItems={query.data.totalItems} onPageChange={setPage} />
       )}
