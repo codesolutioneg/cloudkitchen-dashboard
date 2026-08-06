@@ -19,6 +19,9 @@ import type {
   Language, Translation, GlobalSettings,
   ProductVariant, ProductOptionGroup, ProductAvailability, ProductTag, ProductMedia,
   SectionProduct, MenuAssignment,
+  ProductNutrition, NutritionInput,
+  MealPlan, MealPlanDetail, MealPlanDay, MealPlanCandidate, MealPlanPreview,
+  MealPlanBriefInput, MealComponentType,
 } from "@/types/api";
 
 const BASE_URL =
@@ -511,6 +514,52 @@ export const catalogExtApi = {
     ),
   deleteMedia: (productId: string, mediaId: string) =>
     request<void>(`/api/v1/dashboard/catalog/products/${productId}/media/${mediaId}`, { method: "DELETE" }),
+};
+
+// ================= NUTRITION =================
+export const nutritionApi = {
+  get: (productId: string) =>
+    request<ProductNutrition | null>(`/api/v1/dashboard/catalog/products/${productId}/nutrition`),
+  upsert: (productId: string, body: NutritionInput) =>
+    request<ProductNutrition>(`/api/v1/dashboard/catalog/products/${productId}/nutrition`, { method: "PUT", body }),
+  remove: (productId: string) =>
+    request<void>(`/api/v1/dashboard/catalog/products/${productId}/nutrition`, { method: "DELETE" }),
+};
+
+// ================= MEAL PLANS =================
+export const mealPlansApi = {
+  list: (q: { companyId?: string; status?: string; page?: number; pageSize?: number } = {}) =>
+    paginated<MealPlan>("/api/v1/dashboard/meal-plans", q),
+  get: (id: string) => request<MealPlanDetail>(`/api/v1/dashboard/meal-plans/${id}`),
+  create: (body: MealPlanBriefInput) =>
+    request<MealPlan>("/api/v1/dashboard/meal-plans", { method: "POST", body }),
+  update: (id: string, body: Partial<MealPlanBriefInput>) =>
+    request<MealPlan>(`/api/v1/dashboard/meal-plans/${id}`, { method: "PATCH", body }),
+  archive: (id: string) =>
+    request<void>(`/api/v1/dashboard/meal-plans/${id}`, { method: "DELETE" }),
+  generate: (id: string, keepLockedItems = true) =>
+    request<MealPlanDetail>(`/api/v1/dashboard/meal-plans/${id}/generate`, {
+      method: "POST",
+      body: { keepLockedItems },
+    }),
+  approve: (id: string) =>
+    request<MealPlan>(`/api/v1/dashboard/meal-plans/${id}/approve`, { method: "POST" }),
+  duplicate: (id: string) =>
+    request<MealPlan>(`/api/v1/dashboard/meal-plans/${id}/duplicate`, { method: "POST" }),
+  preview: (body: Omit<MealPlanBriefInput, "name" | "currency">) =>
+    request<MealPlanPreview>("/api/v1/dashboard/meal-plans/preview", { method: "POST", body }),
+  candidates: (q: { companyId: string; sourceMenuId?: string; pricingListId?: string; componentType?: MealComponentType }) =>
+    request<MealPlanCandidate[]>("/api/v1/dashboard/meal-plans/candidates", { query: q }),
+  addItem: (
+    planId: string,
+    dayId: string,
+    body: { productId: string; componentType?: MealComponentType; quantity?: number; isLocked?: boolean },
+  ) =>
+    request<MealPlanDay>(`/api/v1/dashboard/meal-plans/${planId}/days/${dayId}/items`, { method: "POST", body }),
+  updateItem: (planId: string, dayId: string, itemId: string, body: { quantity?: number; isLocked?: boolean }) =>
+    request<MealPlanDay>(`/api/v1/dashboard/meal-plans/${planId}/days/${dayId}/items/${itemId}`, { method: "PATCH", body }),
+  removeItem: (planId: string, dayId: string, itemId: string) =>
+    request<void>(`/api/v1/dashboard/meal-plans/${planId}/days/${dayId}/items/${itemId}`, { method: "DELETE" }),
 };
 
 // Menus extensions

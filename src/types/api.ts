@@ -345,3 +345,206 @@ export interface ApprovalRequestDetail extends ApprovalRequest {
   requestedBy: string | null; requestedAt: string;
   history: Array<{ stepOrder: number; decision: string; comment: string | null; decidedAt: string }>;
 }
+
+// ---------- Nutrition & budget meal planning ----------
+export type MealComponentType =
+  | "protein"
+  | "carb"
+  | "vegetable"
+  | "salad"
+  | "soup"
+  | "side"
+  | "drink"
+  | "dessert"
+  | "other";
+
+export interface ProductNutrition {
+  productId: string;
+  componentType: MealComponentType;
+  servingSizeG: number | null;
+  caloriesKcal: string;
+  proteinG: string;
+  carbsG: string;
+  fatG: string;
+  fiberG: string | null;
+  sodiumMg: string | null;
+  allergens: string[];
+  ingredients: string | null;
+  source: string | null;
+  updatedAt: string;
+}
+
+export interface NutritionInput {
+  componentType: MealComponentType;
+  servingSizeG?: number | null;
+  caloriesKcal: number;
+  proteinG: number;
+  carbsG: number;
+  fatG: number;
+  fiberG?: number | null;
+  sodiumMg?: number | null;
+  allergens?: string[];
+  ingredients?: string | null;
+  source?: string | null;
+}
+
+export interface MealSlot {
+  componentType: MealComponentType;
+  quantity: number;
+}
+
+export interface MealPlanWarning {
+  code: string;
+  message: string;
+  date?: string;
+  componentType?: string;
+}
+
+export interface MealPlanItem {
+  id: string;
+  productId: string;
+  variantId: string | null;
+  productName: string | null;
+  componentType: MealComponentType;
+  quantity: number;
+  unitPrice: string;
+  lineTotal: string;
+  caloriesKcal: string;
+  proteinG: string;
+  carbsG: string;
+  fatG: string;
+  isLocked: boolean;
+  sortOrder: number;
+}
+
+export interface MealPlanDay {
+  id: string;
+  planDate: string;
+  sortOrder: number;
+  costPerHead: string;
+  totalCost: string;
+  caloriesKcal: string;
+  proteinG: string;
+  carbsG: string;
+  fatG: string;
+  isFeasible: boolean;
+  warnings: MealPlanWarning[];
+  items: MealPlanItem[];
+}
+
+export interface MealPlan {
+  id: string;
+  companyId: string;
+  companyName: string | null;
+  name: string;
+  description: string | null;
+  status: "draft" | "generated" | "approved" | "archived";
+  startDate: string;
+  endDate: string;
+  headcount: number;
+  budgetPerMeal: string;
+  currency: string;
+  pricingListId: string | null;
+  sourceMenuId: string | null;
+  minCaloriesKcal: string | null;
+  maxCaloriesKcal: string | null;
+  minProteinG: string | null;
+  maxProteinG: string | null;
+  minCarbsG: string | null;
+  maxCarbsG: string | null;
+  maxFatG: string | null;
+  slots: MealSlot[];
+  excludeAllergens: string[];
+  varietyWindowDays: number;
+  generatedAt: string | null;
+  isFeasible: boolean;
+  warnings: MealPlanWarning[];
+  totalCost: string;
+  avgCostPerMeal: string;
+  avgCaloriesKcal: string;
+  avgProteinG: string;
+  avgCarbsG: string;
+  avgFatG: string;
+  approvedAt: string | null;
+  createdAt: string;
+}
+
+export interface MealPlanDetail extends MealPlan {
+  days: MealPlanDay[];
+}
+
+export interface MealPlanCandidate {
+  productId: string;
+  name: string;
+  categoryId: string;
+  componentType: MealComponentType;
+  unitPrice: string;
+  currency: string;
+  caloriesKcal: string;
+  proteinG: string;
+  carbsG: string;
+  fatG: string;
+  allergens: string[];
+  proteinPerCurrencyUnit: string;
+}
+
+export interface MealPlanPreviewDay {
+  date: string;
+  costPerHead: number;
+  totalCost: number;
+  caloriesKcal: number;
+  proteinG: number;
+  carbsG: number;
+  fatG: number;
+  isFeasible: boolean;
+  warnings: MealPlanWarning[];
+  items: Array<{
+    productId: string;
+    variantId: string | null;
+    name: string;
+    componentType: MealComponentType;
+    quantity: number;
+    unitPrice: number;
+    lineTotal: number;
+    caloriesKcal: number;
+    proteinG: number;
+    carbsG: number;
+    fatG: number;
+    isLocked: boolean;
+  }>;
+}
+
+export interface MealPlanPreview {
+  isFeasible: boolean;
+  totalCost: number;
+  avgCostPerMeal: number;
+  avgCaloriesKcal: number;
+  avgProteinG: number;
+  avgCarbsG: number;
+  avgFatG: number;
+  warnings: MealPlanWarning[];
+  days: MealPlanPreviewDay[];
+}
+
+export interface MealPlanBriefInput {
+  companyId: string;
+  name: string;
+  description?: string;
+  startDate: string;
+  endDate: string;
+  headcount: number;
+  budgetPerMeal: string;
+  currency: string;
+  pricingListId?: string | null;
+  sourceMenuId?: string | null;
+  slots: MealSlot[];
+  excludeAllergens?: string[];
+  varietyWindowDays?: number;
+  minCaloriesKcal?: number | null;
+  maxCaloriesKcal?: number | null;
+  minProteinG?: number | null;
+  maxProteinG?: number | null;
+  minCarbsG?: number | null;
+  maxCarbsG?: number | null;
+  maxFatG?: number | null;
+}
