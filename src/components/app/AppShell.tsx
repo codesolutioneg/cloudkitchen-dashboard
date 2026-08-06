@@ -4,7 +4,7 @@ import {
   Building2, Users, Shield, Settings2, Boxes, UtensilsCrossed, ScrollText,
   Workflow, ShoppingBag, ChefHat, Truck, PackageCheck, ClipboardCheck,
   History, Bell, Cog, Database, Languages, LogOut, ChevronsLeft, ChevronsRight,
-  ChevronDown, LayoutDashboard, Cloud, Search,
+  ChevronDown, LayoutDashboard, Cloud, Search, Salad,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import type { NavigationNode } from "@/types/api";
@@ -20,6 +20,7 @@ const STATIC_NAV: NavigationNode[] = [
   ["features", "Features & Modules", "/dashboard/features", "Settings2"],
   ["catalog", "Catalog (PIM)", "/dashboard/catalog", "Boxes"],
   ["menus", "Menus", "/dashboard/menus", "UtensilsCrossed"],
+  ["meal-plans", "Meal Plans", "/dashboard/meal-plans", "Salad"],
   ["rules", "Business Rules", "/dashboard/rules", "ScrollText"],
   ["workflows", "Workflows", "/dashboard/workflows", "Workflow"],
   ["orders", "Orders", "/dashboard/orders", "ShoppingBag"],
@@ -42,7 +43,7 @@ const STATIC_NAV: NavigationNode[] = [
 const ICONS: Record<string, ComponentType<{ className?: string }>> = {
   Building2, Users, Shield, Settings2, Boxes, UtensilsCrossed, ScrollText,
   Workflow, ShoppingBag, ChefHat, Truck, PackageCheck, ClipboardCheck,
-  History, Bell, Cog, Database, Languages, LayoutDashboard,
+  History, Bell, Cog, Database, Languages, LayoutDashboard, Salad,
 };
 
 function iconFor(name: string | null | undefined) {

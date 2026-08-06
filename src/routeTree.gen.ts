@@ -22,6 +22,7 @@ import { Route as DashboardOrdersRouteImport } from './routes/dashboard.orders'
 import { Route as DashboardOperationsRouteImport } from './routes/dashboard.operations'
 import { Route as DashboardNotificationsRouteImport } from './routes/dashboard.notifications'
 import { Route as DashboardMenusRouteImport } from './routes/dashboard.menus'
+import { Route as DashboardMealPlansRouteImport } from './routes/dashboard.meal-plans'
 import { Route as DashboardLocalizationRouteImport } from './routes/dashboard.localization'
 import { Route as DashboardKitchenRouteImport } from './routes/dashboard.kitchen'
 import { Route as DashboardJobsRouteImport } from './routes/dashboard.jobs'
@@ -36,6 +37,7 @@ import { Route as DashboardWorkflowsIndexRouteImport } from './routes/dashboard.
 import { Route as DashboardRolesIndexRouteImport } from './routes/dashboard.roles.index'
 import { Route as DashboardOrdersIndexRouteImport } from './routes/dashboard.orders.index'
 import { Route as DashboardMenusIndexRouteImport } from './routes/dashboard.menus.index'
+import { Route as DashboardMealPlansIndexRouteImport } from './routes/dashboard.meal-plans.index'
 import { Route as DashboardCompaniesIndexRouteImport } from './routes/dashboard.companies.index'
 import { Route as DashboardCatalogIndexRouteImport } from './routes/dashboard.catalog.index'
 import { Route as DashboardApprovalWorkflowsIndexRouteImport } from './routes/dashboard.approval-workflows.index'
@@ -43,6 +45,7 @@ import { Route as DashboardWorkflowsIdRouteImport } from './routes/dashboard.wor
 import { Route as DashboardRolesIdRouteImport } from './routes/dashboard.roles.$id'
 import { Route as DashboardOrdersIdRouteImport } from './routes/dashboard.orders.$id'
 import { Route as DashboardMenusIdRouteImport } from './routes/dashboard.menus.$id'
+import { Route as DashboardMealPlansIdRouteImport } from './routes/dashboard.meal-plans.$id'
 import { Route as DashboardCompaniesIdRouteImport } from './routes/dashboard.companies.$id'
 import { Route as DashboardApprovalWorkflowsIdRouteImport } from './routes/dashboard.approval-workflows.$id'
 import { Route as DashboardCatalogProductsIdRouteImport } from './routes/dashboard.catalog.products.$id'
@@ -110,6 +113,11 @@ const DashboardNotificationsRoute = DashboardNotificationsRouteImport.update({
 const DashboardMenusRoute = DashboardMenusRouteImport.update({
   id: '/menus',
   path: '/menus',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardMealPlansRoute = DashboardMealPlansRouteImport.update({
+  id: '/meal-plans',
+  path: '/meal-plans',
   getParentRoute: () => DashboardRoute,
 } as any)
 const DashboardLocalizationRoute = DashboardLocalizationRouteImport.update({
@@ -183,6 +191,11 @@ const DashboardMenusIndexRoute = DashboardMenusIndexRouteImport.update({
   path: '/',
   getParentRoute: () => DashboardMenusRoute,
 } as any)
+const DashboardMealPlansIndexRoute = DashboardMealPlansIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => DashboardMealPlansRoute,
+} as any)
 const DashboardCompaniesIndexRoute = DashboardCompaniesIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -219,6 +232,11 @@ const DashboardMenusIdRoute = DashboardMenusIdRouteImport.update({
   path: '/$id',
   getParentRoute: () => DashboardMenusRoute,
 } as any)
+const DashboardMealPlansIdRoute = DashboardMealPlansIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => DashboardMealPlansRoute,
+} as any)
 const DashboardCompaniesIdRoute = DashboardCompaniesIdRouteImport.update({
   id: '/$id',
   path: '/$id',
@@ -251,6 +269,7 @@ export interface FileRoutesByFullPath {
   '/dashboard/jobs': typeof DashboardJobsRoute
   '/dashboard/kitchen': typeof DashboardKitchenRoute
   '/dashboard/localization': typeof DashboardLocalizationRoute
+  '/dashboard/meal-plans': typeof DashboardMealPlansRouteWithChildren
   '/dashboard/menus': typeof DashboardMenusRouteWithChildren
   '/dashboard/notifications': typeof DashboardNotificationsRoute
   '/dashboard/operations': typeof DashboardOperationsRoute
@@ -263,6 +282,7 @@ export interface FileRoutesByFullPath {
   '/dashboard/': typeof DashboardIndexRoute
   '/dashboard/approval-workflows/$id': typeof DashboardApprovalWorkflowsIdRoute
   '/dashboard/companies/$id': typeof DashboardCompaniesIdRoute
+  '/dashboard/meal-plans/$id': typeof DashboardMealPlansIdRoute
   '/dashboard/menus/$id': typeof DashboardMenusIdRoute
   '/dashboard/orders/$id': typeof DashboardOrdersIdRoute
   '/dashboard/roles/$id': typeof DashboardRolesIdRoute
@@ -270,6 +290,7 @@ export interface FileRoutesByFullPath {
   '/dashboard/approval-workflows/': typeof DashboardApprovalWorkflowsIndexRoute
   '/dashboard/catalog/': typeof DashboardCatalogIndexRoute
   '/dashboard/companies/': typeof DashboardCompaniesIndexRoute
+  '/dashboard/meal-plans/': typeof DashboardMealPlansIndexRoute
   '/dashboard/menus/': typeof DashboardMenusIndexRoute
   '/dashboard/orders/': typeof DashboardOrdersIndexRoute
   '/dashboard/roles/': typeof DashboardRolesIndexRoute
@@ -294,6 +315,7 @@ export interface FileRoutesByTo {
   '/dashboard': typeof DashboardIndexRoute
   '/dashboard/approval-workflows/$id': typeof DashboardApprovalWorkflowsIdRoute
   '/dashboard/companies/$id': typeof DashboardCompaniesIdRoute
+  '/dashboard/meal-plans/$id': typeof DashboardMealPlansIdRoute
   '/dashboard/menus/$id': typeof DashboardMenusIdRoute
   '/dashboard/orders/$id': typeof DashboardOrdersIdRoute
   '/dashboard/roles/$id': typeof DashboardRolesIdRoute
@@ -301,6 +323,7 @@ export interface FileRoutesByTo {
   '/dashboard/approval-workflows': typeof DashboardApprovalWorkflowsIndexRoute
   '/dashboard/catalog': typeof DashboardCatalogIndexRoute
   '/dashboard/companies': typeof DashboardCompaniesIndexRoute
+  '/dashboard/meal-plans': typeof DashboardMealPlansIndexRoute
   '/dashboard/menus': typeof DashboardMenusIndexRoute
   '/dashboard/orders': typeof DashboardOrdersIndexRoute
   '/dashboard/roles': typeof DashboardRolesIndexRoute
@@ -322,6 +345,7 @@ export interface FileRoutesById {
   '/dashboard/jobs': typeof DashboardJobsRoute
   '/dashboard/kitchen': typeof DashboardKitchenRoute
   '/dashboard/localization': typeof DashboardLocalizationRoute
+  '/dashboard/meal-plans': typeof DashboardMealPlansRouteWithChildren
   '/dashboard/menus': typeof DashboardMenusRouteWithChildren
   '/dashboard/notifications': typeof DashboardNotificationsRoute
   '/dashboard/operations': typeof DashboardOperationsRoute
@@ -334,6 +358,7 @@ export interface FileRoutesById {
   '/dashboard/': typeof DashboardIndexRoute
   '/dashboard/approval-workflows/$id': typeof DashboardApprovalWorkflowsIdRoute
   '/dashboard/companies/$id': typeof DashboardCompaniesIdRoute
+  '/dashboard/meal-plans/$id': typeof DashboardMealPlansIdRoute
   '/dashboard/menus/$id': typeof DashboardMenusIdRoute
   '/dashboard/orders/$id': typeof DashboardOrdersIdRoute
   '/dashboard/roles/$id': typeof DashboardRolesIdRoute
@@ -341,6 +366,7 @@ export interface FileRoutesById {
   '/dashboard/approval-workflows/': typeof DashboardApprovalWorkflowsIndexRoute
   '/dashboard/catalog/': typeof DashboardCatalogIndexRoute
   '/dashboard/companies/': typeof DashboardCompaniesIndexRoute
+  '/dashboard/meal-plans/': typeof DashboardMealPlansIndexRoute
   '/dashboard/menus/': typeof DashboardMenusIndexRoute
   '/dashboard/orders/': typeof DashboardOrdersIndexRoute
   '/dashboard/roles/': typeof DashboardRolesIndexRoute
@@ -363,6 +389,7 @@ export interface FileRouteTypes {
     | '/dashboard/jobs'
     | '/dashboard/kitchen'
     | '/dashboard/localization'
+    | '/dashboard/meal-plans'
     | '/dashboard/menus'
     | '/dashboard/notifications'
     | '/dashboard/operations'
@@ -375,6 +402,7 @@ export interface FileRouteTypes {
     | '/dashboard/'
     | '/dashboard/approval-workflows/$id'
     | '/dashboard/companies/$id'
+    | '/dashboard/meal-plans/$id'
     | '/dashboard/menus/$id'
     | '/dashboard/orders/$id'
     | '/dashboard/roles/$id'
@@ -382,6 +410,7 @@ export interface FileRouteTypes {
     | '/dashboard/approval-workflows/'
     | '/dashboard/catalog/'
     | '/dashboard/companies/'
+    | '/dashboard/meal-plans/'
     | '/dashboard/menus/'
     | '/dashboard/orders/'
     | '/dashboard/roles/'
@@ -406,6 +435,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/dashboard/approval-workflows/$id'
     | '/dashboard/companies/$id'
+    | '/dashboard/meal-plans/$id'
     | '/dashboard/menus/$id'
     | '/dashboard/orders/$id'
     | '/dashboard/roles/$id'
@@ -413,6 +443,7 @@ export interface FileRouteTypes {
     | '/dashboard/approval-workflows'
     | '/dashboard/catalog'
     | '/dashboard/companies'
+    | '/dashboard/meal-plans'
     | '/dashboard/menus'
     | '/dashboard/orders'
     | '/dashboard/roles'
@@ -433,6 +464,7 @@ export interface FileRouteTypes {
     | '/dashboard/jobs'
     | '/dashboard/kitchen'
     | '/dashboard/localization'
+    | '/dashboard/meal-plans'
     | '/dashboard/menus'
     | '/dashboard/notifications'
     | '/dashboard/operations'
@@ -445,6 +477,7 @@ export interface FileRouteTypes {
     | '/dashboard/'
     | '/dashboard/approval-workflows/$id'
     | '/dashboard/companies/$id'
+    | '/dashboard/meal-plans/$id'
     | '/dashboard/menus/$id'
     | '/dashboard/orders/$id'
     | '/dashboard/roles/$id'
@@ -452,6 +485,7 @@ export interface FileRouteTypes {
     | '/dashboard/approval-workflows/'
     | '/dashboard/catalog/'
     | '/dashboard/companies/'
+    | '/dashboard/meal-plans/'
     | '/dashboard/menus/'
     | '/dashboard/orders/'
     | '/dashboard/roles/'
@@ -558,6 +592,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardMenusRouteImport
       parentRoute: typeof DashboardRoute
     }
+    '/dashboard/meal-plans': {
+      id: '/dashboard/meal-plans'
+      path: '/meal-plans'
+      fullPath: '/dashboard/meal-plans'
+      preLoaderRoute: typeof DashboardMealPlansRouteImport
+      parentRoute: typeof DashboardRoute
+    }
     '/dashboard/localization': {
       id: '/dashboard/localization'
       path: '/localization'
@@ -656,6 +697,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardMenusIndexRouteImport
       parentRoute: typeof DashboardMenusRoute
     }
+    '/dashboard/meal-plans/': {
+      id: '/dashboard/meal-plans/'
+      path: '/'
+      fullPath: '/dashboard/meal-plans/'
+      preLoaderRoute: typeof DashboardMealPlansIndexRouteImport
+      parentRoute: typeof DashboardMealPlansRoute
+    }
     '/dashboard/companies/': {
       id: '/dashboard/companies/'
       path: '/'
@@ -704,6 +752,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/dashboard/menus/$id'
       preLoaderRoute: typeof DashboardMenusIdRouteImport
       parentRoute: typeof DashboardMenusRoute
+    }
+    '/dashboard/meal-plans/$id': {
+      id: '/dashboard/meal-plans/$id'
+      path: '/$id'
+      fullPath: '/dashboard/meal-plans/$id'
+      preLoaderRoute: typeof DashboardMealPlansIdRouteImport
+      parentRoute: typeof DashboardMealPlansRoute
     }
     '/dashboard/companies/$id': {
       id: '/dashboard/companies/$id'
@@ -771,6 +826,19 @@ const DashboardCompaniesRouteChildren: DashboardCompaniesRouteChildren = {
 const DashboardCompaniesRouteWithChildren =
   DashboardCompaniesRoute._addFileChildren(DashboardCompaniesRouteChildren)
 
+interface DashboardMealPlansRouteChildren {
+  DashboardMealPlansIdRoute: typeof DashboardMealPlansIdRoute
+  DashboardMealPlansIndexRoute: typeof DashboardMealPlansIndexRoute
+}
+
+const DashboardMealPlansRouteChildren: DashboardMealPlansRouteChildren = {
+  DashboardMealPlansIdRoute: DashboardMealPlansIdRoute,
+  DashboardMealPlansIndexRoute: DashboardMealPlansIndexRoute,
+}
+
+const DashboardMealPlansRouteWithChildren =
+  DashboardMealPlansRoute._addFileChildren(DashboardMealPlansRouteChildren)
+
 interface DashboardMenusRouteChildren {
   DashboardMenusIdRoute: typeof DashboardMenusIdRoute
   DashboardMenusIndexRoute: typeof DashboardMenusIndexRoute
@@ -837,6 +905,7 @@ interface DashboardRouteChildren {
   DashboardJobsRoute: typeof DashboardJobsRoute
   DashboardKitchenRoute: typeof DashboardKitchenRoute
   DashboardLocalizationRoute: typeof DashboardLocalizationRoute
+  DashboardMealPlansRoute: typeof DashboardMealPlansRouteWithChildren
   DashboardMenusRoute: typeof DashboardMenusRouteWithChildren
   DashboardNotificationsRoute: typeof DashboardNotificationsRoute
   DashboardOperationsRoute: typeof DashboardOperationsRoute
@@ -860,6 +929,7 @@ const DashboardRouteChildren: DashboardRouteChildren = {
   DashboardJobsRoute: DashboardJobsRoute,
   DashboardKitchenRoute: DashboardKitchenRoute,
   DashboardLocalizationRoute: DashboardLocalizationRoute,
+  DashboardMealPlansRoute: DashboardMealPlansRouteWithChildren,
   DashboardMenusRoute: DashboardMenusRouteWithChildren,
   DashboardNotificationsRoute: DashboardNotificationsRoute,
   DashboardOperationsRoute: DashboardOperationsRoute,
