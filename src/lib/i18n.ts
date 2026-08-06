@@ -3,6 +3,15 @@
  * Keys are English source strings used in the app.
  */
 const ar: Record<string, string> = {
+  "Cannot meet the brief": "لا تحقق المواصفات",
+  "Feasible": "قابلة للتحقيق",
+  "Fiber (g)": "ألياف (جم)",
+  "Preview": "معاينة",
+  "Preview result": "نتيجة المعاينة",
+  "Previewing…": "جارٍ المعاينة…",
+  "Product": "المنتج",
+  "Removed": "تم الحذف",
+  "Status": "الحالة",
   "Add component": "إضافة مكوّن",
   "Add item to this day": "إضافة صنف لهذا اليوم",
   "Add nutrition to catalog products so the planner can pick them.": "أضف البيانات الغذائية لمنتجات الكتالوج ليتمكن المخطط من اختيارها.",

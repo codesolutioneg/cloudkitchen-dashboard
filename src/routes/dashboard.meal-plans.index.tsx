@@ -13,7 +13,7 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { companiesApi, mealPlansApi, menusApi } from "@/services/apiClient";
-import type { MealPlan, MealSlot } from "@/types/api";
+import type { MealPlan, MealPlanPreview, MealSlot } from "@/types/api";
 import { Plus } from "lucide-react";
 import { toast } from "sonner";
 import { t } from "@/lib/i18n";
@@ -46,6 +46,8 @@ function MealPlansPage() {
   const [statusFilter, setStatusFilter] = useState("");
   const [open, setOpen] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [previewing, setPreviewing] = useState(false);
+  const [preview, setPreview] = useState<MealPlanPreview | null>(null);
 
   const { data, isLoading } = useQuery({
     queryKey: ["meal-plans", statusFilter],
@@ -84,6 +86,40 @@ function MealPlansPage() {
     [companies.data],
   );
 
+  function brief() {
+    return {
+      companyId: form.companyId,
+      startDate: form.startDate,
+      endDate: form.endDate,
+      headcount: form.headcount,
+      budgetPerMeal: form.budgetPerMeal,
+      sourceMenuId: form.sourceMenuId || null,
+      slots: DEFAULT_SLOTS,
+      minProteinG: form.minProteinG,
+      maxCarbsG: form.maxCarbsG,
+      minCaloriesKcal: form.minCaloriesKcal,
+      maxCaloriesKcal: form.maxCaloriesKcal,
+      varietyWindowDays: form.varietyWindowDays,
+    };
+  }
+
+  /** Solve the brief without saving it, so the numbers are visible before committing. */
+  async function runPreview() {
+    if (!form.companyId) {
+      toast.error(t("Pick a company and name the plan."));
+      return;
+    }
+    setPreviewing(true);
+    try {
+      setPreview(await mealPlansApi.preview(brief()));
+    } catch (e) {
+      setPreview(null);
+      toast.error((e as Error).message);
+    } finally {
+      setPreviewing(false);
+    }
+  }
+
   async function create() {
     if (!form.companyId || !form.name.trim()) {
       toast.error(t("Pick a company and name the plan."));
@@ -92,20 +128,9 @@ function MealPlansPage() {
     setSaving(true);
     try {
       const plan = await mealPlansApi.create({
-        companyId: form.companyId,
+        ...brief(),
         name: form.name.trim(),
-        startDate: form.startDate,
-        endDate: form.endDate,
-        headcount: form.headcount,
-        budgetPerMeal: form.budgetPerMeal,
         currency: form.currency,
-        sourceMenuId: form.sourceMenuId || null,
-        slots: DEFAULT_SLOTS,
-        minProteinG: form.minProteinG,
-        maxCarbsG: form.maxCarbsG,
-        minCaloriesKcal: form.minCaloriesKcal,
-        maxCaloriesKcal: form.maxCaloriesKcal,
-        varietyWindowDays: form.varietyWindowDays,
       });
       toast.success(t("Meal plan created"));
       setOpen(false);
@@ -225,7 +250,13 @@ function MealPlansPage() {
         emptyDescription={t("Create a plan to budget a week of meals for a corporate client.")}
       />
 
-      <Dialog open={open} onOpenChange={setOpen}>
+      <Dialog
+        open={open}
+        onOpenChange={(next) => {
+          setOpen(next);
+          if (!next) setPreview(null);
+        }}
+      >
         <DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-2xl">
           <DialogHeader>
             <DialogTitle>{t("New meal plan")}</DialogTitle>
@@ -339,8 +370,55 @@ function MealPlansPage() {
                 "Each meal is one protein, one carb and one salad. Adjust components after creating the plan.",
               )}
             </p>
+
+            {preview && (
+              <div className="rounded-[12px] border border-border bg-muted/40 p-4">
+                <div className="mb-2 flex items-center justify-between">
+                  <span className="text-sm font-semibold">{t("Preview result")}</span>
+                  <StatusBadge tone={preview.isFeasible ? "success" : "warning"}>
+                    {preview.isFeasible ? t("Feasible") : t("Cannot meet the brief")}
+                  </StatusBadge>
+                </div>
+                <div className="grid grid-cols-2 gap-2 text-xs sm:grid-cols-4">
+                  <PreviewStat
+                    label={t("Avg cost / meal")}
+                    value={`${preview.avgCostPerMeal.toFixed(2)} ${form.currency}`}
+                    bad={preview.avgCostPerMeal > Number(form.budgetPerMeal)}
+                  />
+                  <PreviewStat
+                    label={t("Avg protein")}
+                    value={`${preview.avgProteinG.toFixed(1)} g`}
+                    bad={preview.avgProteinG < form.minProteinG}
+                  />
+                  <PreviewStat
+                    label={t("Avg carbs")}
+                    value={`${preview.avgCarbsG.toFixed(1)} g`}
+                    bad={preview.avgCarbsG > form.maxCarbsG}
+                  />
+                  <PreviewStat
+                    label={t("Avg energy")}
+                    value={`${preview.avgCaloriesKcal.toFixed(0)} kcal`}
+                    bad={false}
+                  />
+                </div>
+                {preview.warnings.length > 0 && (
+                  <ul className="mt-2 list-inside list-disc text-[11px] text-amber-700 dark:text-amber-400">
+                    {preview.warnings.map((w, i) => (
+                      <li key={`${w.code}-${i}`}>{w.message}</li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            )}
           </div>
           <DialogFooter>
+            <button
+              onClick={runPreview}
+              disabled={previewing || saving}
+              className="rounded-[10px] border border-border px-4 py-2 text-sm font-semibold hover:bg-muted disabled:opacity-50"
+            >
+              {previewing ? t("Previewing…") : t("Preview")}
+            </button>
             <button
               onClick={create}
               disabled={saving}
@@ -373,5 +451,16 @@ function NumberInput({ value, onChange }: { value: number; onChange: (v: number)
       onChange={(e) => onChange(Number(e.target.value))}
       className="h-10 w-full rounded-[10px] border border-border bg-card px-3 text-sm"
     />
+  );
+}
+
+function PreviewStat({ label, value, bad }: { label: string; value: string; bad: boolean }) {
+  return (
+    <div>
+      <div className="text-muted-foreground">{label}</div>
+      <div className={bad ? "font-bold text-destructive" : "font-bold text-foreground"}>
+        {value}
+      </div>
+    </div>
   );
 }

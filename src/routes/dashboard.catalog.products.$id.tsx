@@ -452,7 +452,7 @@ function NutritionTab({ productId }: { productId: string }) {
         {num("proteinG", t("Protein (g)"))}
         {num("carbsG", t("Carbs (g)"))}
         {num("fatG", t("Fat (g)"))}
-        {num("fiberG", t("Fibre (g)"))}
+        {num("fiberG", t("Fiber (g)"))}
         {num("sodiumMg", t("Sodium (mg)"))}
         <label className="block space-y-1.5">
           <span className="text-xs font-semibold text-muted-foreground">
