@@ -5,7 +5,8 @@ import { PageHeader } from "@/components/app/PageHeader";
 import { EmptyState } from "@/components/app/EmptyState";
 import { StatusBadge } from "@/components/app/StatusBadge";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { catalogApi, catalogExtApi, localizationApi } from "@/services/apiClient";
+import { catalogApi, catalogExtApi, localizationApi, nutritionApi } from "@/services/apiClient";
+import type { MealComponentType } from "@/types/api";
 import { ArrowLeft, Loader2, Plus, Trash2, Save, Upload } from "lucide-react";
 import { toast } from "sonner";
 import { t } from "@/lib/i18n";
@@ -62,6 +63,7 @@ function ProductDetail() {
           <TabsTrigger value="options">{t("Options")}</TabsTrigger>
           <TabsTrigger value="availability">{t("Availability")}</TabsTrigger>
           <TabsTrigger value="tags">{t("Tags")}</TabsTrigger>
+          <TabsTrigger value="nutrition">{t("Nutrition")}</TabsTrigger>
         </TabsList>
 
         <TabsContent value="general">
@@ -85,6 +87,7 @@ function ProductDetail() {
         <TabsContent value="options"><OptionsTab productId={id} /></TabsContent>
         <TabsContent value="availability"><AvailabilityTab productId={id} /></TabsContent>
         <TabsContent value="tags"><TagsTab productId={id} /></TabsContent>
+        <TabsContent value="nutrition"><NutritionTab productId={id} /></TabsContent>
       </Tabs>
     </>
   );
@@ -318,6 +321,177 @@ function TagsTab({ productId }: { productId: string }) {
             ))}
           </div>
         )}
+    </div>
+  );
+}
+
+const NUTRITION_COMPONENTS: MealComponentType[] = [
+  "protein",
+  "carb",
+  "vegetable",
+  "salad",
+  "soup",
+  "side",
+  "drink",
+  "dessert",
+  "other",
+];
+
+const BLANK_NUTRITION = {
+  componentType: "other" as MealComponentType,
+  servingSizeG: 0,
+  caloriesKcal: 0,
+  proteinG: 0,
+  carbsG: 0,
+  fatG: 0,
+  fiberG: 0,
+  sodiumMg: 0,
+  allergens: "",
+  ingredients: "",
+};
+
+/** Per-serving macros. The budget meal planner only considers products that have this. */
+function NutritionTab({ productId }: { productId: string }) {
+  const qc = useQueryClient();
+  const { data, isLoading } = useQuery({
+    queryKey: ["nutrition", productId],
+    queryFn: () => nutritionApi.get(productId).catch(() => null),
+  });
+  const [form, setForm] = useState(BLANK_NUTRITION);
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    if (!data) return;
+    setForm({
+      componentType: data.componentType,
+      servingSizeG: data.servingSizeG ?? 0,
+      caloriesKcal: Number(data.caloriesKcal),
+      proteinG: Number(data.proteinG),
+      carbsG: Number(data.carbsG),
+      fatG: Number(data.fatG),
+      fiberG: data.fiberG ? Number(data.fiberG) : 0,
+      sodiumMg: data.sodiumMg ? Number(data.sodiumMg) : 0,
+      allergens: data.allergens.join(", "),
+      ingredients: data.ingredients ?? "",
+    });
+  }, [data]);
+
+  async function save() {
+    setSaving(true);
+    try {
+      await nutritionApi.upsert(productId, {
+        componentType: form.componentType,
+        servingSizeG: form.servingSizeG || null,
+        caloriesKcal: form.caloriesKcal,
+        proteinG: form.proteinG,
+        carbsG: form.carbsG,
+        fatG: form.fatG,
+        fiberG: form.fiberG || null,
+        sodiumMg: form.sodiumMg || null,
+        allergens: form.allergens.split(",").map((a) => a.trim()).filter(Boolean),
+        ingredients: form.ingredients || null,
+      });
+      toast.success(t("Nutrition saved"));
+      qc.invalidateQueries({ queryKey: ["nutrition", productId] });
+    } catch (e) {
+      toast.error((e as Error).message);
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function remove() {
+    if (!confirm(t("Remove nutrition data?"))) return;
+    try {
+      await nutritionApi.remove(productId);
+      setForm(BLANK_NUTRITION);
+      toast.success(t("Removed"));
+      qc.invalidateQueries({ queryKey: ["nutrition", productId] });
+    } catch (e) {
+      toast.error((e as Error).message);
+    }
+  }
+
+  if (isLoading) return <Loader2 className="mx-auto h-5 w-5 animate-spin text-primary" />;
+
+  const num = (key: keyof typeof form, label: string) => (
+    <label className="block space-y-1.5">
+      <span className="text-xs font-semibold text-muted-foreground">{label}</span>
+      <input
+        type="number"
+        min={0}
+        value={form[key] as number}
+        onChange={(e) => setForm({ ...form, [key]: Number(e.target.value) })}
+        className="h-10 w-full rounded-[10px] border border-border bg-card px-3 text-sm"
+      />
+    </label>
+  );
+
+  return (
+    <div className="space-y-4">
+      {!data && (
+        <p className="text-sm text-muted-foreground">
+          {t("This product has no nutrition data yet, so the meal planner will skip it.")}
+        </p>
+      )}
+      <div className="card-elevated grid gap-3 p-5 sm:grid-cols-2 lg:grid-cols-3">
+        <label className="block space-y-1.5">
+          <span className="text-xs font-semibold text-muted-foreground">{t("Meal component")}</span>
+          <select
+            value={form.componentType}
+            onChange={(e) => setForm({ ...form, componentType: e.target.value as MealComponentType })}
+            className="h-10 w-full rounded-[10px] border border-border bg-card px-3 text-sm"
+          >
+            {NUTRITION_COMPONENTS.map((c) => (
+              <option key={c} value={c}>{t(c)}</option>
+            ))}
+          </select>
+        </label>
+        {num("servingSizeG", t("Serving size (g)"))}
+        {num("caloriesKcal", t("Energy (kcal)"))}
+        {num("proteinG", t("Protein (g)"))}
+        {num("carbsG", t("Carbs (g)"))}
+        {num("fatG", t("Fat (g)"))}
+        {num("fiberG", t("Fibre (g)"))}
+        {num("sodiumMg", t("Sodium (mg)"))}
+        <label className="block space-y-1.5">
+          <span className="text-xs font-semibold text-muted-foreground">
+            {t("Allergens (comma separated)")}
+          </span>
+          <input
+            value={form.allergens}
+            onChange={(e) => setForm({ ...form, allergens: e.target.value })}
+            placeholder="nuts, dairy"
+            className="h-10 w-full rounded-[10px] border border-border bg-card px-3 text-sm"
+          />
+        </label>
+        <label className="block space-y-1.5 sm:col-span-2 lg:col-span-3">
+          <span className="text-xs font-semibold text-muted-foreground">{t("Ingredients")}</span>
+          <textarea
+            value={form.ingredients}
+            onChange={(e) => setForm({ ...form, ingredients: e.target.value })}
+            rows={3}
+            className="w-full rounded-[10px] border border-border bg-card px-3 py-2 text-sm"
+          />
+        </label>
+      </div>
+      <div className="flex gap-2">
+        <button
+          onClick={save}
+          disabled={saving}
+          className="flex items-center gap-2 rounded-[10px] bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground disabled:opacity-50"
+        >
+          <Save className="h-4 w-4" /> {saving ? t("Saving…") : t("Save")}
+        </button>
+        {data && (
+          <button
+            onClick={remove}
+            className="flex items-center gap-2 rounded-[10px] border border-destructive/40 px-3 py-2 text-sm font-semibold text-destructive hover:bg-destructive/10"
+          >
+            <Trash2 className="h-4 w-4" /> {t("Remove")}
+          </button>
+        )}
+      </div>
     </div>
   );
 }
