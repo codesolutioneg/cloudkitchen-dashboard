@@ -100,3 +100,20 @@
   border-radius: var(--radius-xl);
   box-shadow: 0 1px 2px 0 rgba(15, 23, 42, 0.04), 0 1px 3px 0 rgba(15, 23, 42, 0.03);
 }
+
+.safe-bottom {
+  padding-bottom: max(0.5rem, env(safe-area-inset-bottom));
+}
+
+/* html5-qrcode: keep video preview usable on phones */
+[id^="ck-qr-reader-"] {
+  width: 100% !important;
+}
+[id^="ck-qr-reader-"] video {
+  width: 100% !important;
+  border-radius: 1rem;
+  object-fit: cover;
+}
+[id^="ck-qr-reader-"] img {
+  display: none !important;
+}

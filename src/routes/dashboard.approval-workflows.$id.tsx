@@ -9,6 +9,16 @@ import { ArrowLeft, Loader2, Plus } from "lucide-react";
 import { toast } from "sonner";
 import { t } from "@/lib/i18n";
 
+function cleanWorkflowName(name: string) {
+  return name.replace(/\s+\d{10,}$/, "").trim();
+}
+
+function entityTypeLabel(entityType: string) {
+  const key = `approvalEntity.${entityType}`;
+  const translated = t(key);
+  return translated !== key ? translated : entityType;
+}
+
 export const Route = createFileRoute("/dashboard/approval-workflows/$id")({ component: ApprovalWorkflowDetail });
 
 function ApprovalWorkflowDetail() {
@@ -18,8 +28,9 @@ function ApprovalWorkflowDetail() {
   return (
     <>
       <PageHeader
-        title={wf.data?.name ?? "Approval workflow"} description={wf.data?.code ?? id}
-        breadcrumbs={[{ label: t("Dashboard"), to: "/dashboard" }, { label: t("Approvals"), to: "/dashboard/approval-workflows" }, { label: wf.data?.name ?? id }]}
+        title={wf.data ? cleanWorkflowName(wf.data.name) : t("Approval Workflows")}
+        description={wf.data ? `${entityTypeLabel(wf.data.entityType)} · ${wf.data.stepCount ?? 0} ${t("Steps")}` : id}
+        breadcrumbs={[{ label: t("Dashboard"), to: "/dashboard" }, { label: t("Approval Workflows"), to: "/dashboard/approval-workflows" }, { label: wf.data ? cleanWorkflowName(wf.data.name) : id }]}
         actions={<Link to="/dashboard/approval-workflows" className="flex items-center gap-2 rounded-[10px] border border-border px-3 py-2 text-sm font-semibold hover:bg-muted"><ArrowLeft className="h-4 w-4" /> {t("Back")}</Link>}
       />
       <Tabs defaultValue="steps">

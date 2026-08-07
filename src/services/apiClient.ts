@@ -3,22 +3,23 @@
 
 import type {
   ApiResponse, AuthTokens, DashboardMe, NavigationNode,
-  CompanySummary, VerifiedDocument, ApprovalStatus,
+  CompanySummary, VerifiedDocument, ApprovalStatus, CompanyCatalogAssignment,
   Role, PagePermissionInput, Permission,
   DashboardUser, InviteUserInput,
   Feature, Module, FeatureGroup, FeatureFlag, DashboardPage,
   Category, Product, PricingList,
+  CustomProductRequest,
   Menu, MenuSection,
   RuleType, BusinessRule, Calendar, CalendarEvent,
   Workflow, WorkflowStep, WorkflowTransition, WorkflowInstance,
-  OrderSummary, OrderDetail,
+  OrderSummary, OrderDetail, OrderPaymentInfo,
   DeliveryUser, DeliveryOrderView,
   ApprovalWorkflow, ApprovalStep, ApprovalRequest, ApprovalRequestDetail,
   AuditLog, NotificationTemplate, BackgroundJob,
   ExternalSystem, IntegrationMapping, IntegrationEvent,
   Language, Translation, GlobalSettings,
   ProductVariant, ProductOptionGroup, ProductAvailability, ProductTag, ProductMedia,
-  SectionProduct, MenuAssignment,
+  SectionProduct, MenuAssignment, AnalyticsOverview,
   ProductNutrition, NutritionInput,
   MealPlan, MealPlanDetail, MealPlanDay, MealPlanCandidate, MealPlanPreview,
   MealPlanBriefInput, MealComponentType,
@@ -118,17 +119,41 @@ async function request<T>(path: string, opts: RequestOptions = {}): Promise<T> {
     tokenStore.clear();
   }
 
-  let payload: ApiResponse<T> | null = null;
-  try { payload = (await res.json()) as ApiResponse<T>; } catch { /* ignore */ }
+  if (res.status === 204) {
+    if (!res.ok) {
+      throw new ApiClientError(res.status, "unknown_error", `Request failed (${res.status})`);
+    }
+    return undefined as T;
+  }
 
-  if (!res.ok || !payload || payload.success === false) {
-    const err = payload && payload.success === false ? payload.error : {
-      code: "unknown_error",
-      message: `Request failed (${res.status})`,
-    };
+  const text = await res.text();
+  let payload: ApiResponse<T> | null = null;
+  if (text) {
+    try {
+      payload = JSON.parse(text) as ApiResponse<T>;
+    } catch {
+      /* non-json body */
+    }
+  }
+
+  if (!res.ok) {
+    const err =
+      payload && payload.success === false
+        ? payload.error
+        : { code: "unknown_error", message: text || `Request failed (${res.status})` };
     throw new ApiClientError(res.status, err.code, err.message, "details" in err ? err.details : undefined);
   }
-  return payload.data;
+
+  if (payload && payload.success === false) {
+    const err = payload.error;
+    throw new ApiClientError(res.status, err.code, err.message, "details" in err ? err.details : undefined);
+  }
+
+  if (payload && payload.success === true) {
+    return payload.data;
+  }
+
+  return undefined as T;
 }
 
 export interface Paginated<T> {
@@ -288,7 +313,7 @@ export const catalogApi = {
   updateCategory: (id: string, b: Partial<Category>) => request<Category>(`/api/v1/dashboard/catalog/categories/${id}`, { method: "PATCH", body: b }),
   deleteCategory: (id: string) => request<void>(`/api/v1/dashboard/catalog/categories/${id}`, { method: "DELETE" }),
 
-  listProducts: (q: { page?: number; pageSize?: number; categoryId?: string } = {}) =>
+  listProducts: (q: { page?: number; pageSize?: number; categoryId?: string; search?: string } = {}) =>
     paginated<Product>("/api/v1/dashboard/catalog/products", q),
   getProduct: (id: string) => request<Product>(`/api/v1/dashboard/catalog/products/${id}`),
   createProduct: (b: Partial<Product>) => request<Product>("/api/v1/dashboard/catalog/products", { method: "POST", body: b }),
@@ -303,6 +328,16 @@ export const catalogApi = {
     request<void>("/api/v1/dashboard/catalog/prices", { method: "POST", body }),
   assignToCompany: (body: { companyId: string; pricingListId: string; effectiveFrom?: string; effectiveTo?: string }) =>
     request<void>("/api/v1/dashboard/catalog/company-assignment", { method: "POST", body }),
+  deletePricingAssignment: (assignmentId: string) =>
+    request<void>(`/api/v1/dashboard/catalog/company-assignment/${assignmentId}`, { method: "DELETE" }),
+  listCompanyAssignments: (q: { companyId?: string; approvalStatus?: string } = {}) =>
+    request<CompanyCatalogAssignment[]>("/api/v1/dashboard/catalog/company-assignments", { query: q }),
+  listCustomProducts: (q: { status?: string; companyId?: string } = {}) =>
+    request<CustomProductRequest[]>("/api/v1/dashboard/catalog/custom-products", { query: q }),
+  approveCustomProduct: (id: string, body: { basePrice: number; currency?: string }) =>
+    request<CustomProductRequest>(`/api/v1/dashboard/catalog/custom-products/${id}/approve`, { method: "POST", body }),
+  rejectCustomProduct: (id: string, body: { reason?: string } = {}) =>
+    request<CustomProductRequest>(`/api/v1/dashboard/catalog/custom-products/${id}/reject`, { method: "POST", body }),
 };
 
 // ================= MENUS =================
@@ -310,6 +345,8 @@ export const menusApi = {
   list: () => request<Menu[]>("/api/v1/dashboard/menus"),
   create: (b: Partial<Menu>) => request<Menu>("/api/v1/dashboard/menus", { method: "POST", body: b }),
   get: (id: string) => request<Menu>(`/api/v1/dashboard/menus/${id}`),
+  update: (id: string, b: Partial<Menu>) => request<Menu>(`/api/v1/dashboard/menus/${id}`, { method: "PATCH", body: b }),
+  setGeneral: (id: string) => request<Menu>(`/api/v1/dashboard/menus/${id}/set-general`, { method: "POST" }),
   listSections: (menuId: string) => request<MenuSection[]>(`/api/v1/dashboard/menus/${menuId}/sections`),
   createSection: (menuId: string, b: Partial<MenuSection>) =>
     request<MenuSection>(`/api/v1/dashboard/menus/${menuId}/sections`, { method: "POST", body: b }),
@@ -362,6 +399,8 @@ export const ordersApi = {
   list: (q: { companyId?: string; statusCode?: string; page?: number; pageSize?: number } = {}) =>
     paginated<OrderSummary>("/api/v1/dashboard/orders", q),
   get: (id: string) => request<OrderDetail>(`/api/v1/dashboard/orders/${id}`),
+  update: (id: string, body: { requestedDeliveryAt?: string; fulfillmentType?: "delivery" | "pickup"; deliveryAddressId?: string | null }) =>
+    request<OrderDetail>(`/api/v1/dashboard/orders/${id}`, { method: "PATCH", body }),
   transition: (id: string, body: { toStepId: string; comment?: string; context?: unknown }) =>
     request<void>(`/api/v1/dashboard/orders/${id}/transitions`, { method: "POST", body }),
   addNote: (id: string, body: { note: string; isInternal?: boolean }) =>
@@ -374,15 +413,40 @@ export const ordersApi = {
     request<void>(`/api/v1/dashboard/orders/${id}/awaiting-pickup`, { method: "POST" }),
   confirmPickup: (id: string) =>
     request<void>(`/api/v1/dashboard/orders/${id}/confirm-pickup`, { method: "POST" }),
+  getPayment: (id: string) => request<OrderPaymentInfo>(`/api/v1/dashboard/orders/${id}/payment`),
+  approvePayment: (id: string, body: { comment?: string } = {}) =>
+    request<OrderPaymentInfo>(`/api/v1/dashboard/orders/${id}/payment/approve`, { method: "POST", body }),
+  rejectPayment: (id: string, body: { reason?: string } = {}) =>
+    request<OrderPaymentInfo>(`/api/v1/dashboard/orders/${id}/payment/reject`, { method: "POST", body }),
+  downloadReceipt: async (id: string) => {
+    const res = await fetch(new URL(`/api/v1/dashboard/orders/${id}/receipt`, BASE_URL), {
+      headers: { Authorization: `Bearer ${tokenStore.access ?? ""}` },
+    });
+    if (!res.ok) throw new ApiClientError(res.status, "receipt_download_failed", "Failed to download receipt");
+    return res.blob();
+  },
+};
+
+// ================= ASSISTANT =================
+export const assistantApi = {
+  chat: (message: string, history: Array<{ role: "user" | "assistant"; content: string }> = []) =>
+    request<{ reply: string }>("/api/v1/dashboard/assistant/chat", {
+      method: "POST",
+      body: { message, history },
+    }),
 };
 
 // ================= DELIVERY =================
 export const deliveryApi = {
   users: () => request<DeliveryUser[]>("/api/v1/dashboard/delivery/users"),
   myOrders: () => request<DeliveryOrderView[]>("/api/v1/dashboard/delivery/orders"),
-  depart: (id: string) => request<void>(`/api/v1/dashboard/delivery/orders/${id}/depart`, { method: "POST" }),
+  depart: (id: string) => request<DeliveryOrderView>(`/api/v1/dashboard/delivery/orders/${id}/depart`, { method: "POST" }),
   confirmDelivery: (id: string, qrToken: string) =>
-    request<void>(`/api/v1/dashboard/delivery/orders/${id}/confirm-delivery`, { method: "POST", body: { qrToken } }),
+    request<DeliveryOrderView>(`/api/v1/dashboard/delivery/orders/${id}/confirm-delivery`, { method: "POST", body: { qrToken } }),
+  fulfillmentQr: (orderId: string) =>
+    request<{ orderId: string; orderNumber: string; qrPayload: string; fulfillmentType: string }>(
+      `/api/v1/dashboard/orders/${orderId}/fulfillment-qr`,
+    ),
 };
 
 // ================= APPROVAL WORKFLOWS =================
@@ -399,7 +463,7 @@ export const approvalWorkflowsApi = {
 
 // ================= AUDIT / NOTIF / JOBS / INTEGRATIONS / LOCALIZATION =================
 export const auditApi = {
-  list: (q: { entityType?: string; entityId?: string; page?: number; pageSize?: number } = {}) =>
+  list: (q: { entityName?: string; entityId?: string; correlationId?: string; page?: number; pageSize?: number } = {}) =>
     paginated<AuditLog>("/api/v1/dashboard/audit-logs", q),
 };
 
@@ -619,8 +683,21 @@ export const integrationsExtApi = {
 
 // Files extensions
 export const filesExtApi = {
-  download: (fileId: string) => `${BASE_URL}/api/v1/files/${fileId}/download`,
+  downloadUrl: (fileId: string) => `${BASE_URL}/api/v1/files/${fileId}`,
+  fetchBlob: async (fileId: string) => {
+    const res = await fetch(new URL(`/api/v1/files/${fileId}`, BASE_URL), {
+      headers: { Authorization: `Bearer ${tokenStore.access ?? ""}` },
+    });
+    if (!res.ok) throw new ApiClientError(res.status, "file_download_failed", "Failed to download file");
+    return res.blob();
+  },
   deleteAttachment: (attachmentId: string) =>
     request<void>(`/api/v1/files/attachments/${attachmentId}`, { method: "DELETE" }),
+};
+
+// ================= ANALYTICS =================
+export const analyticsApi = {
+  overview: (q: { days?: number; companyId?: string } = {}) =>
+    request<AnalyticsOverview>("/api/v1/dashboard/analytics/overview", { query: q }),
 };
 

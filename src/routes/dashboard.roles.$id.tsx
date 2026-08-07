@@ -6,7 +6,7 @@ import { EmptyState } from "@/components/app/EmptyState";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { rolesApi, permissionsApi, dashboardPagesApi } from "@/services/apiClient";
 import type { PagePermissionInput } from "@/types/api";
-import { ArrowLeft, Loader2, Save } from "lucide-react";
+import { ArrowLeft, Loader2, Save, EyeOff } from "lucide-react";
 import { toast } from "sonner";
 import { t } from "@/lib/i18n";
 
@@ -22,7 +22,7 @@ function RoleDetail() {
   useEffect(() => { if (role.data) { setName(role.data.name); setDesc(role.data.description ?? ""); } }, [role.data]);
 
   async function saveGeneral() {
-    try { await rolesApi.update(id, { name, description: desc }); toast.success("Role updated"); qc.invalidateQueries({ queryKey: ["role", id] }); }
+    try { await rolesApi.update(id, { name, description: desc }); toast.success(t("Role updated")); qc.invalidateQueries({ queryKey: ["role", id] }); }
     catch (e) { toast.error((e as Error).message); }
   }
 
@@ -36,59 +36,114 @@ function RoleDetail() {
         breadcrumbs={[{ label: t("Dashboard"), to: "/dashboard" }, { label: t("Roles"), to: "/dashboard/roles" }, { label: role.data.name }]}
         actions={<Link to="/dashboard/roles" className="flex items-center gap-2 rounded-[10px] border border-border px-3 py-2 text-sm font-semibold hover:bg-muted"><ArrowLeft className="h-4 w-4" /> {t("Back")}</Link>}
       />
-      <Tabs defaultValue="general">
+      <div className="mb-4 rounded-xl border border-primary/20 bg-primary-soft/50 px-4 py-3 text-sm text-foreground">
+        {t("To hide screens from a user: assign them a role, then uncheck View on pages they should not access. Business Rules are for ops settings (fees, days), not screen access.")}
+      </div>
+      <Tabs defaultValue="pages">
         <TabsList className="mb-4">
+          <TabsTrigger value="pages">{t("Screen access")}</TabsTrigger>
           <TabsTrigger value="general">{t("General")}</TabsTrigger>
-          <TabsTrigger value="pages">{t("Page permissions")}</TabsTrigger>
           <TabsTrigger value="api">{t("API permissions")}</TabsTrigger>
         </TabsList>
         <TabsContent value="general">
           <div className="card-elevated max-w-xl space-y-3 p-6">
-            <div><label className="mb-1 block text-sm font-semibold">Name</label><input value={name} onChange={(e) => setName(e.target.value)} className="h-10 w-full rounded-[10px] border border-border bg-card px-3 text-sm" /></div>
-            <div><label className="mb-1 block text-sm font-semibold">Description</label><textarea value={desc} onChange={(e) => setDesc(e.target.value)} className="min-h-[80px] w-full rounded-[10px] border border-border bg-card p-3 text-sm" /></div>
+            <div><label className="mb-1 block text-sm font-semibold">{t("Name")}</label><input value={name} onChange={(e) => setName(e.target.value)} className="h-10 w-full rounded-[10px] border border-border bg-card px-3 text-sm" /></div>
+            <div><label className="mb-1 block text-sm font-semibold">{t("Description")}</label><textarea value={desc} onChange={(e) => setDesc(e.target.value)} className="min-h-[80px] w-full rounded-[10px] border border-border bg-card p-3 text-sm" /></div>
             <button onClick={saveGeneral} className="flex items-center gap-2 rounded-[10px] bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground"><Save className="h-4 w-4" /> {t("Save")}</button>
           </div>
         </TabsContent>
-        <TabsContent value="pages"><PagesMatrix roleId={id} /></TabsContent>
+        <TabsContent value="pages"><PagesMatrix roleId={id} initial={role.data.pagePermissions ?? []} /></TabsContent>
         <TabsContent value="api"><ApiMatrix roleId={id} /></TabsContent>
       </Tabs>
     </>
   );
 }
 
-function PagesMatrix({ roleId }: { roleId: string }) {
+function PagesMatrix({ roleId, initial }: { roleId: string; initial: PagePermissionInput[] }) {
+  const qc = useQueryClient();
   const pages = useQuery({ queryKey: ["dashboard-pages"], queryFn: dashboardPagesApi.list });
-  const [state, setState] = useState<Record<string, Partial<PagePermissionInput>>>({});
+  const [state, setState] = useState<Record<string, Partial<PagePermissionInput>>>(() => {
+    const map: Record<string, Partial<PagePermissionInput>> = {};
+    for (const p of initial) map[p.pageId] = { ...p };
+    return map;
+  });
+
+  useEffect(() => {
+    const map: Record<string, Partial<PagePermissionInput>> = {};
+    for (const p of initial) map[p.pageId] = { ...p };
+    setState(map);
+  }, [initial]);
+
   function toggle(pageId: string, key: keyof PagePermissionInput) {
-    setState((s) => ({ ...s, [pageId]: { ...s[pageId], [key]: !s[pageId]?.[key] } }));
+    setState((s) => ({ ...s, [pageId]: { pageId, ...s[pageId], [key]: !s[pageId]?.[key] } }));
   }
+
   async function save() {
-    const payload: PagePermissionInput[] = Object.entries(state).map(([pageId, v]) => ({ pageId, ...v }));
-    try { await rolesApi.setPagePermissions(roleId, payload); toast.success("Saved"); setState({}); }
-    catch (e) { toast.error((e as Error).message); }
+    const payload: PagePermissionInput[] = (pages.data ?? []).map((pg) => ({
+      pageId: pg.id,
+      canView: !!state[pg.id]?.canView,
+      canCreate: !!state[pg.id]?.canCreate,
+      canEdit: !!state[pg.id]?.canEdit,
+      canDelete: !!state[pg.id]?.canDelete,
+      canApprove: !!state[pg.id]?.canApprove,
+      canReject: !!state[pg.id]?.canReject,
+      canExport: !!state[pg.id]?.canExport,
+      canImport: !!state[pg.id]?.canImport,
+    }));
+    try {
+      await rolesApi.setPagePermissions(roleId, payload);
+      toast.success(t("Saved"));
+      qc.invalidateQueries({ queryKey: ["role", roleId] });
+    } catch (e) { toast.error((e as Error).message); }
   }
+
   if (pages.isLoading) return <div className="flex justify-center py-8"><Loader2 className="h-5 w-5 animate-spin text-primary" /></div>;
   if (!pages.data || pages.data.length === 0) return <EmptyState title={t("No dashboard pages registered")} />;
+
+  const hiddenCount = pages.data.filter((pg) => !state[pg.id]?.canView).length;
+
   return (
     <div className="space-y-3">
+      <div className="flex flex-wrap items-center justify-between gap-2 text-sm text-muted-foreground">
+        <span className="inline-flex items-center gap-2">
+          <EyeOff className="h-4 w-4" />
+          {hiddenCount} {t("screens hidden for this role")}
+        </span>
+        <button onClick={save} className="flex items-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground">
+          <Save className="h-4 w-4" /> {t("Save screen access")}
+        </button>
+      </div>
       <div className="card-elevated overflow-x-auto">
         <table className="w-full text-sm">
-          <thead className="bg-muted/60"><tr><th className="px-4 py-3 text-left text-xs uppercase text-muted-foreground">Page</th>
-            {PERMS.map((p) => <th key={p} className="px-2 py-3 text-xs uppercase text-muted-foreground">{p.slice(3)}</th>)}
-          </tr></thead>
-          <tbody>{pages.data.map((pg) => (
-            <tr key={pg.id} className="border-t border-border">
-              <td className="px-4 py-2"><div className="font-semibold">{pg.name}</div><code className="text-xs text-muted-foreground">{pg.route}</code></td>
+          <thead className="bg-muted/60">
+            <tr>
+              <th className="px-4 py-3 text-left text-xs uppercase text-muted-foreground">{t("Screen")}</th>
               {PERMS.map((p) => (
-                <td key={p} className="px-2 py-2 text-center">
-                  <input type="checkbox" checked={!!state[pg.id]?.[p]} onChange={() => toggle(pg.id, p)} />
-                </td>
+                <th key={p} className="px-2 py-3 text-xs uppercase text-muted-foreground">{p.slice(3)}</th>
               ))}
             </tr>
-          ))}</tbody>
+          </thead>
+          <tbody>
+            {pages.data.map((pg) => {
+              const allowed = !!state[pg.id]?.canView;
+              return (
+                <tr key={pg.id} className={`border-t border-border ${allowed ? "" : "bg-muted/30 opacity-70"}`}>
+                  <td className="px-4 py-2">
+                    <div className="font-semibold">{pg.name}</div>
+                    <code className="text-xs text-muted-foreground">{pg.route}</code>
+                    {!allowed && <div className="mt-1 text-[11px] font-semibold text-destructive">{t("Hidden from sidebar")}</div>}
+                  </td>
+                  {PERMS.map((p) => (
+                    <td key={p} className="px-2 py-2 text-center">
+                      <input type="checkbox" checked={!!state[pg.id]?.[p]} onChange={() => toggle(pg.id, p)} />
+                    </td>
+                  ))}
+                </tr>
+              );
+            })}
+          </tbody>
         </table>
       </div>
-      <button onClick={save} className="flex items-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground"><Save className="h-4 w-4" /> Save permissions</button>
     </div>
   );
 }
@@ -98,7 +153,7 @@ function ApiMatrix({ roleId }: { roleId: string }) {
   const [state, setState] = useState<Record<string, "allow" | "deny" | undefined>>({});
   async function save() {
     const payload = Object.entries(state).filter(([, v]) => v).map(([permissionId, effect]) => ({ permissionId, effect: effect! }));
-    try { await rolesApi.setApiPermissions(roleId, payload); toast.success("Saved"); }
+    try { await rolesApi.setApiPermissions(roleId, payload); toast.success(t("Saved")); }
     catch (e) { toast.error((e as Error).message); }
   }
   if (perms.isLoading) return <div className="flex justify-center py-8"><Loader2 className="h-5 w-5 animate-spin text-primary" /></div>;

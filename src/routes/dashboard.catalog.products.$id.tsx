@@ -12,19 +12,22 @@ import { toast } from "sonner";
 import { t } from "@/lib/i18n";
 import { normalizePublicAssetUrl } from "@/lib/assetUrl";
 import { EntitySelect } from "@/components/app/EntitySelect";
+import { CURRENCIES, optionsFrom } from "@/lib/systemOptions";
+import { usePlatformDefaults } from "@/hooks/usePlatformDefaults";
 
 export const Route = createFileRoute("/dashboard/catalog/products/$id")({ component: ProductDetail });
 
 function ProductDetail() {
   const { id } = Route.useParams();
   const qc = useQueryClient();
+  const { currency: defaultCurrency } = usePlatformDefaults();
   const p = useQuery({ queryKey: ["product", id], queryFn: () => catalogApi.getProduct(id) });
-  const [form, setForm] = useState({ name: "", description: "", basePrice: "0", currency: "USD", isActive: true, prepTimeMins: 25 });
+  const [form, setForm] = useState({ name: "", description: "", basePrice: "0", currency: defaultCurrency, isActive: true, prepTimeMins: 25 });
   useEffect(() => {
     if (p.data) setForm({
       name: p.data.name,
       description: p.data.description ?? "",
-      basePrice: p.data.basePrice,
+      basePrice: p.data.basePrice ?? "",
       currency: p.data.currency,
       isActive: p.data.isActive,
       prepTimeMins: p.data.prepTimeMins ?? 25,
@@ -72,7 +75,15 @@ function ProductDetail() {
             <div><label className="mb-1 block text-sm font-semibold">Description</label><textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} className="min-h-[100px] w-full rounded-[10px] border border-border bg-card p-3 text-sm" /></div>
             <div className="grid grid-cols-2 gap-3">
               <div><label className="mb-1 block text-sm font-semibold">Base price</label><input value={form.basePrice} onChange={(e) => setForm({ ...form, basePrice: e.target.value })} className="h-10 w-full rounded-[10px] border border-border bg-card px-3 text-sm" /></div>
-              <div><label className="mb-1 block text-sm font-semibold">Currency</label><input value={form.currency} onChange={(e) => setForm({ ...form, currency: e.target.value })} className="h-10 w-full rounded-[10px] border border-border bg-card px-3 text-sm" /></div>
+              <div>
+                <label className="mb-1 block text-sm font-semibold">{t("Currency")}</label>
+                <EntitySelect
+                  value={form.currency}
+                  onChange={(currency) => setForm({ ...form, currency })}
+                  options={optionsFrom(CURRENCIES, t)}
+                  placeholder={t("Currency")}
+                />
+              </div>
               <div><label className="mb-1 block text-sm font-semibold">Prep time (mins)</label><input type="number" value={form.prepTimeMins} onChange={(e) => setForm({ ...form, prepTimeMins: +e.target.value })} className="h-10 w-full rounded-[10px] border border-border bg-card px-3 text-sm" /></div>
             </div>
             <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={form.isActive} onChange={(e) => setForm({ ...form, isActive: e.target.checked })} /> Active</label>
@@ -98,6 +109,10 @@ function ImageTab({ productId, imageUrl }: { productId: string; imageUrl?: strin
   const media = useQuery({ queryKey: ["product-media", productId], queryFn: () => catalogExtApi.listMedia(productId) });
   const displayUrl = normalizePublicAssetUrl(imageUrl) ?? normalizePublicAssetUrl(media.data?.find((m) => m.isPrimary)?.url);
   const [urlInput, setUrlInput] = useState(displayUrl ?? "");
+
+  useEffect(() => {
+    setUrlInput(displayUrl ?? "");
+  }, [displayUrl]);
 
   async function upload(f: File) {
     try {
@@ -132,7 +147,13 @@ function ImageTab({ productId, imageUrl }: { productId: string; imageUrl?: strin
     <div className="card-elevated max-w-xl space-y-4 p-6">
       {displayUrl ? (
         <div className="relative">
-          <img src={displayUrl} alt="Product" className="max-h-64 w-full rounded-xl border border-border object-contain bg-muted/30" />
+          <img
+            key={displayUrl}
+            src={displayUrl}
+            alt="Product"
+            crossOrigin="anonymous"
+            className="max-h-64 w-full rounded-xl border border-border object-contain bg-muted/30"
+          />
         </div>
       ) : (
         <EmptyState title={t("No image")} description={t("Upload a product photo like Dishflow.")} />

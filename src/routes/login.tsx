@@ -1,7 +1,7 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useAuth } from "@/lib/auth";
-import { Cloud, Eye, EyeOff, Loader2 } from "lucide-react";
+import { Eye, EyeOff, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { ApiClientError } from "@/services/apiClient";
 import { t } from "@/lib/i18n";
@@ -42,9 +42,7 @@ function LoginPage() {
     <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-background via-primary-soft/40 to-background px-4" dir="rtl">
       <div className="w-full max-w-md">
         <div className="mb-8 flex items-center justify-center gap-3">
-          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-lg shadow-primary/20">
-            <Cloud className="h-6 w-6" />
-          </div>
+          <img src="/logo.png" alt={t("Cloud Kitchen")} className="h-12 w-12 shrink-0 rounded-2xl object-cover shadow-lg shadow-primary/20" />
           <div className="text-right">
             <div className="text-xl font-bold text-foreground">{t("Cloud Kitchen")}</div>
             <div className="text-xs text-muted-foreground">{t("Super Admin Console")}</div>

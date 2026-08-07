@@ -89,6 +89,7 @@ export interface Role {
   scope: string;
   isSystemRole: boolean;
   description: string | null;
+  pagePermissions?: PagePermissionInput[];
 }
 
 export interface PagePermissionInput {
@@ -115,6 +116,36 @@ export interface DashboardUser {
 export interface InviteUserInput {
   fullName: string; email: string;
   department?: string; temporaryPassword?: string;
+  roleIds?: string[];
+}
+
+export interface AnalyticsOverview {
+  timezone: string;
+  currency: string;
+  days: number;
+  companyId: string | null;
+  kpis: {
+    activeCompanies: number;
+    ordersToday: number;
+    ordersTrendPct: number;
+    revenueToday: string;
+    revenueTrendPct: number;
+    ordersInRange: number;
+    revenueInRange: string;
+    deliverySharePct: number;
+    pickupSharePct: number;
+  };
+  salesSeries: Array<{ date: string; orders: number; revenue: number }>;
+  statusBreakdown: Array<{ code: string; name: string; count: number }>;
+  topCompanies: Array<{
+    companyId: string; legalName: string; tradeName: string | null;
+    city: string | null; orderCount: number; revenue: string;
+  }>;
+  recentOrders: Array<{
+    id: string; orderNumber: string; companyName: string;
+    totalAmount: string; currency: string; fulfillmentType: string;
+    statusCode: string | null; statusName: string | null; createdAt: string;
+  }>;
 }
 
 // ---------- Features / Modules ----------
@@ -144,10 +175,17 @@ export interface Product {
   id: string; categoryId: string; sku: string | null; barcode: string | null;
   name: string; description: string | null;
   imageUrl?: string | null; prepTimeMins?: number | null;
-  basePrice: string; currency: string;
+  basePrice: string | null; currency: string;
   taxClass: string | null; isActive: boolean; visibility: string;
   sortOrder: number; erpReferenceId?: string | null; posReferenceId?: string | null;
   attributes: unknown | null;
+}
+export interface CustomProductRequest {
+  id: string; name: string; nameAr?: string | null; description: string | null;
+  basePrice: string | null; currency: string; approvalStatus: string;
+  rejectionReason: string | null; companyId: string | null; orderable: boolean;
+  createdAt: string;
+  company?: { id: string; legalName: string; tradeName: string | null };
 }
 export interface ProductMedia {
   id: string; productId: string; mediaType: string;
@@ -155,6 +193,30 @@ export interface ProductMedia {
 }
 export interface PricingList {
   id: string; code: string; name: string; currency: string; isActive: boolean;
+}
+export interface CompanyCatalogAssignment {
+  /** DataTable keys rows on `id`; the assignment is identified by its company. */
+  id?: string;
+  companyId: string;
+  companyName: string;
+  tradeName: string | null;
+  approvalStatus: string;
+  menu: {
+    assignmentId: string;
+    menuId: string;
+    menuName: string;
+    priority: number;
+    effectiveFrom: string;
+    effectiveTo: string | null;
+  } | null;
+  pricing: {
+    assignmentId: string;
+    pricingListId: string;
+    pricingListName: string;
+    currency: string;
+    effectiveFrom: string;
+    effectiveTo: string | null;
+  } | null;
 }
 
 // ---------- Menus ----------
@@ -218,6 +280,12 @@ export interface OrderNote {
   id: string; note: string; isInternal: boolean; createdAt: string;
 }
 export interface OrderApproval { approvalLevel: number; status: string }
+export interface OrderPaymentInfo {
+  status: string;
+  proofAttachmentId: string | null;
+  receiptFileId: string | null;
+  rejectionReason: string | null;
+}
 export interface OrderDetail extends OrderSummary {
   departmentId: string | null; orderedByUserId: string;
   workflowInstanceId: string | null;
@@ -233,6 +301,8 @@ export interface OrderDetail extends OrderSummary {
   statusHistory: OrderStatusHistory[];
   notes: OrderNote[];
   approvals: OrderApproval[];
+  payment: OrderPaymentInfo | null;
+  seriesId: string | null;
 }
 
 // ---------- Delivery ----------
@@ -255,7 +325,12 @@ export interface DeliveryOrderView {
 
 // ---------- Approval Workflows ----------
 export interface ApprovalWorkflow {
-  id: string; code: string; name: string; entityType: string; isActive: boolean;
+  id: string;
+  name: string;
+  entityType: string;
+  companyId?: string | null;
+  isActive: boolean;
+  stepCount?: number;
 }
 export interface ApprovalStep {
   id: string; workflowId: string; stepOrder: number; name: string; approverType: string;
@@ -267,9 +342,24 @@ export interface ApprovalRequest {
 
 // ---------- Audit Logs ----------
 export interface AuditLog {
-  id: string; entityType: string; entityId: string;
-  action: string; actorType: string | null; actorId: string | null;
-  occurredAt: string; changes: unknown;
+  id: string;
+  entityName: string;
+  entityId: string;
+  entityTypeLabel: string;
+  entityLabel: string | null;
+  entityDisplay: string;
+  action: string;
+  oldValues: unknown;
+  newValues: unknown;
+  changedFields: unknown;
+  changedByType: string | null;
+  changedById: string | null;
+  actorDisplay: string | null;
+  changedAt: string;
+  reason: string | null;
+  source: string;
+  correlationId: string;
+  requestId: string | null;
 }
 
 // ---------- Notifications ----------
@@ -332,7 +422,7 @@ export interface SectionProduct {
   productId: string;
   sortOrder: number;
   isFeatured?: boolean;
-  product?: { id: string; name: string; sku: string | null; visibility?: string };
+  product?: { id: string; name: string; sku: string | null; visibility?: string; imageUrl?: string | null };
 }
 export interface MenuAssignment {
   id: string;

@@ -47,6 +47,7 @@ import { Route as DashboardOrdersIdRouteImport } from './routes/dashboard.orders
 import { Route as DashboardMenusIdRouteImport } from './routes/dashboard.menus.$id'
 import { Route as DashboardMealPlansIdRouteImport } from './routes/dashboard.meal-plans.$id'
 import { Route as DashboardCompaniesIdRouteImport } from './routes/dashboard.companies.$id'
+import { Route as DashboardCatalogCustomProductsRouteImport } from './routes/dashboard.catalog.custom-products'
 import { Route as DashboardApprovalWorkflowsIdRouteImport } from './routes/dashboard.approval-workflows.$id'
 import { Route as DashboardCatalogProductsIdRouteImport } from './routes/dashboard.catalog.products.$id'
 
@@ -242,6 +243,12 @@ const DashboardCompaniesIdRoute = DashboardCompaniesIdRouteImport.update({
   path: '/$id',
   getParentRoute: () => DashboardCompaniesRoute,
 } as any)
+const DashboardCatalogCustomProductsRoute =
+  DashboardCatalogCustomProductsRouteImport.update({
+    id: '/custom-products',
+    path: '/custom-products',
+    getParentRoute: () => DashboardCatalogRoute,
+  } as any)
 const DashboardApprovalWorkflowsIdRoute =
   DashboardApprovalWorkflowsIdRouteImport.update({
     id: '/$id',
@@ -281,6 +288,7 @@ export interface FileRoutesByFullPath {
   '/dashboard/workflows': typeof DashboardWorkflowsRouteWithChildren
   '/dashboard/': typeof DashboardIndexRoute
   '/dashboard/approval-workflows/$id': typeof DashboardApprovalWorkflowsIdRoute
+  '/dashboard/catalog/custom-products': typeof DashboardCatalogCustomProductsRoute
   '/dashboard/companies/$id': typeof DashboardCompaniesIdRoute
   '/dashboard/meal-plans/$id': typeof DashboardMealPlansIdRoute
   '/dashboard/menus/$id': typeof DashboardMenusIdRoute
@@ -314,6 +322,7 @@ export interface FileRoutesByTo {
   '/dashboard/users': typeof DashboardUsersRoute
   '/dashboard': typeof DashboardIndexRoute
   '/dashboard/approval-workflows/$id': typeof DashboardApprovalWorkflowsIdRoute
+  '/dashboard/catalog/custom-products': typeof DashboardCatalogCustomProductsRoute
   '/dashboard/companies/$id': typeof DashboardCompaniesIdRoute
   '/dashboard/meal-plans/$id': typeof DashboardMealPlansIdRoute
   '/dashboard/menus/$id': typeof DashboardMenusIdRoute
@@ -357,6 +366,7 @@ export interface FileRoutesById {
   '/dashboard/workflows': typeof DashboardWorkflowsRouteWithChildren
   '/dashboard/': typeof DashboardIndexRoute
   '/dashboard/approval-workflows/$id': typeof DashboardApprovalWorkflowsIdRoute
+  '/dashboard/catalog/custom-products': typeof DashboardCatalogCustomProductsRoute
   '/dashboard/companies/$id': typeof DashboardCompaniesIdRoute
   '/dashboard/meal-plans/$id': typeof DashboardMealPlansIdRoute
   '/dashboard/menus/$id': typeof DashboardMenusIdRoute
@@ -401,6 +411,7 @@ export interface FileRouteTypes {
     | '/dashboard/workflows'
     | '/dashboard/'
     | '/dashboard/approval-workflows/$id'
+    | '/dashboard/catalog/custom-products'
     | '/dashboard/companies/$id'
     | '/dashboard/meal-plans/$id'
     | '/dashboard/menus/$id'
@@ -434,6 +445,7 @@ export interface FileRouteTypes {
     | '/dashboard/users'
     | '/dashboard'
     | '/dashboard/approval-workflows/$id'
+    | '/dashboard/catalog/custom-products'
     | '/dashboard/companies/$id'
     | '/dashboard/meal-plans/$id'
     | '/dashboard/menus/$id'
@@ -476,6 +488,7 @@ export interface FileRouteTypes {
     | '/dashboard/workflows'
     | '/dashboard/'
     | '/dashboard/approval-workflows/$id'
+    | '/dashboard/catalog/custom-products'
     | '/dashboard/companies/$id'
     | '/dashboard/meal-plans/$id'
     | '/dashboard/menus/$id'
@@ -767,6 +780,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardCompaniesIdRouteImport
       parentRoute: typeof DashboardCompaniesRoute
     }
+    '/dashboard/catalog/custom-products': {
+      id: '/dashboard/catalog/custom-products'
+      path: '/custom-products'
+      fullPath: '/dashboard/catalog/custom-products'
+      preLoaderRoute: typeof DashboardCatalogCustomProductsRouteImport
+      parentRoute: typeof DashboardCatalogRoute
+    }
     '/dashboard/approval-workflows/$id': {
       id: '/dashboard/approval-workflows/$id'
       path: '/$id'
@@ -801,11 +821,13 @@ const DashboardApprovalWorkflowsRouteWithChildren =
   )
 
 interface DashboardCatalogRouteChildren {
+  DashboardCatalogCustomProductsRoute: typeof DashboardCatalogCustomProductsRoute
   DashboardCatalogIndexRoute: typeof DashboardCatalogIndexRoute
   DashboardCatalogProductsIdRoute: typeof DashboardCatalogProductsIdRoute
 }
 
 const DashboardCatalogRouteChildren: DashboardCatalogRouteChildren = {
+  DashboardCatalogCustomProductsRoute: DashboardCatalogCustomProductsRoute,
   DashboardCatalogIndexRoute: DashboardCatalogIndexRoute,
   DashboardCatalogProductsIdRoute: DashboardCatalogProductsIdRoute,
 }
