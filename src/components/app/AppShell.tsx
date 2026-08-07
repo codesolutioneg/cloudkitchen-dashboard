@@ -1,10 +1,35 @@
 import { useMemo, useState, type ComponentType } from "react";
 import { Link, Outlet, useNavigate, useRouterState } from "@tanstack/react-router";
 import {
-  Building2, Users, Shield, Settings2, Boxes, UtensilsCrossed, ScrollText,
-  Workflow, ShoppingBag, ChefHat, Truck, PackageCheck, ClipboardCheck,
-  History, Bell, Cog, Database, Languages, LogOut, ChevronsLeft, ChevronsRight,
-  ChevronDown, LayoutDashboard, Search, Menu, X, Salad,
+  Building2,
+  Users,
+  Shield,
+  Settings2,
+  Boxes,
+  UtensilsCrossed,
+  ScrollText,
+  Workflow,
+  ShoppingBag,
+  ChefHat,
+  Truck,
+  PackageCheck,
+  ClipboardCheck,
+  History,
+  Bell,
+  Cog,
+  Database,
+  Languages,
+  LogOut,
+  ChevronsLeft,
+  ChevronsRight,
+  ChevronDown,
+  LayoutDashboard,
+  Search,
+  Menu,
+  X,
+  Salad,
+  Receipt,
+  Calculator,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import type { NavigationNode } from "@/types/api";
@@ -23,6 +48,8 @@ const STATIC_NAV: NavigationNode[] = [
   ["catalog", "Catalog (PIM)", "/dashboard/catalog", "Boxes"],
   ["menus", "Menus", "/dashboard/menus", "UtensilsCrossed"],
   ["meal-plans", "Meal Plans", "/dashboard/meal-plans", "Salad"],
+  ["billing", "Billing", "/dashboard/billing", "Receipt"],
+  ["costing", "Costing", "/dashboard/costing", "Calculator"],
   ["rules", "Business Rules", "/dashboard/rules", "ScrollText"],
   ["workflows", "Workflows", "/dashboard/workflows", "Workflow"],
   ["orders", "Orders", "/dashboard/orders", "ShoppingBag"],
@@ -37,15 +64,47 @@ const STATIC_NAV: NavigationNode[] = [
   ["localization", "Localization", "/dashboard/localization", "Languages"],
   ["settings", "Settings", "/dashboard/settings", "Settings2"],
 ].map(([id, name, route, icon], i) => ({
-  id, name, route, icon, sortOrder: i,
-  permissions: { canView: true, canCreate: true, canEdit: true, canDelete: true, canApprove: true, canReject: true, canExport: true, canImport: true },
+  id,
+  name,
+  route,
+  icon,
+  sortOrder: i,
+  permissions: {
+    canView: true,
+    canCreate: true,
+    canEdit: true,
+    canDelete: true,
+    canApprove: true,
+    canReject: true,
+    canExport: true,
+    canImport: true,
+  },
   children: [],
 }));
 
 const ICONS: Record<string, ComponentType<{ className?: string }>> = {
-  Building2, Users, Shield, Settings2, Boxes, UtensilsCrossed, ScrollText,
-  Workflow, ShoppingBag, ChefHat, Truck, PackageCheck, ClipboardCheck,
-  History, Bell, Cog, Database, Languages, LayoutDashboard, Salad,
+  Building2,
+  Users,
+  Shield,
+  Settings2,
+  Boxes,
+  UtensilsCrossed,
+  ScrollText,
+  Workflow,
+  ShoppingBag,
+  ChefHat,
+  Truck,
+  PackageCheck,
+  ClipboardCheck,
+  History,
+  Bell,
+  Cog,
+  Database,
+  Languages,
+  LayoutDashboard,
+  Salad,
+  Receipt,
+  Calculator,
 };
 
 function iconFor(name: string | null | undefined) {
@@ -54,26 +113,34 @@ function iconFor(name: string | null | undefined) {
 }
 
 function NavItem({
-  node, collapsed, depth = 0, currentPath, onNavigate,
+  node,
+  collapsed,
+  depth = 0,
+  currentPath,
+  onNavigate,
 }: {
-  node: NavigationNode; collapsed: boolean; depth?: number; currentPath: string; onNavigate?: () => void;
+  node: NavigationNode;
+  collapsed: boolean;
+  depth?: number;
+  currentPath: string;
+  onNavigate?: () => void;
 }) {
   const [open, setOpen] = useState(true);
   const Icon = iconFor(node.icon);
   const hasChildren = node.children && node.children.length > 0;
   const isExact = currentPath === node.route;
   const isNested =
-    node.route !== "/" &&
-    node.route !== "/dashboard" &&
-    currentPath.startsWith(node.route + "/");
+    node.route !== "/" && node.route !== "/dashboard" && currentPath.startsWith(node.route + "/");
   const isActive = isExact || isNested;
   const label = t(node.name);
 
   if (!node.permissions.canView) return null;
 
-  const base = "group flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-[15px] font-semibold transition-colors";
+  const base =
+    "group flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-[15px] font-semibold transition-colors";
   const activeStyles = "bg-primary-soft text-primary";
-  const inactiveStyles = "text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground";
+  const inactiveStyles =
+    "text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground";
 
   return (
     <div>
@@ -91,7 +158,11 @@ function NavItem({
         <Link
           to={node.route}
           onClick={onNavigate}
-          className={cn(base, isActive ? activeStyles : inactiveStyles, collapsed && "justify-center px-2")}
+          className={cn(
+            base,
+            isActive ? activeStyles : inactiveStyles,
+            collapsed && "justify-center px-2",
+          )}
           style={collapsed ? undefined : { paddingInlineEnd: `${12 + depth * 12}px` }}
           title={collapsed ? label : undefined}
         >
@@ -102,7 +173,14 @@ function NavItem({
       {hasChildren && open && !collapsed && (
         <div className="mt-1 space-y-1">
           {node.children.map((c) => (
-            <NavItem key={c.id} node={c} collapsed={collapsed} depth={depth + 1} currentPath={currentPath} onNavigate={onNavigate} />
+            <NavItem
+              key={c.id}
+              node={c}
+              collapsed={collapsed}
+              depth={depth + 1}
+              currentPath={currentPath}
+              onNavigate={onNavigate}
+            />
           ))}
         </div>
       )}
@@ -149,18 +227,32 @@ export function AppShell() {
         )}
         style={{ borderColor: "var(--sidebar-border)" }}
       >
-        <div className="flex h-14 items-center gap-2.5 border-b px-4 sm:h-16" style={{ borderColor: "var(--sidebar-border)" }}>
-          <img src="/logo.png" alt={t("Cloud Kitchen")} className="h-9 w-9 shrink-0 rounded-xl object-cover" />
+        <div
+          className="flex h-14 items-center gap-2.5 border-b px-4 sm:h-16"
+          style={{ borderColor: "var(--sidebar-border)" }}
+        >
+          <img
+            src="/logo.png"
+            alt={t("Cloud Kitchen")}
+            className="h-9 w-9 shrink-0 rounded-xl object-cover"
+          />
           {(isMobile || !collapsed) && (
             <div className="flex min-w-0 flex-1 flex-col leading-tight">
-              <span className="truncate text-[15px] font-bold text-sidebar-foreground">{t("Cloud Kitchen")}</span>
+              <span className="truncate text-[15px] font-bold text-sidebar-foreground">
+                {t("Cloud Kitchen")}
+              </span>
               <span className="truncate text-[11px] text-muted-foreground">
                 {user?.roles?.[0]?.name ? t(user.roles[0].name) : t("Dashboard")}
               </span>
             </div>
           )}
           {isMobile && (
-            <button type="button" onClick={() => setMobileOpen(false)} className="rounded-lg p-2 text-muted-foreground hover:bg-muted" aria-label={t("Close")}>
+            <button
+              type="button"
+              onClick={() => setMobileOpen(false)}
+              className="rounded-lg p-2 text-muted-foreground hover:bg-muted"
+              aria-label={t("Close")}
+            >
               <X className="h-5 w-5" />
             </button>
           )}
@@ -187,7 +279,10 @@ export function AppShell() {
           )}
           <div className="flex items-center gap-1">
             <button
-              onClick={async () => { await logout(); navigate({ to: "/login" }); }}
+              onClick={async () => {
+                await logout();
+                navigate({ to: "/login" });
+              }}
               className={cn(
                 "flex flex-1 items-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold text-muted-foreground hover:bg-muted hover:text-destructive",
                 !isMobile && collapsed && "justify-center",
@@ -202,7 +297,11 @@ export function AppShell() {
                 className="rounded-lg p-2 text-muted-foreground hover:bg-muted"
                 aria-label={t("Toggle sidebar")}
               >
-                {collapsed ? <ChevronsLeft className="h-4 w-4" /> : <ChevronsRight className="h-4 w-4" />}
+                {collapsed ? (
+                  <ChevronsLeft className="h-4 w-4" />
+                ) : (
+                  <ChevronsRight className="h-4 w-4" />
+                )}
               </button>
             )}
           </div>
@@ -239,7 +338,9 @@ export function AppShell() {
                 onClick={() => setLocale("ar")}
                 className={cn(
                   "rounded-md px-2.5 py-1.5 transition-colors",
-                  locale === "ar" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground",
+                  locale === "ar"
+                    ? "bg-primary text-primary-foreground"
+                    : "text-muted-foreground hover:text-foreground",
                 )}
                 aria-label={t("Arabic")}
               >
@@ -250,7 +351,9 @@ export function AppShell() {
                 onClick={() => setLocale("en")}
                 className={cn(
                   "rounded-md px-2.5 py-1.5 transition-colors",
-                  locale === "en" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground",
+                  locale === "en"
+                    ? "bg-primary text-primary-foreground"
+                    : "text-muted-foreground hover:text-foreground",
                 )}
                 aria-label={t("English")}
               >
@@ -260,10 +363,12 @@ export function AppShell() {
           </div>
         </header>
 
-        <main className={cn(
-          "mx-auto w-full flex-1 px-3 pb-24 pt-1 sm:max-w-[1400px] sm:px-6 sm:pb-10",
-          isDeliveryOnly && "pb-28",
-        )}>
+        <main
+          className={cn(
+            "mx-auto w-full flex-1 px-3 pb-24 pt-1 sm:max-w-[1400px] sm:px-6 sm:pb-10",
+            isDeliveryOnly && "pb-28",
+          )}
+        >
           <Outlet />
         </main>
 
@@ -275,7 +380,9 @@ export function AppShell() {
                 to="/dashboard"
                 className={cn(
                   "flex flex-1 flex-col items-center gap-1 rounded-xl px-2 py-2 text-xs font-semibold",
-                  pathname === "/dashboard" ? "bg-primary-soft text-primary" : "text-muted-foreground",
+                  pathname === "/dashboard"
+                    ? "bg-primary-soft text-primary"
+                    : "text-muted-foreground",
                 )}
               >
                 <LayoutDashboard className="h-5 w-5" />
@@ -285,7 +392,9 @@ export function AppShell() {
                 to="/dashboard/delivery"
                 className={cn(
                   "flex flex-1 flex-col items-center gap-1 rounded-xl px-2 py-2 text-xs font-semibold",
-                  pathname.startsWith("/dashboard/delivery") ? "bg-primary-soft text-primary" : "text-muted-foreground",
+                  pathname.startsWith("/dashboard/delivery")
+                    ? "bg-primary-soft text-primary"
+                    : "text-muted-foreground",
                 )}
               >
                 <Truck className="h-5 w-5" />

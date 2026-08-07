@@ -29,8 +29,10 @@ import { Route as DashboardJobsRouteImport } from './routes/dashboard.jobs'
 import { Route as DashboardIntegrationsRouteImport } from './routes/dashboard.integrations'
 import { Route as DashboardFeaturesRouteImport } from './routes/dashboard.features'
 import { Route as DashboardDeliveryRouteImport } from './routes/dashboard.delivery'
+import { Route as DashboardCostingRouteImport } from './routes/dashboard.costing'
 import { Route as DashboardCompaniesRouteImport } from './routes/dashboard.companies'
 import { Route as DashboardCatalogRouteImport } from './routes/dashboard.catalog'
+import { Route as DashboardBillingRouteImport } from './routes/dashboard.billing'
 import { Route as DashboardAuditLogsRouteImport } from './routes/dashboard.audit-logs'
 import { Route as DashboardApprovalWorkflowsRouteImport } from './routes/dashboard.approval-workflows'
 import { Route as DashboardWorkflowsIndexRouteImport } from './routes/dashboard.workflows.index'
@@ -151,6 +153,11 @@ const DashboardDeliveryRoute = DashboardDeliveryRouteImport.update({
   path: '/delivery',
   getParentRoute: () => DashboardRoute,
 } as any)
+const DashboardCostingRoute = DashboardCostingRouteImport.update({
+  id: '/costing',
+  path: '/costing',
+  getParentRoute: () => DashboardRoute,
+} as any)
 const DashboardCompaniesRoute = DashboardCompaniesRouteImport.update({
   id: '/companies',
   path: '/companies',
@@ -159,6 +166,11 @@ const DashboardCompaniesRoute = DashboardCompaniesRouteImport.update({
 const DashboardCatalogRoute = DashboardCatalogRouteImport.update({
   id: '/catalog',
   path: '/catalog',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardBillingRoute = DashboardBillingRouteImport.update({
+  id: '/billing',
+  path: '/billing',
   getParentRoute: () => DashboardRoute,
 } as any)
 const DashboardAuditLogsRoute = DashboardAuditLogsRouteImport.update({
@@ -268,8 +280,10 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/dashboard/approval-workflows': typeof DashboardApprovalWorkflowsRouteWithChildren
   '/dashboard/audit-logs': typeof DashboardAuditLogsRoute
+  '/dashboard/billing': typeof DashboardBillingRoute
   '/dashboard/catalog': typeof DashboardCatalogRouteWithChildren
   '/dashboard/companies': typeof DashboardCompaniesRouteWithChildren
+  '/dashboard/costing': typeof DashboardCostingRoute
   '/dashboard/delivery': typeof DashboardDeliveryRoute
   '/dashboard/features': typeof DashboardFeaturesRoute
   '/dashboard/integrations': typeof DashboardIntegrationsRoute
@@ -309,6 +323,8 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
   '/dashboard/audit-logs': typeof DashboardAuditLogsRoute
+  '/dashboard/billing': typeof DashboardBillingRoute
+  '/dashboard/costing': typeof DashboardCostingRoute
   '/dashboard/delivery': typeof DashboardDeliveryRoute
   '/dashboard/features': typeof DashboardFeaturesRoute
   '/dashboard/integrations': typeof DashboardIntegrationsRoute
@@ -346,8 +362,10 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/dashboard/approval-workflows': typeof DashboardApprovalWorkflowsRouteWithChildren
   '/dashboard/audit-logs': typeof DashboardAuditLogsRoute
+  '/dashboard/billing': typeof DashboardBillingRoute
   '/dashboard/catalog': typeof DashboardCatalogRouteWithChildren
   '/dashboard/companies': typeof DashboardCompaniesRouteWithChildren
+  '/dashboard/costing': typeof DashboardCostingRoute
   '/dashboard/delivery': typeof DashboardDeliveryRoute
   '/dashboard/features': typeof DashboardFeaturesRoute
   '/dashboard/integrations': typeof DashboardIntegrationsRoute
@@ -391,8 +409,10 @@ export interface FileRouteTypes {
     | '/login'
     | '/dashboard/approval-workflows'
     | '/dashboard/audit-logs'
+    | '/dashboard/billing'
     | '/dashboard/catalog'
     | '/dashboard/companies'
+    | '/dashboard/costing'
     | '/dashboard/delivery'
     | '/dashboard/features'
     | '/dashboard/integrations'
@@ -432,6 +452,8 @@ export interface FileRouteTypes {
     | '/'
     | '/login'
     | '/dashboard/audit-logs'
+    | '/dashboard/billing'
+    | '/dashboard/costing'
     | '/dashboard/delivery'
     | '/dashboard/features'
     | '/dashboard/integrations'
@@ -468,8 +490,10 @@ export interface FileRouteTypes {
     | '/login'
     | '/dashboard/approval-workflows'
     | '/dashboard/audit-logs'
+    | '/dashboard/billing'
     | '/dashboard/catalog'
     | '/dashboard/companies'
+    | '/dashboard/costing'
     | '/dashboard/delivery'
     | '/dashboard/features'
     | '/dashboard/integrations'
@@ -654,6 +678,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardDeliveryRouteImport
       parentRoute: typeof DashboardRoute
     }
+    '/dashboard/costing': {
+      id: '/dashboard/costing'
+      path: '/costing'
+      fullPath: '/dashboard/costing'
+      preLoaderRoute: typeof DashboardCostingRouteImport
+      parentRoute: typeof DashboardRoute
+    }
     '/dashboard/companies': {
       id: '/dashboard/companies'
       path: '/companies'
@@ -666,6 +697,13 @@ declare module '@tanstack/react-router' {
       path: '/catalog'
       fullPath: '/dashboard/catalog'
       preLoaderRoute: typeof DashboardCatalogRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/dashboard/billing': {
+      id: '/dashboard/billing'
+      path: '/billing'
+      fullPath: '/dashboard/billing'
+      preLoaderRoute: typeof DashboardBillingRouteImport
       parentRoute: typeof DashboardRoute
     }
     '/dashboard/audit-logs': {
@@ -919,8 +957,10 @@ const DashboardWorkflowsRouteWithChildren =
 interface DashboardRouteChildren {
   DashboardApprovalWorkflowsRoute: typeof DashboardApprovalWorkflowsRouteWithChildren
   DashboardAuditLogsRoute: typeof DashboardAuditLogsRoute
+  DashboardBillingRoute: typeof DashboardBillingRoute
   DashboardCatalogRoute: typeof DashboardCatalogRouteWithChildren
   DashboardCompaniesRoute: typeof DashboardCompaniesRouteWithChildren
+  DashboardCostingRoute: typeof DashboardCostingRoute
   DashboardDeliveryRoute: typeof DashboardDeliveryRoute
   DashboardFeaturesRoute: typeof DashboardFeaturesRoute
   DashboardIntegrationsRoute: typeof DashboardIntegrationsRoute
@@ -943,8 +983,10 @@ interface DashboardRouteChildren {
 const DashboardRouteChildren: DashboardRouteChildren = {
   DashboardApprovalWorkflowsRoute: DashboardApprovalWorkflowsRouteWithChildren,
   DashboardAuditLogsRoute: DashboardAuditLogsRoute,
+  DashboardBillingRoute: DashboardBillingRoute,
   DashboardCatalogRoute: DashboardCatalogRouteWithChildren,
   DashboardCompaniesRoute: DashboardCompaniesRouteWithChildren,
+  DashboardCostingRoute: DashboardCostingRoute,
   DashboardDeliveryRoute: DashboardDeliveryRoute,
   DashboardFeaturesRoute: DashboardFeaturesRoute,
   DashboardIntegrationsRoute: DashboardIntegrationsRoute,
