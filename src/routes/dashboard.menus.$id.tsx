@@ -1,22 +1,42 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 import { PageHeader } from "@/components/app/PageHeader";
 import { EmptyState } from "@/components/app/EmptyState";
 import { StatusBadge } from "@/components/app/StatusBadge";
 import { EntitySelect } from "@/components/app/EntitySelect";
+import { ProductSearchBar } from "@/components/app/ProductSearchBar";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { menusApi, menusExtApi, companiesApi, catalogApi } from "@/services/apiClient";
-import { ArrowLeft, Loader2, Plus, Trash2 } from "lucide-react";
+import { ArrowLeft, Loader2, Plus, Star, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { t } from "@/lib/i18n";
+import { normalizePublicAssetUrl } from "@/lib/assetUrl";
 
-export const Route = createFileRoute("/dashboard/menus/$id")({ component: MenuBuilder });
+export const Route = createFileRoute("/dashboard/menus/$id")({
+  component: MenuBuilder,
+  validateSearch: (s: Record<string, unknown>) => ({
+    tab: s.tab === "sections" ? "sections" as const : "assignments" as const,
+  }),
+});
 
 function MenuBuilder() {
   const { id } = Route.useParams();
+  const { tab } = Route.useSearch();
   const qc = useQueryClient();
   const menu = useQuery({ queryKey: ["menu", id], queryFn: () => menusApi.get(id) });
+
+  async function setGeneral() {
+    try {
+      await menusApi.setGeneral(id);
+      toast.success(t("This is now the general menu"));
+      qc.invalidateQueries({ queryKey: ["menu", id] });
+      qc.invalidateQueries({ queryKey: ["menus"] });
+    } catch (e) {
+      toast.error((e as Error).message);
+    }
+  }
+
   async function del() {
     if (!confirm(t("Delete"))) return;
     try {
@@ -36,18 +56,29 @@ function MenuBuilder() {
   }
   if (!menu.data) return <div className="py-24 text-center">{t("Page not found")}</div>;
 
+  const isGeneral = menu.data.menuType === "general";
+
   return (
     <>
       <PageHeader
         title={menu.data.name}
-        description={`${menu.data.menuType} menu`}
+        description={isGeneral ? t("General menu — shown to assigned companies") : t("Company menu")}
         breadcrumbs={[
           { label: t("Dashboard"), to: "/dashboard" },
           { label: t("Menus"), to: "/dashboard/menus" },
           { label: menu.data.name },
         ]}
         actions={
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
+            {!isGeneral && (
+              <button
+                type="button"
+                onClick={() => void setGeneral()}
+                className="flex items-center gap-2 rounded-[10px] border border-primary bg-primary/5 px-3 py-2 text-sm font-semibold text-primary hover:bg-primary/10"
+              >
+                <Star className="h-4 w-4" /> {t("Set as general menu")}
+              </button>
+            )}
             <button
               onClick={del}
               className="flex items-center gap-2 rounded-[10px] border border-destructive/40 px-3 py-2 text-sm font-semibold text-destructive hover:bg-destructive/10"
@@ -63,16 +94,23 @@ function MenuBuilder() {
           </div>
         }
       />
-      <Tabs defaultValue="sections">
+
+      {isGeneral && (
+        <div className="mb-4 flex items-center gap-2 rounded-xl border border-success/30 bg-success/10 px-4 py-3 text-sm font-semibold text-success">
+          <Star className="h-4 w-4" /> {t("This is the general menu")}
+        </div>
+      )}
+
+      <Tabs defaultValue={tab}>
         <TabsList className="mb-4">
-          <TabsTrigger value="sections">{t("Sections")}</TabsTrigger>
-          <TabsTrigger value="assignments">{t("Assignments")}</TabsTrigger>
+          <TabsTrigger value="assignments">{t("Give to companies")}</TabsTrigger>
+          <TabsTrigger value="sections">{t("Menu sections")}</TabsTrigger>
         </TabsList>
-        <TabsContent value="sections">
-          <SectionsTab menuId={id} />
-        </TabsContent>
         <TabsContent value="assignments">
           <AssignmentsTab menuId={id} />
+        </TabsContent>
+        <TabsContent value="sections">
+          <SectionsTab menuId={id} />
         </TabsContent>
       </Tabs>
     </>
@@ -150,15 +188,16 @@ function SectionCard({
   onDelete: () => void;
 }) {
   const qc = useQueryClient();
+  const [productSearch, setProductSearch] = useState("");
+  const [productId, setProductId] = useState("");
   const products = useQuery({
     queryKey: ["section-products", menuId, sectionId],
     queryFn: () => menusExtApi.listSectionProducts(menuId, sectionId).catch(() => [] as never[]),
   });
   const catalog = useQuery({
-    queryKey: ["products-picker"],
-    queryFn: () => catalogApi.listProducts({ page: 1, pageSize: 100 }),
+    queryKey: ["products-picker", productSearch],
+    queryFn: () => catalogApi.listProducts({ page: 1, pageSize: 100, search: productSearch || undefined }),
   });
-  const [productId, setProductId] = useState("");
 
   const options = useMemo(
     () =>
@@ -203,6 +242,7 @@ function SectionCard({
         </button>
       </div>
       <div className="mb-3 flex flex-wrap gap-2">
+        <ProductSearchBar value={productSearch} onChange={setProductSearch} className="min-w-[200px] flex-1" />
         <div className="min-w-[240px] flex-1">
           <EntitySelect
             value={productId}
@@ -224,23 +264,28 @@ function SectionCard({
         <p className="text-xs text-muted-foreground">{t("No products yet")}</p>
       ) : (
         <ul className="divide-y divide-border">
-          {products.data.map((sp) => (
-            <li key={`${sp.productId}-${sp.sortOrder}`} className="flex items-center justify-between gap-3 py-2 text-sm">
-              <div className="min-w-0">
-                <div className="truncate font-medium">
-                  {(sp as { product?: { name?: string } }).product?.name ?? sp.productId}
-                </div>
-                {(sp as { product?: { sku?: string | null } }).product?.sku && (
-                  <div className="text-xs text-muted-foreground">
-                    SKU {(sp as { product?: { sku?: string | null } }).product?.sku}
+          {products.data.map((sp) => {
+            const prod = sp.product;
+            const imageUrl = prod?.imageUrl ? normalizePublicAssetUrl(prod.imageUrl) : null;
+            return (
+              <li key={`${sp.productId}-${sp.sortOrder}`} className="flex items-center justify-between gap-3 py-2 text-sm">
+                <div className="flex min-w-0 items-center gap-3">
+                  {imageUrl ? (
+                    <img src={imageUrl} alt="" className="h-10 w-10 shrink-0 rounded-lg border border-border object-cover" />
+                  ) : (
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-dashed border-border text-[10px] text-muted-foreground">—</div>
+                  )}
+                  <div className="min-w-0">
+                    <div className="truncate font-medium">{prod?.name ?? sp.productId}</div>
+                    {prod?.sku && <div className="text-xs text-muted-foreground">SKU {prod.sku}</div>}
                   </div>
-                )}
-              </div>
-              <button onClick={() => rm(sp.productId)} className="shrink-0 text-xs text-destructive hover:underline">
-                {t("Remove")}
-              </button>
-            </li>
-          ))}
+                </div>
+                <button onClick={() => rm(sp.productId)} className="shrink-0 text-xs text-destructive hover:underline">
+                  {t("Remove")}
+                </button>
+              </li>
+            );
+          })}
         </ul>
       )}
     </div>
@@ -258,7 +303,6 @@ function AssignmentsTab({ menuId }: { menuId: string }) {
     queryFn: () => companiesApi.list({ page: 1, pageSize: 100, approvalStatus: "approved" }),
   });
   const [companyId, setCompanyId] = useState("");
-  const [priority, setPriority] = useState(10);
 
   const companyOptions = useMemo(
     () =>
@@ -285,7 +329,7 @@ function AssignmentsTab({ menuId }: { menuId: string }) {
       await menusApi.createAssignment(menuId, {
         scopeType: "company",
         scopeId: companyId,
-        priority,
+        priority: 10,
       });
       toast.success(t("Menu assigned"));
       setCompanyId("");
@@ -296,12 +340,32 @@ function AssignmentsTab({ menuId }: { menuId: string }) {
   }
 
   async function del(assignmentId: string) {
+    const row = data?.find((a) => a.id === assignmentId);
+    if (row?.scopeType === "company" && row.scopeId) {
+      const others = (data ?? []).filter(
+        (a) => a.scopeType === "company" && a.scopeId === row.scopeId && a.id !== assignmentId,
+      );
+      if (others.length === 0) {
+        const name = companyNameById.get(row.scopeId) ?? row.scopeId;
+        if (
+          !confirm(
+            `${t("This is the only menu for")} ${name}. ${t("Removing it will hide all items on their website. Continue?")}`,
+          )
+        ) {
+          return;
+        }
+      }
+    } else if (!confirm(t("Remove this company assignment?"))) {
+      return;
+    }
     try {
       await menusExtApi.deleteAssignment(menuId, assignmentId);
       toast.success(t("Removed"));
       qc.invalidateQueries({ queryKey: ["menu-assignments", menuId] });
+      qc.invalidateQueries({ queryKey: ["company-catalog-assignments"] });
     } catch (e) {
-      toast.error((e as Error).message);
+      const msg = e && typeof e === "object" && "message" in e ? String((e as Error).message) : t("Something went wrong");
+      toast.error(msg);
     }
   }
 
@@ -309,9 +373,9 @@ function AssignmentsTab({ menuId }: { menuId: string }) {
     <div className="space-y-3">
       <div className="card-elevated space-y-3 p-5">
         <div>
-          <h3 className="text-base font-semibold">{t("Assign menu to company")}</h3>
+          <h3 className="text-base font-semibold">{t("Give this menu to a company")}</h3>
           <p className="mt-1 text-sm text-muted-foreground">
-            {t("Choose which company can browse this menu.")}
+            {t("Pick a company — they will see this menu on the website.")}
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
@@ -324,13 +388,6 @@ function AssignmentsTab({ menuId }: { menuId: string }) {
               disabled={companies.isLoading}
             />
           </div>
-          <input
-            type="number"
-            value={priority}
-            onChange={(e) => setPriority(+e.target.value)}
-            title={t("Priority")}
-            className="h-10 w-24 rounded-[10px] border border-border bg-card px-3 text-sm"
-          />
           <button
             onClick={add}
             disabled={!companyId}
@@ -350,15 +407,10 @@ function AssignmentsTab({ menuId }: { menuId: string }) {
           {data.map((a) => (
             <div key={a.id} className="flex items-center justify-between gap-3 p-4 text-sm">
               <div className="min-w-0">
-                <div className="flex flex-wrap items-center gap-2">
-                  <StatusBadge tone="info">{a.scopeType}</StatusBadge>
-                  <span className="font-semibold">
-                    {a.scopeId ? companyNameById.get(a.scopeId) ?? a.scopeId : "*"}
-                  </span>
+                <div className="font-semibold">
+                  {a.scopeId ? companyNameById.get(a.scopeId) ?? a.scopeId : "*"}
                 </div>
-                <div className="mt-1 text-xs text-muted-foreground">
-                  {t("Priority")} {a.priority}
-                </div>
+                <div className="mt-1 text-xs text-muted-foreground">{t("Can order from this menu")}</div>
               </div>
               <button onClick={() => del(a.id)} className="text-destructive hover:underline" aria-label={t("Remove")}>
                 <Trash2 className="h-4 w-4" />

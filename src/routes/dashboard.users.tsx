@@ -5,13 +5,15 @@ import { PageHeader } from "@/components/app/PageHeader";
 import { DataTable, TablePagination, type Column } from "@/components/app/DataTable";
 import { StatusBadge } from "@/components/app/StatusBadge";
 import { EmptyState } from "@/components/app/EmptyState";
-import { dashboardUsersApi, rolesApi } from "@/services/apiClient";
+import { EntitySelect } from "@/components/app/EntitySelect";
+import { dashboardUsersApi, rolesApi, companiesApi } from "@/services/apiClient";
 import type { DashboardUser } from "@/types/api";
 import { Plus } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { toast } from "sonner";
 import { t } from "@/lib/i18n";
+import { DEPARTMENTS, optionsFrom } from "@/lib/systemOptions";
 
 export const Route = createFileRoute("/dashboard/users")({ component: UsersPage });
 
@@ -20,7 +22,10 @@ function UsersPage() {
   const [page, setPage] = useState(1);
   const [open, setOpen] = useState(false);
   const [selected, setSelected] = useState<DashboardUser | null>(null);
-  const [form, setForm] = useState({ fullName: "", email: "", department: "", temporaryPassword: "" });
+  const [form, setForm] = useState({
+    fullName: "", email: "", department: "", temporaryPassword: "", roleId: "",
+  });
+  const roles = useQuery({ queryKey: ["roles"], queryFn: rolesApi.list, enabled: open });
 
   const query = useQuery({
     queryKey: ["dashboard-users", page],
@@ -43,14 +48,18 @@ function UsersPage() {
 
   async function invite() {
     if (!form.email || !form.fullName) return;
+    if (!form.roleId) { toast.error(t("Choose a role")); return; }
     try {
       await dashboardUsersApi.invite({
-        fullName: form.fullName, email: form.email,
+        fullName: form.fullName,
+        email: form.email,
         department: form.department || undefined,
         temporaryPassword: form.temporaryPassword || undefined,
+        roleIds: [form.roleId],
       });
-      toast.success("Invitation sent");
-      setOpen(false); setForm({ fullName: "", email: "", department: "", temporaryPassword: "" });
+      toast.success(t("Invitation sent"));
+      setOpen(false);
+      setForm({ fullName: "", email: "", department: "", temporaryPassword: "", roleId: "" });
       qc.invalidateQueries({ queryKey: ["dashboard-users"] });
     } catch (e) { toast.error((e as Error).message); }
   }
@@ -76,16 +85,48 @@ function UsersPage() {
 
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent>
-          <DialogHeader><DialogTitle>Invite dashboard user</DialogTitle></DialogHeader>
+          <DialogHeader><DialogTitle>{t("Invite dashboard user")}</DialogTitle></DialogHeader>
           <div className="space-y-3">
-            {(["fullName", "email", "department", "temporaryPassword"] as const).map((k) => (
-              <div key={k}>
-                <label className="mb-1 block text-sm font-semibold capitalize">{k === "fullName" ? "Full name" : k === "temporaryPassword" ? "Temporary password (optional)" : k}</label>
-                <input type={k === "temporaryPassword" ? "password" : k === "email" ? "email" : "text"}
-                  value={form[k]} onChange={(e) => setForm((f) => ({ ...f, [k]: e.target.value }))}
-                  className="h-10 w-full rounded-[10px] border border-border bg-card px-3 text-sm" />
-              </div>
-            ))}
+            <div>
+              <label className="mb-1 block text-sm font-semibold">{t("Full name")}</label>
+              <input value={form.fullName} onChange={(e) => setForm((f) => ({ ...f, fullName: e.target.value }))}
+                className="h-10 w-full rounded-[10px] border border-border bg-card px-3 text-sm" />
+            </div>
+            <div>
+              <label className="mb-1 block text-sm font-semibold">{t("Email")}</label>
+              <input type="email" value={form.email} onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))}
+                className="h-10 w-full rounded-[10px] border border-border bg-card px-3 text-sm" />
+            </div>
+            <div>
+              <label className="mb-1 block text-sm font-semibold">{t("Role")}</label>
+              <EntitySelect
+                value={form.roleId}
+                onChange={(roleId) => setForm((f) => ({ ...f, roleId }))}
+                placeholder={t("Select role…")}
+                options={(roles.data ?? []).map((r) => ({
+                  value: r.id,
+                  label: r.name,
+                  hint: r.isSystemRole ? t("System") : undefined,
+                }))}
+              />
+              <p className="mt-1 text-xs text-muted-foreground">
+                {t("Screen access is controlled by the role page permissions.")}
+              </p>
+            </div>
+            <div>
+              <label className="mb-1 block text-sm font-semibold">{t("Department")}</label>
+              <EntitySelect
+                value={form.department}
+                onChange={(department) => setForm((f) => ({ ...f, department }))}
+                placeholder={t("Select department…")}
+                options={optionsFrom(DEPARTMENTS, t)}
+              />
+            </div>
+            <div>
+              <label className="mb-1 block text-sm font-semibold">{t("Temporary password (optional)")}</label>
+              <input type="password" value={form.temporaryPassword} onChange={(e) => setForm((f) => ({ ...f, temporaryPassword: e.target.value }))}
+                className="h-10 w-full rounded-[10px] border border-border bg-card px-3 text-sm" />
+            </div>
           </div>
           <DialogFooter>
             <button onClick={() => setOpen(false)} className="rounded-[10px] border border-border px-4 py-2 text-sm font-semibold hover:bg-muted">{t("Cancel")}</button>
@@ -105,18 +146,24 @@ function UsersPage() {
 
 function UserDetail({ user, onClose }: { user: DashboardUser; onClose: () => void }) {
   const roles = useQuery({ queryKey: ["roles"], queryFn: rolesApi.list });
+  const companies = useQuery({ queryKey: ["companies-scope"], queryFn: () => companiesApi.list({ pageSize: 100 }) });
   const [selectedRoleIds, setSelectedRoleIds] = useState<string[]>(user.roles.map((r) => r.id));
   const [scopeType, setScopeType] = useState<"all" | "specific">("all");
-  const [companyIds, setCompanyIds] = useState("");
+  const [companyId, setCompanyId] = useState("");
 
   async function saveRoles() {
-    try { await dashboardUsersApi.assignRoles(user.id, selectedRoleIds); toast.success("Roles updated"); }
+    try { await dashboardUsersApi.assignRoles(user.id, selectedRoleIds); toast.success(t("Roles updated")); }
     catch (e) { toast.error((e as Error).message); }
   }
   async function saveScope() {
-    const ids = scopeType === "specific" ? companyIds.split(",").map((s) => s.trim()).filter(Boolean) : undefined;
-    try { await dashboardUsersApi.setCompanyScope(user.id, { scopeType, companyIds: ids }); toast.success("Scope updated"); onClose(); }
-    catch (e) { toast.error((e as Error).message); }
+    try {
+      await dashboardUsersApi.setCompanyScope(user.id, {
+        scopeType,
+        companyIds: scopeType === "specific" && companyId ? [companyId] : undefined,
+      });
+      toast.success(t("Scope updated"));
+      onClose();
+    } catch (e) { toast.error((e as Error).message); }
   }
 
   return (
@@ -124,13 +171,14 @@ function UserDetail({ user, onClose }: { user: DashboardUser; onClose: () => voi
       <SheetHeader><SheetTitle>{user.fullName}</SheetTitle></SheetHeader>
       <div className="mt-6 space-y-6 px-4 text-sm">
         <div>
-          <div className="mb-2 text-xs uppercase text-muted-foreground">Contact</div>
+          <div className="mb-2 text-xs uppercase text-muted-foreground">{t("Contact")}</div>
           <div>{user.email}</div>
-          <div className="text-xs text-muted-foreground">{user.department ?? "No department"}</div>
+          <div className="text-xs text-muted-foreground">{user.department ?? t("No department")}</div>
         </div>
         <div>
-          <div className="mb-2 text-xs uppercase text-muted-foreground">Roles</div>
-          {!roles.data ? <span className="text-muted-foreground">Loading…</span> : (
+          <div className="mb-2 text-xs uppercase text-muted-foreground">{t("Roles")}</div>
+          <p className="mb-2 text-xs text-muted-foreground">{t("Assign roles to decide which screens this user can open.")}</p>
+          {!roles.data ? <span className="text-muted-foreground">{t("Loading…")}</span> : (
             <div className="space-y-1">
               {roles.data.map((r) => (
                 <label key={r.id} className="flex items-center gap-2">
@@ -141,18 +189,28 @@ function UserDetail({ user, onClose }: { user: DashboardUser; onClose: () => voi
               ))}
             </div>
           )}
-          <button onClick={saveRoles} className="mt-2 rounded-md bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground">Save roles</button>
+          <button onClick={saveRoles} className="mt-2 rounded-md bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground">{t("Save roles")}</button>
         </div>
         <div>
-          <div className="mb-2 text-xs uppercase text-muted-foreground">Company scope</div>
+          <div className="mb-2 text-xs uppercase text-muted-foreground">{t("Company scope")}</div>
           <select value={scopeType} onChange={(e) => setScopeType(e.target.value as never)} className="h-10 w-full rounded-md border border-border bg-card px-3 text-sm">
-            <option value="all">All companies</option><option value="specific">Specific companies</option>
+            <option value="all">{t("All companies")}</option>
+            <option value="specific">{t("Specific companies")}</option>
           </select>
           {scopeType === "specific" && (
-            <input value={companyIds} onChange={(e) => setCompanyIds(e.target.value)} placeholder={t("Company IDs, comma-separated")}
-              className="mt-2 h-10 w-full rounded-md border border-border bg-card px-3 text-sm" />
+            <div className="mt-2">
+              <EntitySelect
+                value={companyId}
+                onChange={setCompanyId}
+                placeholder={t("Select company…")}
+                options={(companies.data?.items ?? []).map((c) => ({
+                  value: c.id,
+                  label: c.tradeName ?? c.legalName,
+                }))}
+              />
+            </div>
           )}
-          <button onClick={saveScope} className="mt-2 rounded-md bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground">Save scope</button>
+          <button onClick={saveScope} className="mt-2 rounded-md bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground">{t("Save scope")}</button>
         </div>
       </div>
     </>

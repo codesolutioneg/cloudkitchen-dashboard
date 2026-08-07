@@ -1,6 +1,6 @@
 /**
  * Full dashboard UI cycle test — pages, data properties, dialogs, and action buttons.
- * Run: npx playwright test (from kitchen-command-center)
+ * Run: npx playwright test (from dashboard)
  */
 import { test, expect, type Page } from "@playwright/test";
 

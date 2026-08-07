@@ -9,8 +9,10 @@ import { workflowsApi } from "@/services/apiClient";
 import type { Workflow, WorkflowInstance } from "@/types/api";
 import { Plus } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { EntitySelect } from "@/components/app/EntitySelect";
 import { toast } from "sonner";
 import { t } from "@/lib/i18n";
+import { WORKFLOW_TYPES, optionsFrom } from "@/lib/systemOptions";
 
 export const Route = createFileRoute("/dashboard/workflows/")({ component: WorkflowsPage });
 
@@ -67,9 +69,12 @@ function TemplatesTab() {
           <div className="space-y-2">
             <input placeholder={t("Code")} value={form.code} onChange={(e) => setForm({ ...form, code: e.target.value })} className="h-10 w-full rounded-md border border-border bg-card px-3 text-sm" />
             <input placeholder={t("Name")} value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className="h-10 w-full rounded-md border border-border bg-card px-3 text-sm" />
-            <select value={form.workflowType} onChange={(e) => setForm({ ...form, workflowType: e.target.value })} className="h-10 w-full rounded-md border border-border bg-card px-3 text-sm">
-              <option value="order">order</option><option value="approval">approval</option><option value="onboarding">onboarding</option>
-            </select>
+            <EntitySelect
+              value={form.workflowType}
+              onChange={(workflowType) => setForm({ ...form, workflowType })}
+              options={optionsFrom(WORKFLOW_TYPES, t)}
+              placeholder={t("Workflow type")}
+            />
           </div>
           <DialogFooter><button onClick={create} className="rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground">{t("Create")}</button></DialogFooter>
         </DialogContent>

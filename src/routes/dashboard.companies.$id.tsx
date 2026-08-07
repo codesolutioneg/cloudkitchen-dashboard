@@ -6,9 +6,14 @@ import { StatusBadge } from "@/components/app/StatusBadge";
 import { EmptyState } from "@/components/app/EmptyState";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { companiesApi, companyDocumentsApi, filesApi, featuresApi } from "@/services/apiClient";
-import { ArrowLeft, Check, X, Loader2, Upload } from "lucide-react";
+import { ArrowLeft, Check, X, Loader2, Upload, Eye, ExternalLink } from "lucide-react";
 import { toast } from "sonner";
 import { t } from "@/lib/i18n";
+import { EntitySelect } from "@/components/app/EntitySelect";
+import { DOCUMENT_TYPES, optionsFrom } from "@/lib/systemOptions";
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { filesExtApi } from "@/services/apiClient";
+import type { VerifiedDocument } from "@/types/api";
 
 export const Route = createFileRoute("/dashboard/companies/$id")({ component: CompanyDetail });
 
@@ -82,6 +87,7 @@ function DocumentsTab({ companyId }: { companyId: string }) {
   const qc = useQueryClient();
   const { data, isLoading } = useQuery({ queryKey: ["company-docs", companyId], queryFn: () => companyDocumentsApi.list(companyId).catch(() => [] as never[]) });
   const [attachmentType, setAttachmentType] = useState("commercial_registration");
+  const [previewDoc, setPreviewDoc] = useState<VerifiedDocument | null>(null);
 
   async function verify(attId: string, status: "verified" | "rejected") {
     try { await companiesApi.verifyDocument(companyId, attId, status); toast.success("Document " + status); qc.invalidateQueries({ queryKey: ["company-docs", companyId] }); }
@@ -95,13 +101,13 @@ function DocumentsTab({ companyId }: { companyId: string }) {
   return (
     <div className="space-y-4">
       <div className="card-elevated flex flex-wrap items-center gap-3 p-4">
-        <select value={attachmentType} onChange={(e) => setAttachmentType(e.target.value)} className="h-9 rounded-md border border-border bg-card px-2 text-sm">
-          <option value="commercial_registration">Commercial registration</option>
-          <option value="vat_certificate">VAT certificate</option>
-          <option value="bank_letter">Bank letter</option>
-          <option value="id_card">ID card</option>
-          <option value="other">Other</option>
-        </select>
+        <EntitySelect
+          value={attachmentType}
+          onChange={setAttachmentType}
+          options={optionsFrom(DOCUMENT_TYPES, t)}
+          placeholder={t("Document type")}
+          className="h-9"
+        />
         <label className="flex cursor-pointer items-center gap-2 rounded-md bg-primary px-3 py-1.5 text-sm font-semibold text-primary-foreground hover:bg-[oklch(0.52_0.19_285)]">
           <Upload className="h-4 w-4" /> Upload file
           <input type="file" className="hidden" onChange={(e) => e.target.files?.[0] && upload(e.target.files[0])} />
@@ -112,12 +118,23 @@ function DocumentsTab({ companyId }: { companyId: string }) {
           <div className="card-elevated divide-y divide-border">
             {data.map((d) => (
               <div key={d.id} className="flex items-center justify-between gap-3 p-4">
-                <div>
+                <button
+                  type="button"
+                  onClick={() => setPreviewDoc(d)}
+                  className="min-w-0 flex-1 text-start transition-opacity hover:opacity-80"
+                >
                   <div className="font-semibold">{d.file.fileName}</div>
-                  <div className="text-xs text-muted-foreground">{d.attachmentType} · {d.file.mimeType}</div>
-                </div>
-                <div className="flex items-center gap-2">
+                  <div className="text-xs text-muted-foreground">{documentTypeLabel(d.attachmentType)} · {d.file.mimeType}</div>
+                </button>
+                <div className="flex shrink-0 items-center gap-2">
                   <StatusBadge status={d.verificationStatus ?? "pending"} />
+                  <button
+                    type="button"
+                    onClick={() => setPreviewDoc(d)}
+                    className="flex items-center gap-1 rounded-md border border-border px-2 py-1 text-xs font-semibold hover:bg-muted"
+                  >
+                    <Eye className="h-3.5 w-3.5" /> {t("View")}
+                  </button>
                   <button onClick={() => verify(d.id, "verified")} className="rounded-md border border-success/40 px-2 py-1 text-xs text-success hover:bg-success/10">Verify</button>
                   <button onClick={() => verify(d.id, "rejected")} className="rounded-md border border-destructive/40 px-2 py-1 text-xs text-destructive hover:bg-destructive/10">{t("Reject")}</button>
                 </div>
@@ -125,7 +142,94 @@ function DocumentsTab({ companyId }: { companyId: string }) {
             ))}
           </div>
         )}
+      {previewDoc && <DocumentPreviewDialog doc={previewDoc} onClose={() => setPreviewDoc(null)} />}
     </div>
+  );
+}
+
+function documentTypeLabel(type: string) {
+  const found = DOCUMENT_TYPES.find((d) => d.value === type);
+  return found ? t(found.labelKey) : type.replace(/_/g, " ");
+}
+
+function DocumentPreviewDialog({ doc, onClose }: { doc: VerifiedDocument; onClose: () => void }) {
+  const [objectUrl, setObjectUrl] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const isImage = doc.file.mimeType.startsWith("image/");
+
+  useEffect(() => {
+    let url: string | null = null;
+    let cancelled = false;
+    (async () => {
+      try {
+        const blob = await filesExtApi.fetchBlob(doc.file.id);
+        if (cancelled) return;
+        url = URL.createObjectURL(blob);
+        setObjectUrl(url);
+      } catch (e) {
+        if (!cancelled) setError((e as Error).message || t("Failed to load document"));
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+      if (url) URL.revokeObjectURL(url);
+    };
+  }, [doc.file.id]);
+
+  return (
+    <Dialog open onOpenChange={(open) => !open && onClose()}>
+      <DialogContent className="max-h-[92dvh] w-[calc(100%-1.5rem)] max-w-4xl overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle className="pe-8">{doc.file.fileName}</DialogTitle>
+        </DialogHeader>
+        <p className="text-sm text-muted-foreground">
+          {documentTypeLabel(doc.attachmentType)} · {doc.file.mimeType}
+        </p>
+        {loading && (
+          <div className="flex justify-center py-16">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          </div>
+        )}
+        {error && <p className="py-8 text-center text-sm text-destructive">{error}</p>}
+        {objectUrl && isImage && (
+          <img
+            src={objectUrl}
+            alt={doc.file.fileName}
+            className="mx-auto max-h-[65vh] w-full rounded-lg border border-border object-contain"
+          />
+        )}
+        {objectUrl && !isImage && (
+          <div className="flex flex-col items-center gap-3 py-12 text-center text-sm text-muted-foreground">
+            <p>{t("Preview not available for this file type.")}</p>
+            <a
+              href={objectUrl}
+              download={doc.file.fileName}
+              className="rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground"
+            >
+              {t("Download")}
+            </a>
+          </div>
+        )}
+        <DialogFooter className="gap-2 sm:gap-0">
+          {objectUrl && (
+            <a
+              href={objectUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 rounded-md border border-border px-4 py-2 text-sm font-semibold hover:bg-muted"
+            >
+              <ExternalLink className="h-4 w-4" /> {t("Open in new tab")}
+            </a>
+          )}
+          <button type="button" onClick={onClose} className="rounded-md bg-muted px-4 py-2 text-sm font-semibold hover:bg-muted/80">
+            {t("Close")}
+          </button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }
 

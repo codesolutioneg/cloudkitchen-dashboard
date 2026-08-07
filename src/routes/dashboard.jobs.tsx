@@ -48,10 +48,16 @@ function JobsPage() {
   return (
     <>
       <PageHeader title={t("Background Jobs")} description={t("Async processing queue status.")} />
-      <div className="mb-4">
-        <input value={status} onChange={(e) => { setStatus(e.target.value); setPage(1); }}
-          placeholder={t("Filter by status (e.g. failed)")}
-          className="h-10 w-72 rounded-[10px] border border-border bg-card px-3 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20" />
+      <div className="mb-4 rounded-xl border border-border bg-muted/40 px-4 py-3 text-sm text-muted-foreground">
+        {t("jobsGuide")}
+      </div>
+      <div className="mb-4 flex flex-wrap gap-2">
+        <select value={status} onChange={(e) => { setStatus(e.target.value); setPage(1); }} className="h-10 rounded-[10px] border border-border bg-card px-3 text-sm">
+          <option value="">{t("All statuses")}</option>
+          <option value="pending">{t("Pending")}</option>
+          <option value="failed">{t("Failed")}</option>
+          <option value="completed">{t("Completed")}</option>
+        </select>
       </div>
       <DataTable columns={cols} rows={query.data?.items} loading={query.isLoading} onRowClick={(r) => setSelectedId(r.id)} emptyTitle={t("No jobs")} />
       {query.data && query.data.totalItems > 0 && (
