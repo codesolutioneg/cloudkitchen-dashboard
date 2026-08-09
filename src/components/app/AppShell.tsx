@@ -50,6 +50,7 @@ const STATIC_NAV: NavigationNode[] = [
   ["meal-plans", "Meal Plans", "/dashboard/meal-plans", "Salad"],
   ["billing", "Billing", "/dashboard/billing", "Receipt"],
   ["costing", "Costing", "/dashboard/costing", "Calculator"],
+  ["production", "Production", "/dashboard/production", "ChefHat"],
   ["rules", "Business Rules", "/dashboard/rules", "ScrollText"],
   ["workflows", "Workflows", "/dashboard/workflows", "Workflow"],
   ["orders", "Orders", "/dashboard/orders", "ShoppingBag"],

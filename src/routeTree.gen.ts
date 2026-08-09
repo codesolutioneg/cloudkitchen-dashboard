@@ -18,6 +18,7 @@ import { Route as DashboardUsersRouteImport } from './routes/dashboard.users'
 import { Route as DashboardSettingsRouteImport } from './routes/dashboard.settings'
 import { Route as DashboardRulesRouteImport } from './routes/dashboard.rules'
 import { Route as DashboardRolesRouteImport } from './routes/dashboard.roles'
+import { Route as DashboardProductionRouteImport } from './routes/dashboard.production'
 import { Route as DashboardOrdersRouteImport } from './routes/dashboard.orders'
 import { Route as DashboardOperationsRouteImport } from './routes/dashboard.operations'
 import { Route as DashboardNotificationsRouteImport } from './routes/dashboard.notifications'
@@ -96,6 +97,11 @@ const DashboardRulesRoute = DashboardRulesRouteImport.update({
 const DashboardRolesRoute = DashboardRolesRouteImport.update({
   id: '/roles',
   path: '/roles',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardProductionRoute = DashboardProductionRouteImport.update({
+  id: '/production',
+  path: '/production',
   getParentRoute: () => DashboardRoute,
 } as any)
 const DashboardOrdersRoute = DashboardOrdersRouteImport.update({
@@ -295,6 +301,7 @@ export interface FileRoutesByFullPath {
   '/dashboard/notifications': typeof DashboardNotificationsRoute
   '/dashboard/operations': typeof DashboardOperationsRoute
   '/dashboard/orders': typeof DashboardOrdersRouteWithChildren
+  '/dashboard/production': typeof DashboardProductionRoute
   '/dashboard/roles': typeof DashboardRolesRouteWithChildren
   '/dashboard/rules': typeof DashboardRulesRoute
   '/dashboard/settings': typeof DashboardSettingsRoute
@@ -333,6 +340,7 @@ export interface FileRoutesByTo {
   '/dashboard/localization': typeof DashboardLocalizationRoute
   '/dashboard/notifications': typeof DashboardNotificationsRoute
   '/dashboard/operations': typeof DashboardOperationsRoute
+  '/dashboard/production': typeof DashboardProductionRoute
   '/dashboard/rules': typeof DashboardRulesRoute
   '/dashboard/settings': typeof DashboardSettingsRoute
   '/dashboard/users': typeof DashboardUsersRoute
@@ -377,6 +385,7 @@ export interface FileRoutesById {
   '/dashboard/notifications': typeof DashboardNotificationsRoute
   '/dashboard/operations': typeof DashboardOperationsRoute
   '/dashboard/orders': typeof DashboardOrdersRouteWithChildren
+  '/dashboard/production': typeof DashboardProductionRoute
   '/dashboard/roles': typeof DashboardRolesRouteWithChildren
   '/dashboard/rules': typeof DashboardRulesRoute
   '/dashboard/settings': typeof DashboardSettingsRoute
@@ -424,6 +433,7 @@ export interface FileRouteTypes {
     | '/dashboard/notifications'
     | '/dashboard/operations'
     | '/dashboard/orders'
+    | '/dashboard/production'
     | '/dashboard/roles'
     | '/dashboard/rules'
     | '/dashboard/settings'
@@ -462,6 +472,7 @@ export interface FileRouteTypes {
     | '/dashboard/localization'
     | '/dashboard/notifications'
     | '/dashboard/operations'
+    | '/dashboard/production'
     | '/dashboard/rules'
     | '/dashboard/settings'
     | '/dashboard/users'
@@ -505,6 +516,7 @@ export interface FileRouteTypes {
     | '/dashboard/notifications'
     | '/dashboard/operations'
     | '/dashboard/orders'
+    | '/dashboard/production'
     | '/dashboard/roles'
     | '/dashboard/rules'
     | '/dashboard/settings'
@@ -599,6 +611,13 @@ declare module '@tanstack/react-router' {
       path: '/roles'
       fullPath: '/dashboard/roles'
       preLoaderRoute: typeof DashboardRolesRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/dashboard/production': {
+      id: '/dashboard/production'
+      path: '/production'
+      fullPath: '/dashboard/production'
+      preLoaderRoute: typeof DashboardProductionRouteImport
       parentRoute: typeof DashboardRoute
     }
     '/dashboard/orders': {
@@ -972,6 +991,7 @@ interface DashboardRouteChildren {
   DashboardNotificationsRoute: typeof DashboardNotificationsRoute
   DashboardOperationsRoute: typeof DashboardOperationsRoute
   DashboardOrdersRoute: typeof DashboardOrdersRouteWithChildren
+  DashboardProductionRoute: typeof DashboardProductionRoute
   DashboardRolesRoute: typeof DashboardRolesRouteWithChildren
   DashboardRulesRoute: typeof DashboardRulesRoute
   DashboardSettingsRoute: typeof DashboardSettingsRoute
@@ -998,6 +1018,7 @@ const DashboardRouteChildren: DashboardRouteChildren = {
   DashboardNotificationsRoute: DashboardNotificationsRoute,
   DashboardOperationsRoute: DashboardOperationsRoute,
   DashboardOrdersRoute: DashboardOrdersRouteWithChildren,
+  DashboardProductionRoute: DashboardProductionRoute,
   DashboardRolesRoute: DashboardRolesRouteWithChildren,
   DashboardRulesRoute: DashboardRulesRoute,
   DashboardSettingsRoute: DashboardSettingsRoute,

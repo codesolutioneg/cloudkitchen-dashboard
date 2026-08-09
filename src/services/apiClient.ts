@@ -1238,6 +1238,85 @@ export const costingApi = {
     }),
 };
 
+// ================= PRODUCTION =================
+export interface ProductionLine {
+  productId: string;
+  productName: string;
+  variantName: string | null;
+  categoryName: string | null;
+  componentType: string | null;
+  confirmedQty: number;
+  unconfirmedQty: number;
+  producedQty: number;
+  plannedQty: number;
+  orderCount: number;
+  companyCount: number;
+  prepTimeMins: number | null;
+  lineSubtotal: string;
+  lineCost: string | null;
+}
+export interface ProductionDay {
+  date: string;
+  orderCount: number;
+  companyCount: number;
+  totalPortions: number;
+  estimatedPrepMinutes: number;
+  currency: string;
+  currencyMismatch: boolean;
+  subtotal: string;
+  cost: string | null;
+  costedPortions: number;
+  uncostedPortions: number;
+  costCoveragePercent: string;
+  lines: ProductionLine[];
+}
+export interface ProductionCompanyGroup {
+  companyId: string;
+  companyName: string;
+  orderCount: number;
+  portions: number;
+  total: string;
+  orders: Array<{
+    id: string;
+    orderNumber: string;
+    status: string | null;
+    fulfillmentType: string;
+    items: Array<{ name: string; quantity: number }>;
+  }>;
+}
+export interface ProductionPlanSummary {
+  id: string;
+  date: string;
+  status: string;
+  snapshotVersion: number;
+  orderCount: number;
+  companyCount: number;
+  totalPortions: number;
+  lockedAt: string;
+}
+
+export const productionApi = {
+  day: (date: string) => request<ProductionDay>(`/api/v1/dashboard/production/day/${date}`),
+  byCompany: (date: string) =>
+    request<ProductionCompanyGroup[]>(`/api/v1/dashboard/production/day/${date}/by-company`),
+  listPlans: (q: { from?: string; to?: string } = {}) =>
+    request<ProductionPlanSummary[]>("/api/v1/dashboard/production/plans", { query: q }),
+  getPlan: (id: string) =>
+    request<ProductionDay & { id: string; status: string; snapshotVersion: number }>(
+      `/api/v1/dashboard/production/plans/${id}`,
+    ),
+  lockDay: (date: string) =>
+    request<{ id: string; snapshotVersion: number }>("/api/v1/dashboard/production/plans", {
+      method: "POST",
+      body: { date },
+    }),
+  setStatus: (id: string, status: string) =>
+    request<{ id: string; status: string }>(`/api/v1/dashboard/production/plans/${id}/status`, {
+      method: "POST",
+      body: { status },
+    }),
+};
+
 // Files extensions
 export const filesExtApi = {
   downloadUrl: (fileId: string) => `${BASE_URL}/api/v1/files/${fileId}`,
